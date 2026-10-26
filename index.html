@@ -178,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- TABLA DE INVENTARIO DESGLOSADA EN COLUMNAS INDEPENDIENTES -->
+            <!-- TABLA DE INVENTARIO DESGLOSADA -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
                     <h3 class="text-xs font-black uppercase tracking-wider text-gray-700">
@@ -289,29 +289,29 @@
                 <div>
                     <label class="block font-bold text-gray-700 uppercase mb-1">6. Stock (Unidades)</label>
                     <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
-                        <input type="number" id="prodStock" oninput="syncStock('units')" required min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold text-emerald-800">
+                        <input type="number" id="prodStock" oninput="handleUnitsChange()" required min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold text-emerald-800">
                         <span class="bg-gray-200 text-gray-700 font-bold px-3 py-2 border-l border-gray-300">und</span>
                     </div>
                 </div>
 
-                <!-- 7. STOCK R1 (SIXPACK) CON OPCIÓN NO APLICA -->
+                <!-- 7. STOCK R1 (SIXPACK) SIEMPRE DE 6 UNIDADES -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="font-bold text-gray-700 uppercase">7. Stock R1 (Sixpack)</label>
+                        <label class="font-bold text-gray-700 uppercase">7. Stock R1 (Sixpack - 6 unds fijas)</label>
                         <label class="inline-flex items-center cursor-pointer text-[11px] font-bold text-gray-500">
                             <input type="checkbox" id="r1NA" onchange="toggleR1NA()" class="mr-1.5 accent-emerald-600 rounded"> No aplica
                         </label>
                     </div>
                     <div id="r1InputWrapper" class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
                         <span class="bg-blue-100 text-blue-900 font-black px-3 py-2 border-r border-gray-300 select-none">R1-</span>
-                        <input type="number" id="prodR1" oninput="syncStock('r1')" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
+                        <input type="number" id="prodR1" oninput="handleR1Change()" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
                     </div>
                     <div id="r1NADisplay" class="hidden p-2 bg-gray-100 rounded-xl text-gray-400 font-semibold italic text-xs border border-gray-200">
                         No aplica
                     </div>
                 </div>
 
-                <!-- 8. STOCK CX (CAJAS - PAQUETES) CON OPCIÓN NO APLICA -->
+                <!-- 8. STOCK CX (CAJAS - PAQUETES) CON UNIDADES POR CAJA CONFIGURABLE -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">8. Stock CX (Cajas - Paquetes)</label>
@@ -319,9 +319,19 @@
                             <input type="checkbox" id="cxNA" onchange="toggleCXNA()" class="mr-1.5 accent-emerald-600 rounded"> No aplica
                         </label>
                     </div>
-                    <div id="cxInputWrapper" class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
-                        <span class="bg-amber-100 text-amber-900 font-black px-3 py-2 border-r border-gray-300 select-none">CX-</span>
-                        <input type="number" id="prodCX" oninput="syncStock('cx')" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
+                    <div id="cxInputWrapper" class="space-y-1.5">
+                        <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
+                            <span class="bg-amber-100 text-amber-900 font-black px-3 py-2 border-r border-gray-300 select-none">CX-</span>
+                            <input type="number" id="prodCX" oninput="handleCXChange()" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
+                        </div>
+                        <!-- Campo para definir cuántas unidades trae la caja (24, 12, 8, etc.) -->
+                        <div class="flex items-center justify-between px-2 py-1 bg-amber-50/70 border border-amber-200 rounded-xl">
+                            <span class="text-[11px] font-semibold text-amber-900">¿Cuántas unds trae la caja?</span>
+                            <div class="flex items-center w-24 border border-amber-300 bg-white rounded-lg overflow-hidden">
+                                <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" placeholder="Ej: 24, 12, 8" class="w-full px-2 py-1 text-xs font-black text-center text-amber-900">
+                                <span class="text-[10px] text-gray-500 pr-1.5 font-bold">und</span>
+                            </div>
+                        </div>
                     </div>
                     <div id="cxNADisplay" class="hidden p-2 bg-gray-100 rounded-xl text-gray-400 font-semibold italic text-xs border border-gray-200">
                         No aplica
@@ -349,9 +359,9 @@
                     <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="Ej: 3800" class="w-full px-3 py-2 bg-red-50 border border-red-300 rounded-xl text-xs font-bold text-red-700">
                 </div>
 
-                <!-- 12. PRECIO R1 (SUMATORIA 6 UND) -->
+                <!-- 12. PRECIO R1 (SUMATORIA 6 UND FIJAS) -->
                 <div id="priceR1Box">
-                    <label class="block font-bold text-blue-800 uppercase mb-1">12. Precio R1 (Sixpack - 6 Unidades)</label>
+                    <label class="block font-bold text-blue-800 uppercase mb-1">12. Precio R1 (Sixpack - 6 Unidades fijas)</label>
                     <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl flex justify-between items-center">
                         <div>
                             <span class="text-[10px] text-gray-500 block">Regular R1 (6 und)</span>
@@ -364,9 +374,12 @@
                     </div>
                 </div>
 
-                <!-- 13. PRECIO CX (SUMATORIA CAJA / PAQUETE) -->
+                <!-- 13. PRECIO CX (SUMATORIA SEGÚN TAMAÑO DE LA CAJA) -->
                 <div>
-                    <label class="block font-bold text-amber-800 uppercase mb-1">13. Precio CX (Caja / Paquete)</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="font-bold text-amber-800 uppercase">13. Precio CX (Caja / Paquete)</label>
+                        <span id="labelCXBoxSize" class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Caja de 12 unds</span>
+                    </div>
                     <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex justify-between items-center">
                         <div>
                             <span class="text-[10px] text-gray-500 block">Regular CX</span>
@@ -460,10 +473,11 @@
                 sap: "10023",
                 name: "Leche Entera 1L",
                 category: "Lácteos",
-                temperature: "No aplica",
-                units: 150,
+                temperature: "6",
+                units: 90,
                 r1: "No aplica",
-                cx: 25,
+                cx: 15,
+                cxUnitsPerBox: 6,
                 price: 3090,
                 isPromo: "SÍ",
                 promoPrice: 2800,
@@ -478,6 +492,7 @@
                 units: 60,
                 r1: "No aplica",
                 cx: 10,
+                cxUnitsPerBox: 6,
                 price: 4000,
                 isPromo: "NO",
                 promoPrice: 0,
@@ -491,7 +506,8 @@
                 temperature: "No aplica",
                 units: 300,
                 r1: 50,
-                cx: 50,
+                cx: 25,
+                cxUnitsPerBox: 12,
                 price: 900,
                 isPromo: "SÍ",
                 promoPrice: 750,
@@ -506,6 +522,7 @@
                 units: 35,
                 r1: "No aplica",
                 cx: 5,
+                cxUnitsPerBox: 7,
                 price: 6800,
                 isPromo: "NO",
                 promoPrice: 0,
@@ -749,25 +766,57 @@
             toggleR1NA();
         }
 
-        function syncStock(source) {
-            let units = parseInt(document.getElementById('prodStock').value) || 0;
-            let r1 = parseInt(document.getElementById('prodR1').value) || 0;
-            let cx = parseInt(document.getElementById('prodCX').value) || 0;
-
+        // ========================================================
+        // LÓGICA DE STOCK: R1 ES SIXPACK (6 UNDS) Y CX ES INDEPENDIENTE
+        // ========================================================
+        function handleUnitsChange() {
+            const units = parseInt(document.getElementById('prodStock').value) || 0;
             const r1NA = document.getElementById('r1NA').checked;
             const cxNA = document.getElementById('cxNA').checked;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
 
-            if (source === 'units') {
-                if (!r1NA) document.getElementById('prodR1').value = Math.floor(units / 6);
-                if (!cxNA) document.getElementById('prodCX').value = Math.floor(units / 6);
-            } else if (source === 'r1') {
-                units = r1 * 6;
-                document.getElementById('prodStock').value = units;
-                if (!cxNA) document.getElementById('prodCX').value = r1;
-            } else if (source === 'cx') {
-                units = cx * 6;
-                document.getElementById('prodStock').value = units;
-                if (!r1NA) document.getElementById('prodR1').value = cx;
+            // R1 siempre viene de 6 unds y solo si aplica
+            if (!r1NA) {
+                document.getElementById('prodR1').value = Math.floor(units / 6);
+            }
+            // CX calcula según las unidades que trae la caja sin alterar R1
+            if (!cxNA && unitsPerBox > 0) {
+                document.getElementById('prodCX').value = Math.floor(units / unitsPerBox);
+            }
+            recalcPrices();
+        }
+
+        function handleR1Change() {
+            // R1 SIEMPRE viene de 6 unidades
+            const r1 = parseInt(document.getElementById('prodR1').value) || 0;
+            const totalUnits = r1 * 6;
+            document.getElementById('prodStock').value = totalUnits;
+            // NOTA: NO se modifica CX para que no se alteren entre sí
+            recalcPrices();
+        }
+
+        function handleCXChange() {
+            // CX NO MODIFICA R1 JAMÁS
+            const cx = parseInt(document.getElementById('prodCX').value) || 0;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
+            // Opcionalmente actualiza unidades si el usuario ingresa solo cajas
+            if (unitsPerBox > 0) {
+                const currentUnits = parseInt(document.getElementById('prodStock').value) || 0;
+                if (currentUnits === 0) {
+                    document.getElementById('prodStock').value = cx * unitsPerBox;
+                }
+            }
+            recalcPrices();
+        }
+
+        function handleCXUnitsPerBoxChange() {
+            // Al cambiar la cantidad de unds por caja (ej: 24, 12, 8), solo actualiza CX y sus precios
+            const units = parseInt(document.getElementById('prodStock').value) || 0;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 1;
+            const cxNA = document.getElementById('cxNA').checked;
+
+            if (!cxNA && unitsPerBox > 0 && units > 0) {
+                document.getElementById('prodCX').value = Math.floor(units / unitsPerBox);
             }
             recalcPrices();
         }
@@ -792,11 +841,15 @@
             const price = parseFloat(document.getElementById('prodPrice').value) || 0;
             const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
             const promoPrice = parseFloat(document.getElementById('prodPromoPrice').value) || 0;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
 
+            // R1 SIEMPRE 6 UNIDADES
             const priceR1Reg = price * 6;
             document.getElementById('labelPriceR1Reg').textContent = `$${priceR1Reg.toLocaleString()}`;
 
-            const priceCXReg = price * 6;
+            // CX SEGÚN EL TAMAÑO REAL DE LA CAJA (24, 12, 8, etc.)
+            document.getElementById('labelCXBoxSize').textContent = `Caja de ${unitsPerBox} unds`;
+            const priceCXReg = price * unitsPerBox;
             document.getElementById('labelPriceCXReg').textContent = `$${priceCXReg.toLocaleString()}`;
 
             const r1PromoContainer = document.getElementById('labelPriceR1PromoContainer');
@@ -804,7 +857,7 @@
 
             if (isPromo && promoPrice > 0) {
                 const priceR1Promo = promoPrice * 6;
-                const priceCXPromo = promoPrice * 6;
+                const priceCXPromo = promoPrice * unitsPerBox;
 
                 document.getElementById('labelPriceR1Promo').textContent = `$${priceR1Promo.toLocaleString()}`;
                 document.getElementById('labelPriceCXPromo').textContent = `$${priceCXPromo.toLocaleString()}`;
@@ -849,6 +902,8 @@
                 }
                 toggleR1NA();
 
+                // CX y unidades por caja
+                document.getElementById('prodCXUnitsPerBox').value = item.cxUnitsPerBox || 12;
                 if (item.cx === "No aplica" || item.cx === undefined) {
                     document.getElementById('cxNA').checked = true;
                     document.getElementById('prodCX').value = "";
@@ -874,6 +929,7 @@
                 togglePromoField();
             } else {
                 modalTitle.textContent = "Nuevo Registro en Inventario";
+                document.getElementById('prodCXUnitsPerBox').value = 12;
                 document.getElementById('tempNA').checked = true;
                 toggleTempNA();
                 document.getElementById('r1NA').checked = true;
@@ -925,6 +981,7 @@
                 units: parseInt(document.getElementById('prodStock').value) || 0,
                 r1: r1Val,
                 cx: cxVal,
+                cxUnitsPerBox: parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12,
                 price: parseFloat(document.getElementById('prodPrice').value) || 0,
                 isPromo: document.getElementById('prodPromoSelect').value,
                 promoPrice: parseFloat(document.getElementById('prodPromoPrice').value) || 0,
@@ -1019,7 +1076,6 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
-        // TABLA CON COLUMNAS SEPARADAS Y CLARAS
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1062,80 +1118,60 @@
                     badgeClass = "bg-gray-100 text-gray-500 font-medium";
                 }
 
-                // Precios desglosados
+                // Precios
                 const pReg = item.price || 0;
                 const isPromo = item.isPromo === 'SÍ';
                 const pPromo = isPromo ? (item.promoPrice || 0) : 0;
+                const unitsPerBox = item.cxUnitsPerBox || 12;
 
                 const pR1Reg = pReg * 6;
                 const pR1Promo = pPromo * 6;
 
-                const pCXReg = pReg * 6;
-                const pCXPromo = pPromo * 6;
+                const pCXReg = pReg * unitsPerBox;
+                const pCXPromo = pPromo * unitsPerBox;
 
                 return `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-100 text-xs">
-                        <!-- 1. EAN / SAP -->
                         <td class="p-3">
                             <span class="block font-bold text-gray-900 font-mono text-[11px]">SAP-${item.sap}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${item.barcode}</span>
                         </td>
-
-                        <!-- 2. PRODUCTO / CATEGORÍA -->
                         <td class="p-3">
                             <span class="font-bold block text-gray-900">${item.name}</span>
                             <span class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-semibold">${item.category}</span>
                         </td>
-
-                        <!-- 3. TEMPERATURA -->
                         <td class="p-3 text-center">
                             ${item.temperature !== 'No aplica' && item.temperature !== '' ? `<span class="text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-full font-black text-[11px]">${item.temperature} °C</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-
-                        <!-- 4. STOCK UNIDADES -->
                         <td class="p-3 text-center bg-emerald-50/30">
                             <span class="font-black text-emerald-700 text-xs">${item.units} <span class="text-[10px] font-semibold text-emerald-900">und</span></span>
                         </td>
-
-                        <!-- 5. STOCK R1 (SIXPACK) -->
                         <td class="p-3 text-center bg-blue-50/30">
                             ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `<span class="font-bold text-blue-800 text-xs">R1-${item.r1}</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-
-                        <!-- 6. STOCK CX (CAJAS) -->
                         <td class="p-3 text-center bg-amber-50/30">
-                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `<span class="font-bold text-amber-800 text-xs">CX-${item.cx}</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `<span class="font-bold text-amber-800 text-xs">CX-${item.cx}</span> <span class="text-[9px] text-gray-400 block">(x${unitsPerBox})</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-
-                        <!-- 7. PRECIO UNITARIO -->
                         <td class="p-3 text-center">
                             <span class="font-bold text-gray-800 block">$${pReg.toLocaleString()}</span>
                             ${isPromo && pPromo > 0 ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded block">Promo: $${pPromo.toLocaleString()}</span>` : ''}
                         </td>
-
-                        <!-- 8. PRECIO R1 -->
                         <td class="p-3 text-center">
                             ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `
                                 <span class="font-bold text-blue-900 block">$${pR1Reg.toLocaleString()}</span>
                                 ${isPromo && pR1Promo > 0 ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded block">Promo: $${pR1Promo.toLocaleString()}</span>` : ''}
                             ` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-
-                        <!-- 9. PRECIO CX -->
                         <td class="p-3 text-center">
                             ${item.cx !== 'No aplica' && item.cx !== undefined ? `
                                 <span class="font-bold text-amber-900 block">$${pCXReg.toLocaleString()}</span>
                                 ${isPromo && pCXPromo > 0 ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded block">Promo: $${pCXPromo.toLocaleString()}</span>` : ''}
                             ` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-
-                        <!-- 10. VENCIMIENTO -->
                         <td class="p-3 text-center">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold block ${badgeClass}">${statusText}</span>
                             ${item.expiry !== 'No aplica' ? `<span class="text-[10px] text-gray-400 font-mono block mt-0.5">${item.expiry}</span>` : ''}
                         </td>
-
-                        <!-- 11. ACCIONES -->
                         <td class="p-3 text-center">
                             <button type="button" onclick="openProductModal(${realIndex})" class="text-blue-600 hover:text-blue-800 p-1 mr-1" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
