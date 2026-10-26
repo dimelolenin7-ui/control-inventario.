@@ -13,6 +13,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- OCR Tesseract para lectura de texto impreso sin código de barras -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         @keyframes pulse-ring {
@@ -242,11 +244,12 @@
                             <span class="bg-gray-200 px-3 py-2 text-gray-600 font-bold border-r border-gray-300 select-none">SAP -</span>
                             <input type="text" id="prodSap" required placeholder="Ej: 10060" class="w-full px-3 py-2 bg-transparent font-mono text-xs">
                         </div>
-                        <button type="button" onclick="openScannerModal('sap')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl" title="Escanear Etiqueta / Código SAP">
+                        <button type="button" onclick="openScannerModal('sap')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl flex items-center gap-1 font-bold" title="Escanear Etiqueta SAP">
                             <i class="fa-solid fa-camera"></i>
+                            <span class="text-[10px]">Leer SAP</span>
                         </button>
                     </div>
-                    <span class="text-[10px] text-gray-400 mt-0.5 block">* Al escanear 0000010060UN se registrará automáticamente como 10060</span>
+                    <span class="text-[10px] text-gray-400 mt-0.5 block">* Lee automáticamente el número de la etiqueta que termina en UN (ej: 0000010060UN -> 10060)</span>
                 </div>
 
                 <!-- 3. DESCRIPCIÓN -->
@@ -418,28 +421,43 @@
         </div>
     </div>
 
-    <!-- MODAL ESCÁNER CÁMARA MEJORADO CON LINTERNA Y ALTA SENSIBILIDAD -->
-    <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+    <!-- MODAL ESCÁNER CON ZOOM Y LECTOR OCR PARA ETIQUETA SAP -->
+    <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-3">
         <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl">
             <div class="p-3 bg-gray-800 text-white flex justify-between items-center">
                 <span id="scannerModalTitle" class="text-xs font-bold uppercase tracking-wider text-emerald-400">Escaneando...</span>
-                <div class="flex items-center space-x-2">
-                    <!-- Botón Linterna/Flash para cámaras de baja calidad o poca luz -->
-                    <button type="button" id="btnTorch" onclick="toggleTorch()" class="hidden px-2.5 py-1 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-bold rounded-lg transition" title="Activar Linterna">
-                        <i class="fa-solid fa-bolt mr-1"></i> Flash
+                <div class="flex items-center space-x-1.5">
+                    <!-- Control de Zoom Digital para no acercarse y no desenfocar -->
+                    <button type="button" id="btnZoom" onclick="cycleZoom()" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-emerald-300 text-[11px] font-black rounded-lg border border-gray-600">
+                        1x
+                    </button>
+                    <!-- Linterna -->
+                    <button type="button" id="btnTorch" onclick="toggleTorch()" class="hidden px-2 py-0.5 bg-yellow-500 hover:bg-yellow-600 text-black text-[11px] font-bold rounded-lg">
+                        <i class="fa-solid fa-bolt"></i>
                     </button>
                     <button type="button" onclick="closeScannerModal()" class="text-gray-400 hover:text-white p-1">
                         <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
             </div>
-            <div class="p-3 bg-black flex flex-col items-center justify-center">
-                <div id="reader" class="w-full max-w-[290px] overflow-hidden rounded-xl bg-gray-950 border border-gray-800"></div>
-                <p id="scannerHint" class="text-[11px] text-gray-300 mt-2 text-center font-medium">Apunta la cámara al código de barras o etiqueta SAP</p>
+
+            <!-- Visor de Cámara -->
+            <div class="p-3 bg-black flex flex-col items-center justify-center relative">
+                <div id="reader" class="w-full max-w-[280px] overflow-hidden rounded-xl bg-gray-950 border border-gray-800"></div>
+                <div id="ocrSpinner" class="hidden absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-400 mb-2"></i>
+                    <span class="text-xs font-bold">Leyendo etiqueta SAP...</span>
+                </div>
+                <p id="scannerHint" class="text-[11px] text-gray-300 mt-2 text-center font-medium">Mantén el celular a 15 cm y usa el botón Zoom si lo ves lejos</p>
             </div>
-            <div class="p-3 bg-gray-800 text-center">
-                <button type="button" onclick="closeScannerModal()" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-white text-xs font-bold rounded-xl transition">
-                    Cerrar Cámara
+
+            <!-- Botón Especial de Reconocimiento OCR directo sobre la etiqueta -->
+            <div class="p-3 bg-gray-800 space-y-2 text-center">
+                <button type="button" id="btnCaptureOCR" onclick="captureAndReadSAP()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-black rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-eye"></i> Reconocer Número SAP (Etiqueta UN)
+                </button>
+                <button type="button" onclick="closeScannerModal()" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold rounded-xl">
+                    Cerrar
                 </button>
             </div>
         </div>
@@ -580,6 +598,7 @@
         let scannerTarget = null;
         let editingIndex = null;
         let isTorchOn = false;
+        let currentZoomLevel = 1; // 1x, 2x, 3x
 
         function playWarningBeep() {
             try {
@@ -773,9 +792,7 @@
             toggleR1NA();
         }
 
-        // ========================================================
-        // CONVERSIÓN DE STOCK: CX -> R1 (DIVISIÓN ENTRE 6)
-        // ========================================================
+        // GESTIÓN DE STOCK ENTRELAZADO
         function handleUnitsChange() {
             const units = parseInt(document.getElementById('prodStock').value) || 0;
             const r1NA = document.getElementById('r1NA').checked;
@@ -980,7 +997,6 @@
                 expiryVal = document.getElementById('prodExpiry').value || "No aplica";
             }
 
-            // Sanitización del SAP al guardar: eliminar ceros iniciales y terminación 'UN'
             let cleanSap = document.getElementById('prodSap').value.trim()
                 .replace(/^SAP\s*-\s*/i, '')
                 .replace(/[^\d]/g, '')
@@ -1199,23 +1215,29 @@
         }
 
         // ========================================================
-        // ESCÁNER DE ALTA SENSIBILIDAD PARA CÁMARAS BÁSICAS + FLASH
+        // ESCÁNER AVANZADO CON ZOOM DIGITAL Y OCR
         // ========================================================
         function openScannerModal(target) {
             scannerTarget = target;
             const titleEl = document.getElementById('scannerModalTitle');
             const hintEl = document.getElementById('scannerHint');
             const torchBtn = document.getElementById('btnTorch');
+            const btnCaptureOCR = document.getElementById('btnCaptureOCR');
+            currentZoomLevel = 1;
+            document.getElementById('btnZoom').textContent = "1x";
 
             if (target === 'barcode') {
                 titleEl.textContent = "Escanear Código de Barras (EAN)";
-                hintEl.textContent = "Enfoca el código de barras del empaque o lata";
+                hintEl.textContent = "Apunta al código de barras del producto";
+                btnCaptureOCR.classList.add('hidden');
             } else if (target === 'sap') {
-                titleEl.textContent = "Escanear Código SAP de Góndola";
-                hintEl.textContent = "Apunta al código de barras o número de la etiqueta amarilla";
+                titleEl.textContent = "Reconocer Código SAP de Etiqueta";
+                hintEl.textContent = "Enfoca el número '...UN'. Toca el botón azul si no lee automático.";
+                btnCaptureOCR.classList.remove('hidden');
             } else {
                 titleEl.textContent = "Escaneo Rápido de Producto";
                 hintEl.textContent = "Apunta al código para buscar en inventario";
+                btnCaptureOCR.classList.add('hidden');
             }
 
             document.getElementById('scannerModal').classList.remove('hidden');
@@ -1228,18 +1250,15 @@
                             Html5QrcodeSupportedFormats.CODE_39,
                             Html5QrcodeSupportedFormats.EAN_13,
                             Html5QrcodeSupportedFormats.EAN_8,
-                            Html5QrcodeSupportedFormats.UPC_A,
-                            Html5QrcodeSupportedFormats.UPC_E,
-                            Html5QrcodeSupportedFormats.QR_CODE
+                            Html5QrcodeSupportedFormats.UPC_A
                         ],
                         verbose: false
                     });
                 }
 
-                // Configuración de escaneo rápido y autoenfoque
                 const config = {
                     fps: 20,
-                    qrbox: { width: 270, height: 160 },
+                    qrbox: { width: 260, height: 160 },
                     aspectRatio: 1.2
                 };
 
@@ -1248,7 +1267,6 @@
                     config,
                     onScanSuccess
                 ).then(() => {
-                    // Si el dispositivo tiene linterna, mostramos el botón Flash
                     try {
                         const track = html5QrCode.getRunningTrackCameraCapabilities();
                         if (track && track.torchFeature().isSupported()) {
@@ -1256,8 +1274,7 @@
                         }
                     } catch(e) {}
                 }).catch(err => {
-                    console.error("Error al iniciar cámara:", err);
-                    alert("No se pudo iniciar la cámara. Asegúrate de dar permisos de cámara en tu navegador.");
+                    alert("No se pudo iniciar la cámara. Concede los permisos en Chrome.");
                     closeScannerModal();
                 });
             } catch (err) {
@@ -1265,23 +1282,81 @@
             }
         }
 
+        // Control de Zoom Digital para mantener la cámara a 15-20cm y que enfoque nítido
+        function cycleZoom() {
+            if (currentZoomLevel === 1) currentZoomLevel = 2;
+            else if (currentZoomLevel === 2) currentZoomLevel = 3;
+            else currentZoomLevel = 1;
+
+            document.getElementById('btnZoom').textContent = currentZoomLevel + "x";
+
+            try {
+                const video = document.querySelector("#reader video");
+                if (video) {
+                    // Zoom visual por transformación CSS para compatibilidad universal en Android
+                    video.style.transform = `scale(${currentZoomLevel})`;
+                    video.style.transformOrigin = "center center";
+                }
+            } catch(e) {}
+        }
+
         function toggleTorch() {
             if (html5QrCode) {
                 try {
                     isTorchOn = !isTorchOn;
-                    html5QrCode.applyVideoConstraints({
-                        advanced: [{ torch: isTorchOn }]
-                    });
-                    const btn = document.getElementById('btnTorch');
-                    btn.classList.toggle('bg-yellow-400');
-                    btn.classList.toggle('bg-yellow-200');
-                } catch(e) {
-                    console.log("Torch no disponible");
-                }
+                    html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
+                } catch(e) {}
             }
         }
 
-        // EXTRACCIÓN Y LIMPIEZA DE SAP (EJ: '0000010060UN' -> '10060')
+        // RECONOCIMIENTO OCR DIRECTO DEL NÚMERO SAP TERMINADO EN 'UN'
+        async function captureAndReadSAP() {
+            const video = document.querySelector("#reader video");
+            if (!video) return;
+
+            const spinner = document.getElementById('ocrSpinner');
+            spinner.classList.remove('hidden');
+
+            try {
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Procesamiento OCR con Tesseract buscando específicamente patrones de números con 'UN'
+                const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+                    tessedit_char_whitelist: '0123456789UNun '
+                });
+
+                spinner.classList.add('hidden');
+
+                // Expresión regular que busca dígitos seguidos de UN (ej: 0000010060UN)
+                const match = text.match(/0*([1-9]\d*)\s*UN/i);
+
+                if (match && match[1]) {
+                    const sapFound = match[1];
+                    playWarningBeep();
+                    closeScannerModal();
+                    document.getElementById('prodSap').value = sapFound;
+                } else {
+                    // Fallback: Si leyó una secuencia numérica larga de más de 4 dígitos
+                    const numbersMatch = text.match(/0*([1-9]\d{3,7})/);
+                    if (numbersMatch && numbersMatch[1]) {
+                        playWarningBeep();
+                        closeScannerModal();
+                        document.getElementById('prodSap').value = numbersMatch[1];
+                    } else {
+                        alert("No se pudo distinguir el número '...UN'. Asegúrate de iluminar bien la etiqueta o usa el zoom 2x.");
+                    }
+                }
+            } catch(err) {
+                spinner.classList.add('hidden');
+                console.error("Error OCR:", err);
+                alert("Error al procesar la imagen. Intenta enfocar a unos 15 cm con buena luz.");
+            }
+        }
+
         function onScanSuccess(decodedText) {
             playWarningBeep();
             closeScannerModal();
@@ -1289,14 +1364,10 @@
             if (scannerTarget === 'barcode') {
                 document.getElementById('prodBarcode').value = decodedText.trim();
             } else if (scannerTarget === 'sap') {
-                // Elimina letras (como UN, UND), espacios y luego remueve ceros a la izquierda
                 let cleanNumbers = decodedText.replace(/[^\d]/g, '');
-                let sapExtracted = cleanNumbers.replace(/^0+/, ''); // Remueve todos los ceros antes del 1 al 9
-
-                // Si por alguna razón todo eran ceros o quedó vacío, usa el texto limpio
+                let sapExtracted = cleanNumbers.replace(/^0+/, '');
                 document.getElementById('prodSap').value = sapExtracted || cleanNumbers || decodedText.trim();
             } else if (scannerTarget === 'quickSearch') {
-                // En búsqueda rápida busca tanto por código de barras como por SAP limpio
                 let cleanNumbers = decodedText.replace(/[^\d]/g, '');
                 let sapExtracted = cleanNumbers.replace(/^0+/, '');
 
@@ -1323,6 +1394,7 @@
         function closeScannerModal() {
             isTorchOn = false;
             document.getElementById('btnTorch').classList.add('hidden');
+            document.getElementById('ocrSpinner').classList.add('hidden');
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
                     document.getElementById('scannerModal').classList.add('hidden');
