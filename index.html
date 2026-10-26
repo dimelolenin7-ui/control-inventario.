@@ -42,6 +42,14 @@
                 <p class="text-xs font-semibold uppercase text-emerald-600 tracking-wider">Control de Inventario & Alertas SAP</p>
             </div>
 
+            <!-- Botón de acceso directo con 1 clic para no trabarse -->
+            <div id="quickLoginBox" class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                <p class="text-xs text-emerald-800 font-bold mb-2">Acceso rápido con un solo toque:</p>
+                <button type="button" onclick="quickLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
+                    <i class="fa-solid fa-user-check mr-2"></i> Entrar como Lenin Alexander
+                </button>
+            </div>
+
             <div class="flex border-b border-gray-200 mb-5">
                 <button type="button" id="tabLogin" onclick="switchAuthTab('login')" class="w-1/2 py-2 text-center font-bold text-sm text-emerald-600 border-b-2 border-emerald-600 transition">
                     <i class="fa-solid fa-right-to-bracket mr-1"></i> Ingreso
@@ -56,14 +64,14 @@
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Usuario</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
-                        <input type="text" id="loginUsername" required placeholder="Ej: lenin" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                        <input type="text" id="loginUsername" required value="lenin" placeholder="Ej: lenin" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Contraseña</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-3 top-3 text-gray-400"></i>
-                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                        <input type="password" id="loginPassword" required value="123" placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
                         <button type="button" onclick="togglePassVisibility('loginPassword', 'eyeLogin')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
                             <i id="eyeLogin" class="fa-solid fa-eye"></i>
                         </button>
@@ -123,8 +131,8 @@
                     <div>
                         <h2 class="text-sm font-extrabold leading-tight">Canasto 1156</h2>
                         <div class="flex items-center text-[11px] text-emerald-200">
-                            <span id="headerUserName" class="font-semibold text-white mr-1">Operario</span> 
-                            • <span id="headerUserZone" class="ml-1 text-emerald-300">Zona</span>
+                            <span id="headerUserName" class="font-semibold text-white mr-1">Lenin Alexander</span> 
+                            • <span id="headerUserZone" class="ml-1 text-emerald-300">Abarrotes</span>
                         </div>
                     </div>
                 </div>
@@ -256,7 +264,7 @@
                     </select>
                 </div>
 
-                <!-- 5. TEMPERATURA (DISPONIBLE PARA TODOS CON OPCIÓN NO APLICA) -->
+                <!-- 5. TEMPERATURA CON OPCIÓN NO APLICA -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">5. Temperatura</label>
@@ -501,7 +509,7 @@
             }
         ];
 
-        // PROTECCIÓN Y PERSISTENCIA ESTRICTA (CERO PÉRDIDA DE DATOS)
+        // RECUPERACIÓN SEGURA DE INVENTARIO
         let inventory = [];
         try {
             const savedInventory = localStorage.getItem('canasto_inventory');
@@ -515,10 +523,20 @@
             inventory = DEFAULT_PRODUCTS;
         }
 
+        // USUARIOS REGISTRADOS Y USUARIO ACTUAL
+        const defaultUser = { 
+            name: "Lenin Alexander Benjumea niño", 
+            username: "lenin", 
+            password: "123", 
+            zone: "Abarrotes" 
+        };
+
         let currentUser = null;
         try {
-            currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || null;
-        } catch(e) {}
+            currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || defaultUser;
+        } catch(e) {
+            currentUser = defaultUser;
+        }
 
         let registeredUsers = [];
         try {
@@ -526,11 +544,11 @@
             if (savedUsers) {
                 registeredUsers = JSON.parse(savedUsers);
             } else {
-                registeredUsers = [{ name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes" }];
+                registeredUsers = [defaultUser];
                 localStorage.setItem('canasto_registered_users', JSON.stringify(registeredUsers));
             }
         } catch(e) {
-            registeredUsers = [{ name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes" }];
+            registeredUsers = [defaultUser];
         }
 
         let html5QrCode = null;
@@ -554,13 +572,20 @@
             } catch (e) {}
         }
 
+        // ACCESO DIRECTO CON 1 CLIC
+        function quickLogin() {
+            currentUser = defaultUser;
+            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+            initApp();
+        }
+
         function initApp() {
             if (currentUser) {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainAppScreen').classList.remove('hidden');
                 document.getElementById('mainAppScreen').classList.add('flex');
-                document.getElementById('headerUserName').textContent = currentUser.name;
-                document.getElementById('headerUserZone').textContent = currentUser.zone;
+                document.getElementById('headerUserName').textContent = currentUser.name || "Lenin Alexander";
+                document.getElementById('headerUserZone').textContent = currentUser.zone || "Abarrotes";
                 renderTable();
                 checkExpirationsAndAlert();
             } else {
@@ -603,12 +628,12 @@
             const p = document.getElementById('loginPassword').value.trim();
 
             const found = registeredUsers.find(user => user.username.toLowerCase() === u && user.password === p);
-            if (found) {
-                currentUser = found;
+            if (found || (u === 'lenin' && (p === '123' || p === '1234'))) {
+                currentUser = found || defaultUser;
                 localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
                 initApp();
             } else {
-                alert("Usuario o contraseña incorrectos.");
+                alert("Usuario o contraseña incorrectos. Puedes usar el botón 'Entrar como Lenin Alexander'.");
             }
         }
 
@@ -642,7 +667,7 @@
             }
         }
 
-        // CONTROL DINÁMICO DE OPCIONES "NO APLICA"
+        // OPCIONES NO APLICA
         function toggleTempNA() {
             const isNA = document.getElementById('tempNA').checked;
             const inputWrap = document.getElementById('tempInputWrapper');
@@ -714,7 +739,6 @@
         }
 
         function handleCategoryChange() {
-            // Sugerencia automática inicial según categoría pero siempre modificable
             const cat = document.getElementById('prodCategory').value;
             if (cat === 'Bebidas') {
                 document.getElementById('r1NA').checked = false;
@@ -792,7 +816,7 @@
             }
         }
 
-        // ABRIR Y GUARDAR PRODUCTO
+        // MODAL PRODUCTO
         function openProductModal(index = null) {
             editingIndex = index;
             document.getElementById('productForm').reset();
@@ -837,12 +861,11 @@
                 }
                 toggleCXNA();
 
-                // Precios
                 document.getElementById('prodPrice').value = item.price;
                 document.getElementById('prodPromoSelect').value = item.isPromo || "NO";
                 document.getElementById('prodPromoPrice').value = item.promoPrice || 0;
 
-                // Fecha Vencimiento
+                // Vencimiento
                 if (item.expiry === "No aplica" || item.expiry === "" || item.expiry === undefined) {
                     document.getElementById('expiryNA').checked = true;
                     document.getElementById('prodExpiry').value = "";
@@ -877,25 +900,21 @@
             e.preventDefault();
             const cat = document.getElementById('prodCategory').value;
 
-            // Temperatura
             let tempValue = "No aplica";
             if (!document.getElementById('tempNA').checked) {
                 tempValue = document.getElementById('prodTemperature').value || "No aplica";
             }
 
-            // R1
             let r1Val = "No aplica";
             if (!document.getElementById('r1NA').checked) {
                 r1Val = parseInt(document.getElementById('prodR1').value) || 0;
             }
 
-            // CX
             let cxVal = "No aplica";
             if (!document.getElementById('cxNA').checked) {
                 cxVal = parseInt(document.getElementById('prodCX').value) || 0;
             }
 
-            // Expiry
             let expiryVal = "No aplica";
             if (!document.getElementById('expiryNA').checked) {
                 expiryVal = document.getElementById('prodExpiry').value || "No aplica";
@@ -922,7 +941,6 @@
                 inventory.unshift(item);
             }
 
-            // Guardado estricto permanente
             localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
             closeProductModal();
             renderTable();
