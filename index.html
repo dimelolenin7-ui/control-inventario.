@@ -1,1688 +1,948 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#090d16">
-  <title>Control de Inventario - Bodega Canasto 1156</title>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- FontAwesome 6 Icons CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- HTML5-QRCode Scanner Library CDN -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
-  <style>
-    body {
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    input, select, textarea {
-      user-select: auto;
-    }
-    .custom-scroll::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #475569;
-      border-radius: 9999px;
-    }
-    @keyframes alertPulseGlow {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 6px 14px rgba(239, 68, 68, 0.45)); }
-      50% { transform: scale(1.04); filter: drop-shadow(0 10px 22px rgba(239, 68, 68, 0.85)); }
-    }
-    .pulse-danger {
-      animation: alertPulseGlow 1.6s infinite ease-in-out;
-    }
-    #scannerRegion video {
-      border-radius: 1rem;
-      object-fit: cover;
-      width: 100% !important;
-      max-height: 250px;
-    }
-    #scannerRegion {
-      border: none !important;
-    }
-  </style>
-</head>
-<body class="bg-slate-900 text-slate-100 antialiased min-h-screen flex flex-col justify-between">
-
-  <!-- =========================================================================
-       1. PANTALLA DE ACCESO Y REGISTRO (CON PERSISTENCIA BLINDADA Y ACCESO RÁPIDO)
-       ========================================================================= -->
-  <div id="authScreen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md border border-slate-800 my-auto">
-      
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 mb-3">
-          <i class="fa-solid fa-barcode text-3xl"></i>
-        </div>
-        <h1 class="text-2xl font-black text-white tracking-tight">Bodega Canasto 1156</h1>
-        <p class="text-xs text-slate-400 font-medium mt-0.5">Control de Inventario, Zonas & Alertas SAP</p>
-      </div>
-
-      <!-- Pestañas de Cambio: Ingreso / Registro -->
-      <div class="flex bg-slate-800/80 p-1 rounded-xl mb-5 border border-slate-700">
-        <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 font-bold text-xs rounded-lg bg-emerald-600 shadow-sm text-white transition">
-          Ingresar
-        </button>
-        <button type="button" id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 font-bold text-xs rounded-lg text-slate-400 hover:text-white transition">
-          Nuevo Registro
-        </button>
-      </div>
-
-      <!-- FORMULARIO DE INGRESO -->
-      <div id="loginFormContainer" class="space-y-4">
-        
-        <!-- SECCIÓN DE ACCESO RÁPIDO PARA TRABAJADORES GUARDADOS -->
-        <div id="quickAccessSection" class="p-3 bg-slate-800/90 rounded-2xl border border-slate-700/80">
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-2">
-            <i class="fa-solid fa-bolt mr-1"></i> Ingreso Rápido con 1 Clic
-          </label>
-          <div id="quickUsersList" class="flex flex-wrap gap-1.5">
-            <!-- Botones rápidos generados por JS -->
-          </div>
-        </div>
-
-        <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-3.5 pt-1">
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Usuario / Operario</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                <i class="fa-solid fa-user"></i>
-              </span>
-              <input type="text" id="loginUsername" autocomplete="username" placeholder="Ej: admin o tu usuario" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Contraseña</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                <i class="fa-solid fa-lock"></i>
-              </span>
-              <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" class="w-full pl-10 pr-11 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white">
-              <button type="button" onclick="togglePasswordVisibility('loginPassword', 'loginEyeIcon')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-white">
-                <i id="loginEyeIcon" class="fa-regular fa-eye"></i>
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
-            <span>Ingresar a Bodega</span>
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-          </button>
-        </form>
-      </div>
-
-      <!-- FORMULARIO DE REGISTRO (CON ASIGNACIÓN DE ZONA) -->
-      <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 hidden">
-        <div>
-          <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Nombre Completo del Trabajador</label>
-          <input type="text" id="regFullName" required placeholder="Ej: Carlos Ramírez" class="w-full px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Usuario para Ingresar</label>
-          <input type="text" id="regUsername" required placeholder="Ej: cramirez" class="w-full px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Contraseña</label>
-          <div class="relative">
-            <input type="password" id="regPassword" required placeholder="Crea tu contraseña" class="w-full pl-4 pr-11 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white">
-            <button type="button" onclick="togglePasswordVisibility('regPassword', 'regEyeIcon')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-white">
-              <i id="regEyeIcon" class="fa-regular fa-eye"></i>
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase text-slate-300 mb-1">Zona Asignada de Trabajo</label>
-          <select id="regZone" class="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-white font-medium">
-            <option value="Lácteos">Zona: Lácteos</option>
-            <option value="Abarrotes">Zona: Abarrotes</option>
-            <option value="Bebidas">Zona: Bebidas</option>
-            <option value="Aseo del hogar y personal">Zona: Aseo del hogar y personal</option>
-            <option value="Congelados">Zona: Congelados</option>
-            <option value="Refrigerados">Zona: Refrigerados</option>
-            <option value="Mecato / Snacks">Zona: Mecato / Snacks</option>
-            <option value="Bodega General">Control General (Toda la Bodega)</option>
-          </select>
-        </div>
-
-        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-user-plus"></i>
-          <span>Registrar y Guardar Trabajador</span>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- =========================================================================
-       2. PANEL PRINCIPAL DE INVENTARIO BODEGA CANASTO 1156
-       ========================================================================= -->
-  <div id="mainApp" class="flex-1 flex flex-col hidden min-h-screen">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Control de Inventario - Bodega Canasto 1156</title>
     
-    <!-- Barra Superior / Header de la Tienda -->
-    <header class="bg-slate-950 text-white sticky top-0 z-30 shadow-md border-b border-slate-800">
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-slate-950 text-lg shadow">
-            C
-          </div>
-          <div>
-            <h1 class="text-sm sm:text-base font-black leading-tight">Canasto 1156</h1>
-            <p class="text-[11px] text-emerald-400 font-medium">Control de Inventario SAP</p>
-          </div>
-        </div>
+    <!-- Meta etiquetas para instalación en celular (PWA) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#064e3b">
 
-        <div class="flex items-center gap-2">
-          <!-- Botón Notificaciones Vencimiento -->
-          <button type="button" onclick="toggleAlertsDrawer()" title="Ver Notificaciones de Vencimiento" class="relative p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition">
-            <i class="fa-solid fa-bell text-base"></i>
-            <span id="alertBadgeCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-black flex items-center justify-center shadow">0</span>
-          </button>
+    <!-- Tailwind CSS y FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Html5-Qrcode para escaneo de códigos de barra -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-          <!-- Perfil del Trabajador Activo -->
-          <div class="flex items-center gap-2 pl-2 border-l border-slate-800">
-            <div class="text-right">
-              <span id="sessionUserName" class="block text-xs font-bold leading-tight text-white">Operario</span>
-              <span id="sessionUserZone" class="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Zona</span>
+    <style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+        .animate-bubble-alert {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #059669;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- ========================================== -->
+    <!-- PANTALLA 1: INGRESO / REGISTRO DE OPERARIO -->
+    <!-- ========================================== -->
+    <div id="authScreen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-emerald-950 via-gray-900 to-black">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border border-gray-100">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-white text-3xl shadow-lg mb-3">
+                    <i class="fa-solid fa-barcode"></i>
+                </div>
+                <h1 class="text-2xl font-black text-gray-800 tracking-tight">Bodega Canasto 1156</h1>
+                <p class="text-xs font-semibold uppercase text-emerald-600 tracking-wider">Control de Inventario & Alertas SAP</p>
             </div>
-          </div>
 
-          <!-- Botón Cerrar Sesión -->
-          <button type="button" onclick="handleLogout()" title="Cerrar Sesión Segura" class="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition ml-1">
-            <i class="fa-solid fa-power-off text-sm"></i>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Contenedor de Trabajo -->
-    <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 space-y-4 flex-1">
-      
-      <!-- Panel de Acciones Rápidas -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <!-- Tarjeta 1: Cámara Escáner Universal -->
-        <div class="bg-gradient-to-br from-emerald-600 to-teal-800 text-white rounded-2xl p-4 shadow-lg flex flex-col justify-between border border-emerald-500/30">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-white/20 uppercase tracking-wider">Cámara Móvil</span>
-              <i class="fa-solid fa-barcode text-xl"></i>
+            <!-- Tabs Ingreso / Registro -->
+            <div class="flex border-b border-gray-200 mb-5">
+                <button type="button" id="tabLogin" onclick="switchAuthTab('login')" class="w-1/2 py-2 text-center font-bold text-sm text-emerald-600 border-b-2 border-emerald-600 transition">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Ingreso
+                </button>
+                <button type="button" id="tabRegister" onclick="switchAuthTab('register')" class="w-1/2 py-2 text-center font-bold text-sm text-gray-400 hover:text-gray-600 border-b-2 border-transparent transition">
+                    <i class="fa-solid fa-user-plus mr-1"></i> Registro
+                </button>
             </div>
-            <h2 class="text-base sm:text-lg font-black">Escanear Código de Barras</h2>
-            <p class="text-xs text-emerald-100 mt-1 leading-snug">Apunta con la cámara para buscar productos o registrar nuevos directamente en la planilla.</p>
-          </div>
-          <div class="mt-4 flex gap-2">
-            <button type="button" onclick="openMainScanner()" class="flex-1 py-2.5 px-3 bg-white text-emerald-950 rounded-xl font-black text-xs sm:text-sm hover:bg-emerald-50 active:scale-95 transition shadow flex items-center justify-center gap-2">
-              <i class="fa-solid fa-camera"></i>
-              <span>Abrir Cámara</span>
-            </button>
-            <button type="button" onclick="testAudioAlert()" title="Probar Alarma Sonora" class="px-3 bg-emerald-900/60 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center">
-              <i class="fa-solid fa-volume-high"></i>
-            </button>
-          </div>
-        </div>
 
-        <!-- Tarjeta 2: Alta de Registro Manual -->
-        <div class="bg-slate-800/80 rounded-2xl p-4 shadow-sm border border-slate-700 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-700 text-emerald-400 uppercase">Planilla Excel</span>
-              <i class="fa-solid fa-file-excel text-emerald-500 text-xl"></i>
+            <!-- Formulario de Login -->
+            <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Usuario</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" id="loginUsername" required placeholder="Ej: operario1" class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Contraseña</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-3 text-gray-400"></i>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                        <button type="button" onclick="togglePassVisibility('loginPassword', 'eyeLogin')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                            <i id="eyeLogin" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition text-sm">
+                    Ingresar a Bodega <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="formRegister" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo</label>
+                    <input type="text" id="regName" required placeholder="Ej: Lenin Morales" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre de Usuario</label>
+                    <input type="text" id="regUsername" required placeholder="Ej: lenin" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Zona Asignada</label>
+                    <select id="regZone" required class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                        <option value="Todas las Zonas">Todas las Zonas (General)</option>
+                        <option value="Lácteos">Pasillo Lácteos</option>
+                        <option value="Abarrotes">Pasillo Abarrotes</option>
+                        <option value="Bebidas">Pasillo Bebidas</option>
+                        <option value="Aseo del hogar y personal">Pasillo Aseo y Personal</option>
+                        <option value="Congelados">Cavas Congelados</option>
+                        <option value="Refrigerados">Cavas Refrigerados</option>
+                        <option value="Mecato / Snacks">Pasillo Mecato / Snacks</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Contraseña</label>
+                    <div class="relative">
+                        <input type="password" id="regPassword" required placeholder="Mínimo 4 caracteres" class="w-full px-3 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium">
+                        <button type="button" onclick="togglePassVisibility('regPassword', 'eyeReg')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                            <i id="eyeReg" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">
+                    Guardar y Registrarse <i class="fa-solid fa-check ml-1"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+                <p class="text-xs text-gray-500">Acceso predeterminado de prueba:</p>
+                <code class="text-[11px] bg-gray-100 px-2 py-1 rounded text-emerald-800 font-mono">admin / 1234</code>
             </div>
-            <h2 class="text-base sm:text-lg font-black text-white">Registrar Producto SAP</h2>
-            <p class="text-xs text-slate-400 mt-1 leading-snug">Ingreso con código de barras, prefijo fijo SAP -, fecha de vencimiento y cálculo de días.</p>
-          </div>
-          <div class="mt-4">
-            <button type="button" onclick="openProductModalForNew()" class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow">
-              <i class="fa-solid fa-plus"></i>
-              <span>Nuevo Registro</span>
-            </button>
-          </div>
         </div>
-
-        <!-- Tarjeta 3: Resumen de Vencimientos y KPI -->
-        <div class="bg-slate-800/80 rounded-2xl p-4 shadow-sm border border-slate-700 flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-1">
-            <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-wider">Monitoreo de Vencimientos</h3>
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 my-2 text-center">
-            <div class="p-2 rounded-xl bg-purple-950/40 border border-purple-800/50">
-              <span id="kpiExpired" class="block text-lg font-black text-purple-400">0</span>
-              <span class="text-[9px] font-black text-purple-300 uppercase">Vencidos</span>
-            </div>
-            <div class="p-2 rounded-xl bg-red-950/40 border border-red-800/50">
-              <span id="kpiCritical" class="block text-lg font-black text-red-400">0</span>
-              <span class="text-[9px] font-black text-red-300 uppercase">Críticos</span>
-            </div>
-            <div class="p-2 rounded-xl bg-amber-950/40 border border-amber-800/50">
-              <span id="kpiUpcoming" class="block text-lg font-black text-amber-400">0</span>
-              <span class="text-[9px] font-black text-amber-300 uppercase">Próximos</span>
-            </div>
-          </div>
-          <div class="flex justify-between items-center text-xs text-slate-400 pt-1 border-t border-slate-700/60">
-            <span>Total Referencias: <strong id="kpiTotalProducts" class="text-white">0</strong></span>
-            <button type="button" onclick="exportToCSV()" class="text-emerald-400 font-bold hover:underline flex items-center gap-1">
-              <i class="fa-solid fa-download text-[10px]"></i> Exportar CSV
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Barra de Filtros, Categorías y Búsqueda -->
-      <section class="bg-slate-800/80 rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-700 space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <!-- Búsqueda rápida -->
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-              <i class="fa-solid fa-magnifying-glass text-xs"></i>
-            </span>
-            <input type="text" id="searchInput" oninput="renderInventoryTable()" placeholder="Buscar producto, EAN o SAP..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          </div>
-
-          <!-- Filtro por Estado de Vencimiento -->
-          <select id="filterStatus" onchange="renderInventoryTable()" class="py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <option value="all">Todos los Estados</option>
-            <option value="vencido">🟣 Vencidos (≤ 0 días)</option>
-            <option value="critico">🔴 Críticos (1 a 15 días)</option>
-            <option value="proximo">🟠 Próximos (16 a 45 días)</option>
-            <option value="ok">🟢 Óptimos (&gt; 45 días)</option>
-          </select>
-
-          <!-- Filtro por Categorías Oficiales -->
-          <select id="filterCategory" onchange="renderInventoryTable()" class="py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <option value="all">Todas las Categorías</option>
-            <option value="Lácteos">Lácteos</option>
-            <option value="Abarrotes">Abarrotes</option>
-            <option value="Bebidas">Bebidas</option>
-            <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
-            <option value="Congelados">Congelados</option>
-            <option value="Refrigerados">Refrigerados</option>
-            <option value="Mecato / Snacks">Mecato / Snacks</option>
-          </select>
-        </div>
-      </section>
-
-      <!-- Tabla de Control de Inventario -->
-      <section class="bg-slate-800/80 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-        <div class="p-3 sm:p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/60">
-          <div>
-            <h3 class="font-bold text-white text-xs sm:text-sm">Planilla de Control Canasto 1156</h3>
-            <p class="text-[11px] text-slate-400">Estructura idéntica a la plantilla de bodega</p>
-          </div>
-          <span id="filteredBadgeCount" class="text-xs bg-slate-700 text-slate-200 px-2.5 py-1 rounded-full font-bold">0 productos</span>
-        </div>
-
-        <div class="overflow-x-auto custom-scroll">
-          <table class="w-full text-left border-collapse text-xs sm:text-sm">
-            <thead>
-              <tr class="bg-slate-900/80 text-slate-400 font-bold uppercase tracking-wider text-[10px] sm:text-[11px] border-b border-slate-700">
-                <th class="p-3 whitespace-nowrap">Código Barras</th>
-                <th class="p-3 whitespace-nowrap">Cód. SAP</th>
-                <th class="p-3 whitespace-nowrap">Descripción Producto</th>
-                <th class="p-3 whitespace-nowrap">Categoría</th>
-                <th class="p-3 text-center whitespace-nowrap">Stock</th>
-                <th class="p-3 text-right whitespace-nowrap">Precio Reg.</th>
-                <th class="p-3 text-right whitespace-nowrap">Precio Promo</th>
-                <th class="p-3 text-center whitespace-nowrap">F. Vencimiento</th>
-                <th class="p-3 text-center whitespace-nowrap">Días Rest.</th>
-                <th class="p-3 text-center whitespace-nowrap">Estado Alerta</th>
-                <th class="p-3 text-center whitespace-nowrap">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTableBody" class="divide-y divide-slate-700/60 text-slate-200">
-              <!-- Filas insertadas dinámicamente -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-
-    <!-- Pie de Página -->
-    <footer class="bg-slate-950 border-t border-slate-800 py-3 text-center text-xs text-slate-500">
-      Bodega Canasto 1156 &copy; 2026 • Sistema de Control de Inventario & Alertas SAP
-    </footer>
-  </div>
-
-  <!-- =========================================================================
-       3. MODAL DE ESCÁNER DE CÁMARA (BLINDADO CONTRA CAÍDAS)
-       ========================================================================= -->
-  <div id="scannerModal" class="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-3 hidden backdrop-blur-sm">
-    <div class="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl w-full max-w-md border border-slate-700 flex flex-col">
-      <div class="bg-slate-950 text-white p-3.5 flex justify-between items-center border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-camera text-emerald-400"></i>
-          <h3 id="scannerTitleText" class="font-bold text-sm">Escaneando Código con la Cámara</h3>
-        </div>
-        <button type="button" onclick="closeScannerModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Visor con la cámara -->
-      <div class="p-3 bg-black flex flex-col items-center justify-center relative min-h-[260px]">
-        <div id="scannerRegion" class="w-full max-w-sm rounded-xl overflow-hidden"></div>
-        <div id="cameraErrorBox" class="text-center text-slate-400 py-8 px-4 hidden">
-          <i class="fa-solid fa-video-slash text-4xl mb-2 text-red-400"></i>
-          <p class="text-xs text-slate-300">No se pudo acceder a la cámara automáticamente.</p>
-          <p class="text-[11px] text-slate-500 mt-1">Ingresa el código manualmente abajo o revisa los permisos del navegador.</p>
-        </div>
-        <div class="absolute inset-x-8 top-1/2 -translate-y-1/2 h-0.5 bg-red-500/80 shadow-[0_0_12px_#ef4444] pointer-events-none"></div>
-      </div>
-
-      <!-- Barra de entrada manual o cambio de cámara -->
-      <div class="p-4 bg-slate-900 border-t border-slate-800 space-y-3">
-        <div class="flex gap-2">
-          <input type="text" id="manualBarcodeInput" placeholder="Digitar código manualmente..." class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-          <button type="button" onclick="handleManualProcessCode()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs sm:text-sm transition">
-            Aceptar
-          </button>
-        </div>
-
-        <div class="flex justify-between items-center text-xs">
-          <button type="button" onclick="flipCameraOrientation()" class="font-semibold text-slate-400 hover:text-emerald-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-rotate"></i> Cambiar Cámara
-          </button>
-          <span class="text-slate-500">Lector EAN / UPC / Code128</span>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- =========================================================================
-       4. MODAL NUEVO / EDITAR REGISTRO (CON SAP FIJO Y BOTONES DE CÁMARA)
-       ========================================================================= -->
-  <div id="productModal" class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 hidden backdrop-blur-sm overflow-y-auto">
-    <div class="bg-slate-900 rounded-3xl shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden my-auto border border-slate-800">
-      <div class="p-4 bg-slate-950 text-white flex justify-between items-center border-b border-slate-800">
-        <div>
-          <h3 id="productModalTitle" class="font-bold text-sm sm:text-base">Nuevo Registro en Inventario</h3>
-          <p class="text-xs text-slate-400">Bodega Canasto 1156</p>
-        </div>
-        <button type="button" onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
+    <!-- ========================================== -->
+    <!-- PANTALLA 2: PANEL PRINCIPAL DE LA APP       -->
+    <!-- ========================================== -->
+    <div id="mainAppScreen" class="hidden flex-1 flex-col">
+        <!-- Barra Superior -->
+        <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-30">
+            <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center font-black text-sm">
+                        1156
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-extrabold leading-tight">Canasto 1156</h2>
+                        <div class="flex items-center text-[11px] text-emerald-200">
+                            <span id="headerUserName" class="font-semibold text-white mr-1">Operario</span> 
+                            • <span id="headerUserZone" class="ml-1 text-emerald-300">Bodega</span>
+                        </div>
+                    </div>
+                </div>
 
-      <form id="productForm" onsubmit="handleProductFormSubmit(event)" class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 custom-scroll">
-        <input type="hidden" id="editProductId">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <!-- 1. Código de Barras con botón de cámara -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">1. Código de Barras (EAN)</label>
-            <div class="flex gap-1.5">
-              <div class="relative flex-1">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
-                  <i class="fa-solid fa-barcode text-xs"></i>
-                </span>
-                <input type="text" id="formBarcode" required placeholder="Ej: 770123456001" class="w-full pl-8 pr-2.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm font-mono text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-              </div>
-              <button type="button" onclick="openScannerForField('barcode')" title="Escanear Código de Barras con la Cámara" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl shadow transition flex items-center justify-center">
-                <i class="fa-solid fa-camera"></i>
-              </button>
+                <div class="flex items-center space-x-2">
+                    <!-- Botón Alertas de Vencimiento -->
+                    <button type="button" onclick="openAlertsModal()" class="relative p-2 bg-emerald-800 hover:bg-emerald-700 rounded-xl text-emerald-100 transition">
+                        <i class="fa-solid fa-bell text-sm"></i>
+                        <span id="badgeCriticos" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce">0</span>
+                    </button>
+                    <!-- Botón Salir -->
+                    <button type="button" onclick="handleLogout()" title="Cerrar Sesión" class="p-2 bg-emerald-800 hover:bg-red-700 rounded-xl text-emerald-100 transition">
+                        <i class="fa-solid fa-power-off text-sm"></i>
+                    </button>
+                </div>
             </div>
-          </div>
+        </header>
 
-          <!-- 2. Código SAP Interno (Prefijo SAP - fijo, manual y cámara) -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">2. Código SAP Interno</label>
-            <div class="flex gap-1.5">
-              <div class="relative flex-1 flex rounded-xl bg-slate-800 border border-slate-700 overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500">
-                <span class="bg-slate-700 text-slate-200 font-bold px-2.5 py-2 text-xs flex items-center border-r border-slate-600 select-none">
-                  SAP -
-                </span>
-                <input type="text" id="formSapDigits" required placeholder="Número interno (ej: 10045)" class="w-full px-2.5 py-2 text-xs sm:text-sm font-mono font-bold text-white bg-transparent outline-none">
-              </div>
-              <button type="button" onclick="openScannerForField('sap')" title="Escanear Código SAP con la Cámara" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white rounded-xl shadow transition flex items-center justify-center">
-                <i class="fa-solid fa-camera"></i>
-              </button>
+        <!-- Contenido y Controles -->
+        <main class="max-w-6xl mx-auto w-full p-4 flex-1">
+            <!-- Barra de Herramientas: Búsqueda, Filtro y Botón Nuevo -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4 space-y-3">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar por Nombre, Código SAP o EAN..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-medium">
+                    </div>
+                    <select id="categoryFilter" onchange="renderTable()" class="px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700">
+                        <option value="">Todas las Categorías</option>
+                        <option value="Lácteos">Lácteos</option>
+                        <option value="Abarrotes">Abarrotes</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
+                        <option value="Congelados">Congelados</option>
+                        <option value="Refrigerados">Refrigerados</option>
+                        <option value="Mecato / Snacks">Mecato / Snacks</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" onclick="openProductModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Registrar Nuevo Producto
+                    </button>
+                    <button type="button" onclick="openScannerModal('quickSearch')" class="bg-gray-800 hover:bg-black text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
+                        <i class="fa-solid fa-camera mr-1.5"></i> Escaneo Rápido
+                    </button>
+                </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 3. Descripción del Producto -->
-        <div>
-          <label class="block text-xs font-bold text-slate-300 uppercase mb-1">3. Descripción del Producto</label>
-          <input type="text" id="formDesc" required placeholder="Ej: Leche Entera 1L Tetrapack" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <!-- 4. Categoría Oficial -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">4. Categoría</label>
-            <select id="formCategory" required class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none font-medium">
-              <option value="Lácteos">Lácteos</option>
-              <option value="Abarrotes">Abarrotes</option>
-              <option value="Bebidas">Bebidas</option>
-              <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
-              <option value="Congelados">Congelados</option>
-              <option value="Refrigerados">Refrigerados</option>
-              <option value="Mecato / Snacks">Mecato / Snacks</option>
-            </select>
-          </div>
-
-          <!-- 5. Stock Actual -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">5. Stock Actual (Unidades)</label>
-            <input type="number" id="formStock" required min="0" value="10" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <!-- 6. Precio Regular -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">6. Precio Regular ($)</label>
-            <input type="number" id="formPriceReg" required min="0" step="50" placeholder="3000" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-          </div>
-
-          <!-- 7. En Promoción -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">7. En Promoción</label>
-            <select id="formInPromo" onchange="togglePromoFieldState()" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none font-medium">
-              <option value="NO">NO</option>
-              <option value="SÍ">SÍ</option>
-            </select>
-          </div>
-
-          <!-- 8. Precio Promo -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">8. Precio Promo ($)</label>
-            <input type="number" id="formPricePromo" min="0" step="50" placeholder="0" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-slate-500 focus:ring-2 focus:ring-emerald-500 outline-none" disabled>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <!-- 9. Fecha de Vencimiento -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">9. Fecha de Vencimiento</label>
-            <input type="date" id="formExpiry" required class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none font-medium">
-          </div>
-
-          <!-- 10. Ubicación Bodega / Pasillo -->
-          <div>
-            <label class="block text-xs font-bold text-slate-300 uppercase mb-1">10. Ubicación Bodega / Pasillo</label>
-            <input type="text" id="formLocation" placeholder="Pasillo 2 - Estante C" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
-          <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 font-semibold text-xs sm:text-sm hover:bg-slate-800 transition">
-            Cancelar
-          </button>
-          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow transition flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i>
-            <span>Guardar en Inventario</span>
-          </button>
-        </div>
-      </form>
+            <!-- Tabla de Inventario -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-gray-700">
+                        <i class="fa-solid fa-boxes-stacked mr-1 text-emerald-600"></i> Stock en Bodega
+                    </h3>
+                    <span id="productCount" class="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">0 productos</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-100 text-gray-600 uppercase font-bold text-[10px] border-b border-gray-200">
+                            <tr>
+                                <th class="p-3">EAN / SAP</th>
+                                <th class="p-3">Producto / Categoría</th>
+                                <th class="p-3">Temperatura</th>
+                                <th class="p-3">Stock (und / R1 / CX)</th>
+                                <th class="p-3">Vencimiento</th>
+                                <th class="p-3 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="divide-y divide-gray-100 font-medium text-gray-700">
+                            <!-- Inserción dinámica -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
-  </div>
 
-  <!-- =========================================================================
-       5. BURBUJA FLOTANTE DE ALERTA DE VENCIMIENTO
-       ========================================================================= -->
-  <div id="floatingAlertBubble" onclick="toggleAlertsDrawer()" class="fixed bottom-4 right-4 z-40 max-w-xs sm:max-w-sm rounded-2xl shadow-2xl p-3 sm:p-4 border transition-all duration-300 transform translate-y-36 opacity-0 pointer-events-none cursor-pointer flex items-center gap-3">
-    <div id="bubbleIconContainer" class="w-11 h-11 rounded-xl flex items-center justify-center text-white text-xl font-bold shadow shrink-0">
-      <i id="bubbleIcon" class="fa-solid fa-triangle-exclamation"></i>
-    </div>
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-1.5">
-        <span id="bubbleBadgeTitle" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block">¡ALERTA!</span>
-        <span id="bubbleCountText" class="text-[11px] font-bold text-slate-200">0 por vencer</span>
-      </div>
-      <p id="bubbleDescText" class="text-xs font-bold text-white truncate mt-0.5">Revisar productos próximos a vencer</p>
-    </div>
-    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-  </div>
+    <!-- ========================================== -->
+    <!-- MODAL: REGISTRAR / EDITAR PRODUCTO         -->
+    <!-- ========================================== -->
+    <div id="productModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden">
+            <div class="p-4 bg-emerald-900 text-white flex justify-between items-center">
+                <h3 id="modalTitle" class="font-extrabold text-sm">Registrar Producto en Bodega</h3>
+                <button type="button" onclick="closeProductModal()" class="text-emerald-200 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
 
-  <!-- =========================================================================
-       6. PANEL LATERAL / DRAWER DE NOTIFICACIONES DE VENCIMIENTO
-       ========================================================================= -->
-  <div id="alertsDrawer" class="fixed inset-0 z-50 bg-black/70 hidden backdrop-blur-xs flex justify-end">
-    <div class="w-full max-w-md bg-slate-900 shadow-2xl h-full flex flex-col border-l border-slate-800">
-      <div class="p-4 bg-slate-950 text-white flex justify-between items-center border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-bell text-amber-400"></i>
-          <h3 class="font-bold text-sm sm:text-base">Productos con Alerta de Vencimiento</h3>
+            <form id="productForm" onsubmit="saveProduct(event)" class="p-4 overflow-y-auto space-y-3 text-xs">
+                <!-- 1. Código de Barras con Cámara -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">1. Código de Barras (EAN)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="prodBarcode" required placeholder="770123456001" class="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl font-mono text-xs">
+                        <button type="button" onclick="openScannerModal('barcode')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl" title="Escanear Código de Barras">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Código SAP Interno con Cámara y Prefijo Fijo -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">2. Código SAP Interno</label>
+                    <div class="flex gap-2">
+                        <div class="flex-1 flex border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
+                            <span class="bg-gray-200 px-3 py-2 text-gray-600 font-bold border-r border-gray-300 select-none">SAP -</span>
+                            <input type="text" id="prodSap" required placeholder="10023" class="w-full px-3 py-2 bg-transparent font-mono text-xs">
+                        </div>
+                        <button type="button" onclick="openScannerModal('sap')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl" title="Escanear Código SAP">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Descripción -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">3. Descripción del Producto</label>
+                    <input type="text" id="prodName" required placeholder="Ej: Leche Entera 1L" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs">
+                </div>
+
+                <!-- 4. Categoría -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">4. Categoría</label>
+                    <select id="prodCategory" onchange="handleCategoryChange()" required class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-semibold">
+                        <option value="Lácteos">Lácteos</option>
+                        <option value="Abarrotes">Abarrotes</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
+                        <option value="Congelados">Congelados</option>
+                        <option value="Refrigerados">Refrigerados</option>
+                        <option value="Mecato / Snacks">Mecato / Snacks</option>
+                    </select>
+                </div>
+
+                <!-- BLOQUE ESPECIAL: TEMPERATURA -->
+                <div id="temperatureWrapper" class="p-2.5 rounded-xl border border-gray-200 bg-gray-50">
+                    <label class="block font-bold text-gray-700 uppercase mb-1">
+                        <i class="fa-solid fa-temperature-half text-cyan-600 mr-1"></i> Temperatura
+                    </label>
+                    <div id="tempActiveBox" class="hidden flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white">
+                        <input type="number" step="0.1" id="prodTemperature" placeholder="Ej: -18" class="flex-1 px-3 py-2 bg-transparent text-xs font-bold">
+                        <span class="bg-cyan-50 text-cyan-800 font-black px-3 py-2 border-l border-gray-200">°C</span>
+                    </div>
+                    <div id="tempInactiveBox" class="text-gray-400 font-bold italic py-1 text-xs">
+                        No aplica para esta categoría
+                    </div>
+                </div>
+
+                <!-- BLOQUES DE STOCK ENTRELAZADOS: Unidades, R1 (Sixpack), CX (Cajas) -->
+                <div class="p-3 rounded-xl border border-emerald-100 bg-emerald-50/50 space-y-2">
+                    <label class="block font-bold text-emerald-900 uppercase">
+                        <i class="fa-solid fa-boxes-stacked mr-1"></i> Control de Stock Entrelazado
+                    </label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <!-- Unidades Totales -->
+                        <div>
+                            <span class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Stock (Unidades)</span>
+                            <div class="flex border border-gray-300 rounded-xl overflow-hidden bg-white">
+                                <input type="number" id="prodStock" oninput="syncFromUnits()" required min="0" placeholder="0" class="w-full px-2 py-2 text-xs font-bold">
+                                <span class="bg-gray-100 text-gray-600 font-bold text-[10px] px-2 flex items-center border-l border-gray-200">und</span>
+                            </div>
+                        </div>
+
+                        <!-- Stock R1 (Sixpack) -->
+                        <div id="r1Wrapper">
+                            <span class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Stock R1 (Sixpack)</span>
+                            <div id="r1InputBox" class="flex border border-gray-300 rounded-xl overflow-hidden bg-white">
+                                <span class="bg-blue-100 text-blue-900 font-black text-[10px] px-2 flex items-center border-r border-gray-200">R1-</span>
+                                <input type="number" id="prodR1" oninput="syncFromR1()" min="0" placeholder="0" class="w-full px-2 py-2 text-xs font-bold">
+                            </div>
+                            <div id="r1DisabledBox" class="hidden text-[10px] text-gray-400 font-semibold italic py-2">
+                                Solo bebidas
+                            </div>
+                        </div>
+
+                        <!-- Stock CX (Cajas - Paquetes) -->
+                        <div>
+                            <span class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Stock CX (Cajas)</span>
+                            <div class="flex border border-gray-300 rounded-xl overflow-hidden bg-white">
+                                <span class="bg-amber-100 text-amber-900 font-black text-[10px] px-2 flex items-center border-r border-gray-200">CX-</span>
+                                <input type="number" id="prodCX" oninput="syncFromCX()" min="0" placeholder="0" class="w-full px-2 py-2 text-xs font-bold">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-emerald-800">
+                        * Al cambiar R1 (x6) o Cajas (x6), las unidades totales se calculan automáticamente.
+                    </p>
+                </div>
+
+                <!-- Precios -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase mb-1">Precio Regular ($)</label>
+                        <input type="number" id="prodPrice" required placeholder="Ej: 4500" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase mb-1">Fecha Vencimiento</label>
+                        <input type="date" id="prodExpiry" required class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold">
+                    </div>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2 border-t border-gray-200">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl text-xs">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center">
+                        <i class="fa-solid fa-save mr-1.5"></i> Guardar Producto
+                    </button>
+                </div>
+            </form>
         </div>
-        <button type="button" onclick="toggleAlertsDrawer()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="p-3 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center text-xs">
-        <span class="text-slate-300 font-semibold">Prioridad por días restantes</span>
-        <button type="button" onclick="playAlertSound('critical')" class="text-emerald-400 font-bold hover:underline">
-          <i class="fa-solid fa-volume-high"></i> Probar Sonido
-        </button>
-      </div>
-
-      <div id="alertsListContainer" class="p-3 space-y-2.5 overflow-y-auto flex-1 custom-scroll">
-        <!-- Generado dinámicamente -->
-      </div>
     </div>
-  </div>
 
-  <!-- =========================================================================
-       7. LÓGICA JAVASCRIPT ROBUSTA (PROTECCIÓN TOTAL CONTRA CIERRES)
-       ========================================================================= -->
-  <script>
-    /* ---------------------------------------------------------
-       A. BASE DE DATOS INICIAL DE EJEMPLO (CANASTO 1156)
-       --------------------------------------------------------- */
-    const INITIAL_PRODUCTS_CANASTO = [
-      {
-        id: "prod-1",
-        barcode: "770123456001",
-        sap: "SAP - 10023",
-        name: "Leche Entera 1L Tetrapack",
-        category: "Lácteos",
-        stock: 150,
-        priceReg: 3090,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(4),
-        location: "Pasillo 1 - Lácteos"
-      },
-      {
-        id: "prod-2",
-        barcode: "770123456002",
-        sap: "SAP - 10045",
-        name: "Queso Fresco Campesino 500g",
-        category: "Lácteos",
-        stock: 60,
-        priceReg: 4000,
-        inPromo: "SÍ",
-        pricePromo: 3600,
-        expiryDate: getOffsetDateString(-2),
-        location: "Nevera 2 - Frescos"
-      },
-      {
-        id: "prod-3",
-        barcode: "770123456003",
-        sap: "SAP - 20112",
-        name: "Arroz Diana Tradicional 500g",
-        category: "Abarrotes",
-        stock: 200,
-        priceReg: 1990,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(180),
-        location: "Pasillo 4 - Granos"
-      },
-      {
-        id: "prod-4",
-        barcode: "770123456004",
-        sap: "SAP - 20189",
-        name: "Aceite de Girasol 900ml",
-        category: "Abarrotes",
-        stock: 85,
-        priceReg: 3200,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(90),
-        location: "Pasillo 4 - Aceites"
-      },
-      {
-        id: "prod-5",
-        barcode: "770123456005",
-        sap: "SAP - 30012",
-        name: "Agua Mineral sin Gas 1.5L",
-        category: "Bebidas",
-        stock: 300,
-        priceReg: 900,
-        inPromo: "SÍ",
-        pricePromo: 800,
-        expiryDate: getOffsetDateString(120),
-        location: "Pasillo 6 - Bebidas"
-      },
-      {
-        id: "prod-6",
-        barcode: "770123456006",
-        sap: "SAP - 30055",
-        name: "Refresco Gaseosa Cola 2L",
-        category: "Bebidas",
-        stock: 120,
-        priceReg: 2100,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(22),
-        location: "Pasillo 6 - Bebidas"
-      },
-      {
-        id: "prod-7",
-        barcode: "770123456007",
-        sap: "SAP - 40088",
-        name: "Detergente Líquido Ropa 3L",
-        category: "Aseo del hogar y personal",
-        stock: 45,
-        priceReg: 7500,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(365),
-        location: "Pasillo 8 - Aseo"
-      },
-      {
-        id: "prod-8",
-        barcode: "770123456008",
-        sap: "SAP - 40092",
-        name: "Papel Higiénico Triple Hoja 12u",
-        category: "Aseo del hogar y personal",
-        stock: 90,
-        priceReg: 5400,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(500),
-        location: "Pasillo 8 - Hogar"
-      },
-      {
-        id: "prod-9",
-        barcode: "770123456009",
-        sap: "SAP - 50101",
-        name: "Pechuga de Pollo Congelada 1kg",
-        category: "Congelados",
-        stock: 35,
-        priceReg: 6800,
-        inPromo: "SÍ",
-        pricePromo: 6200,
-        expiryDate: getOffsetDateString(3),
-        location: "Cava Congelados 1"
-      },
-      {
-        id: "prod-10",
-        barcode: "770123456010",
-        sap: "SAP - 50210",
-        name: "Carne Hamburguesa Congelada 4u",
-        category: "Congelados",
-        stock: 25,
-        priceReg: 8500,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(11),
-        location: "Cava Congelados 2"
-      },
-      {
-        id: "prod-11",
-        barcode: "770123456011",
-        sap: "SAP - 60115",
-        name: "Yogurt Griego Natural 1000g",
-        category: "Refrigerados",
-        stock: 40,
-        priceReg: 9800,
-        inPromo: "NO",
-        pricePromo: 0,
-        expiryDate: getOffsetDateString(8),
-        location: "Nevera Refrigerados"
-      },
-      {
-        id: "prod-12",
-        barcode: "7701234561156",
-        sap: "SAP - 1156",
-        name: "Papas Margaritas Pollo 105g",
-        category: "Mecato / Snacks",
-        stock: 300,
-        priceReg: 4600,
-        inPromo: "SÍ",
-        pricePromo: 3900,
-        expiryDate: getOffsetDateString(13),
-        location: "Góndola Central 1156"
-      }
-    ];
+    <!-- ========================================== -->
+    <!-- MODAL: ESCÁNER DE CÁMARA                   -->
+    <!-- ========================================== -->
+    <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-3 bg-gray-800 text-white flex justify-between items-center">
+                <span id="scannerModalTitle" class="text-xs font-bold uppercase tracking-wider text-emerald-400">Escaneando...</span>
+                <button type="button" onclick="closeScannerModal()" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-3 bg-black flex flex-col items-center justify-center">
+                <div id="reader" class="w-full max-w-[280px] overflow-hidden rounded-xl bg-gray-950"></div>
+                <p class="text-[11px] text-gray-400 mt-2 text-center">Apunta la cámara al código de barras o etiqueta SAP</p>
+            </div>
+            <div class="p-3 bg-gray-800 text-center">
+                <button type="button" onclick="closeScannerModal()" class="w-full py-2 bg-gray-700 text-white text-xs font-bold rounded-xl">
+                    Cerrar Cámara
+                </button>
+            </div>
+        </div>
+    </div>
 
-    function getOffsetDateString(days) {
-      const d = new Date();
-      d.setDate(d.getDate() + days);
-      return d.toISOString().split('T')[0];
-    }
+    <!-- ========================================== -->
+    <!-- BURBUJA FLOTANTE DE ALERTA DE VENCIMIENTO  -->
+    <!-- ========================================== -->
+    <div id="floatingAlertBubble" onclick="openAlertsModal()" class="hidden fixed bottom-5 right-5 z-40 bg-red-600 text-white p-3 rounded-2xl shadow-2xl flex items-center space-x-3 cursor-pointer animate-bubble-alert border-2 border-white">
+        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="pr-2">
+            <h4 class="text-xs font-black uppercase tracking-tight">Alerta de Vencimiento</h4>
+            <p id="bubbleAlertText" class="text-[11px] font-semibold text-red-100">Productos por vencer</p>
+        </div>
+    </div>
 
-    /* ---------------------------------------------------------
-       B. ALMACENAMIENTO INDESTRUCTIBLE & SESIÓN AUTOMÁTICA
-       --------------------------------------------------------- */
-    const STORAGE_USERS_KEY = 'canasto_users_v3';
-    const STORAGE_SESSION_KEY = 'canasto_active_user_v3';
-    const STORAGE_PRODUCTS_KEY = 'canasto_products_v3';
+    <!-- ========================================== -->
+    <!-- MODAL DE LISTA DE ALERTAS                  -->
+    <!-- ========================================== -->
+    <div id="alertsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+            <div class="p-4 bg-red-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Productos Críticos o Próximos
+                </h3>
+                <button type="button" onclick="closeAlertsModal()" class="text-white hover:text-gray-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="alertsList" class="p-4 overflow-y-auto divide-y divide-gray-100 text-xs">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
 
-    let inventory = [];
-    let currentWorker = null;
-    let qrScannerInstance = null;
-    let cameraFacingMode = "environment";
-    let activeScannerTarget = null; // 'general', 'barcode', 'sap'
-    let webAudioCtx = null;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initUsersStorage();
-      initInventoryStorage();
-      renderQuickUsersButtons();
-      checkAutoLogin();
-    });
-
-    function initUsersStorage() {
-      let users = [];
-      try {
-        users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
-      } catch (e) {
-        users = [];
-      }
-
-      if (!Array.isArray(users) || users.length === 0) {
-        users = [
-          {
-            fullName: "Administrador Bodega",
-            username: "admin",
-            password: "1234",
-            zone: "Bodega General"
-          }
+    <!-- ========================================== -->
+    <!-- LÓGICA JAVASCRIPT                          -->
+    <!-- ========================================== -->
+    <script>
+        // BASE DE DATOS INICIAL
+        const DEFAULT_PRODUCTS = [
+            {
+                barcode: "7701002345671",
+                sap: "10023",
+                name: "Leche Entera 1L",
+                category: "Lácteos",
+                temperature: "No aplica",
+                units: 150,
+                r1: 0,
+                cx: 25,
+                price: 3090,
+                expiry: "2026-11-05"
+            },
+            {
+                barcode: "7701004567892",
+                sap: "10045",
+                name: "Queso Fresco 500g",
+                category: "Refrigerados",
+                temperature: "4",
+                units: 60,
+                r1: 0,
+                cx: 10,
+                price: 4000,
+                expiry: "2026-11-15"
+            },
+            {
+                barcode: "7703001234563",
+                sap: "30012",
+                name: "Agua Mineral 1.5L",
+                category: "Bebidas",
+                temperature: "No aplica",
+                units: 300,
+                r1: 50,
+                cx: 50,
+                price: 900,
+                expiry: "2026-11-20"
+            },
+            {
+                barcode: "7705010198764",
+                sap: "50101",
+                name: "Pechuga de Pollo Congelada 1kg",
+                category: "Congelados",
+                temperature: "-18",
+                units: 35,
+                r1: 0,
+                cx: 5,
+                price: 6800,
+                expiry: "2026-11-03"
+            }
         ];
-        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
-      }
-    }
 
-    function initInventoryStorage() {
-      try {
-        const stored = localStorage.getItem(STORAGE_PRODUCTS_KEY);
-        if (stored) {
-          inventory = JSON.parse(stored);
-        } else {
-          inventory = INITIAL_PRODUCTS_CANASTO;
-          saveInventory();
-        }
-      } catch (e) {
-        inventory = INITIAL_PRODUCTS_CANASTO;
-      }
-    }
-
-    function saveInventory() {
-      try {
-        localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(inventory));
-      } catch (e) {
-        console.error("Error guardando inventario:", e);
-      }
-    }
-
-    // Comprobación de sesión guardada al abrir la app
-    function checkAutoLogin() {
-      try {
-        const activeUserJson = localStorage.getItem(STORAGE_SESSION_KEY);
-        if (activeUserJson) {
-          const userObj = JSON.parse(activeUserJson);
-          if (userObj && userObj.username) {
-            currentWorker = userObj;
-            enterAppDashboard();
-            return;
-          }
-        }
-      } catch (e) {
-        // En caso de error, mostrar pantalla de acceso
-      }
-      showAuthScreen();
-    }
-
-    /* ---------------------------------------------------------
-       C. AUDIO SINTETIZADO (WEB AUDIO API)
-       --------------------------------------------------------- */
-    function playTone(freq, duration, type = 'sine', gainLevel = 0.25) {
-      try {
-        if (!webAudioCtx) {
-          webAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (webAudioCtx.state === 'suspended') {
-          webAudioCtx.resume();
-        }
-        const osc = webAudioCtx.createOscillator();
-        const gain = webAudioCtx.createGain();
-
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, webAudioCtx.currentTime);
-
-        gain.gain.setValueAtTime(gainLevel, webAudioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, webAudioCtx.currentTime + duration);
-
-        osc.connect(gain);
-        gain.connect(webAudioCtx.destination);
-
-        osc.start();
-        osc.stop(webAudioCtx.currentTime + duration);
-      } catch (e) {
-        console.warn("Audio Context:", e);
-      }
-    }
-
-    function playAlertSound(type = 'critical') {
-      if (type === 'critical') {
-        playTone(900, 0.18, 'sawtooth', 0.35);
-        setTimeout(() => {
-          playTone(650, 0.35, 'sawtooth', 0.4);
-        }, 200);
-      } else if (type === 'success') {
-        playTone(1050, 0.12, 'sine', 0.25);
-      } else if (type === 'warning') {
-        playTone(550, 0.3, 'triangle', 0.3);
-      }
-    }
-
-    function testAudioAlert() {
-      playAlertSound('critical');
-      showCustomAlert("Alarma Sonora Activada: Notificación de prueba para productos próximos a vencer.");
-    }
-
-    /* ---------------------------------------------------------
-       D. AUTENTICACIÓN, REGISTRO & BOTONES DE INGRESO RÁPIDO
-       --------------------------------------------------------- */
-    function renderQuickUsersButtons() {
-      const container = document.getElementById('quickUsersList');
-      if (!container) return;
-
-      let users = [];
-      try {
-        users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
-      } catch (e) {
-        users = [];
-      }
-
-      if (users.length === 0) {
-        container.innerHTML = '<span class="text-xs text-slate-500">No hay trabajadores guardados aún.</span>';
-        return;
-      }
-
-      container.innerHTML = users.map(u => `
-        <button type="button" onclick="quickLoginWorker('${encodeURIComponent(u.username)}')" class="px-3 py-1.5 rounded-xl bg-slate-700/80 hover:bg-emerald-600 text-white text-xs font-bold transition flex items-center gap-1.5 border border-slate-600/70 shadow-sm active:scale-95">
-          <i class="fa-solid fa-user-check text-[10px] text-emerald-400"></i>
-          <span>${u.fullName || u.username}</span>
-          <span class="text-[9px] px-1 py-0.2 bg-slate-800 rounded text-slate-300">${u.zone || 'Bodega'}</span>
-        </button>
-      `).join('');
-    }
-
-    function quickLoginWorker(encodedUser) {
-      const username = decodeURIComponent(encodedUser);
-      const users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
-      const user = users.find(u => u.username.trim().toLowerCase() === username.trim().toLowerCase());
-
-      if (user) {
-        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(user));
-        currentWorker = user;
-        enterAppDashboard();
-        playAlertSound('success');
-      }
-    }
-
-    function switchAuthTab(tab) {
-      const loginFormContainer = document.getElementById('loginFormContainer');
-      const registerForm = document.getElementById('registerForm');
-      const tabLoginBtn = document.getElementById('tabLoginBtn');
-      const tabRegisterBtn = document.getElementById('tabRegisterBtn');
-
-      if (tab === 'login') {
-        loginFormContainer.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-        tabLoginBtn.className = "flex-1 py-2 font-bold text-xs rounded-lg bg-emerald-600 shadow-sm text-white transition";
-        tabRegisterBtn.className = "flex-1 py-2 font-bold text-xs rounded-lg text-slate-400 hover:text-white transition";
-        renderQuickUsersButtons();
-      } else {
-        loginFormContainer.classList.add('hidden');
-        registerForm.classList.remove('hidden');
-        tabRegisterBtn.className = "flex-1 py-2 font-bold text-xs rounded-lg bg-emerald-600 shadow-sm text-white transition";
-        tabLoginBtn.className = "flex-1 py-2 font-bold text-xs rounded-lg text-slate-400 hover:text-white transition";
-      }
-    }
-
-    function togglePasswordVisibility(inputId, iconId) {
-      const input = document.getElementById(inputId);
-      const icon = document.getElementById(iconId);
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = "fa-regular fa-eye-slash";
-      } else {
-        input.type = 'password';
-        icon.className = "fa-regular fa-eye";
-      }
-    }
-
-    function handleLoginSubmit(e) {
-      if (e) e.preventDefault();
-      const rawUser = document.getElementById('loginUsername').value;
-      const rawPass = document.getElementById('loginPassword').value;
-
-      const cleanUser = rawUser.trim().toLowerCase();
-      const cleanPass = rawPass.trim();
-
-      const usersList = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
-
-      const found = usersList.find(u => 
-        u.username.trim().toLowerCase() === cleanUser && 
-        u.password.trim() === cleanPass
-      );
-
-      if (found) {
-        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(found));
-        currentWorker = found;
-        enterAppDashboard();
-        playAlertSound('success');
-      } else {
-        showCustomAlert("Usuario o contraseña incorrectos. Puedes usar los botones de 'Ingreso Rápido con 1 Clic' de arriba o registrarte en 'Nuevo Registro'.");
-      }
-    }
-
-    function handleRegisterSubmit(e) {
-      if (e) e.preventDefault();
-      const fullName = document.getElementById('regFullName').value.trim();
-      const rawUser = document.getElementById('regUsername').value;
-      const rawPass = document.getElementById('regPassword').value;
-      const zone = document.getElementById('regZone').value;
-
-      const cleanUser = rawUser.trim().toLowerCase();
-      const cleanPass = rawPass.trim();
-
-      if (!fullName || !cleanUser || !cleanPass) {
-        showCustomAlert("Por favor llena todos los campos del registro.");
-        return;
-      }
-
-      const usersList = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
-
-      if (usersList.some(u => u.username.trim().toLowerCase() === cleanUser)) {
-        showCustomAlert(`El usuario "${cleanUser}" ya existe. Selecciona tu usuario arriba o cámbialo.`);
-        return;
-      }
-
-      const newWorker = {
-        fullName,
-        username: cleanUser,
-        password: cleanPass,
-        zone,
-        createdAt: new Date().toISOString()
-      };
-
-      usersList.push(newWorker);
-      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(usersList));
-
-      // Auto-login garantizado
-      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(newWorker));
-      currentWorker = newWorker;
-
-      showCustomAlert(`¡Registro guardado con éxito! Bienvenido(a) ${fullName}.`);
-      enterAppDashboard();
-      playAlertSound('success');
-    }
-
-    function handleLogout() {
-      localStorage.removeItem(STORAGE_SESSION_KEY);
-      currentWorker = null;
-      if (qrScannerInstance) {
-        stopQrScanner();
-      }
-      showAuthScreen();
-    }
-
-    function showAuthScreen() {
-      document.getElementById('authScreen').classList.remove('hidden');
-      document.getElementById('mainApp').classList.add('hidden');
-      renderQuickUsersButtons();
-    }
-
-    function enterAppDashboard() {
-      document.getElementById('authScreen').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-
-      if (currentWorker) {
-        document.getElementById('sessionUserName').textContent = currentWorker.fullName || currentWorker.username;
-        document.getElementById('sessionUserZone').textContent = currentWorker.zone || 'General';
-
-        const categoryFilter = document.getElementById('filterCategory');
-        if (currentWorker.zone && currentWorker.zone !== 'Bodega General') {
-          categoryFilter.value = currentWorker.zone;
-        } else {
-          categoryFilter.value = 'all';
-        }
-      }
-
-      renderInventoryTable();
-      evaluateExpirationAlertsOnStart();
-    }
-
-    /* ---------------------------------------------------------
-       E. CÁLCULO DE VENCIMIENTOS Y REGLAS DE ALERTA
-       --------------------------------------------------------- */
-    function getDaysDiffFromToday(dateString) {
-      if (!dateString) return 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const [year, month, day] = dateString.split('-').map(Number);
-      const target = new Date(year, month - 1, day);
-      target.setHours(0, 0, 0, 0);
-
-      const diffTime = target.getTime() - today.getTime();
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    function getStatusMetadata(days) {
-      if (days < 0) {
-        return {
-          code: 'vencido',
-          label: 'VENCIDO',
-          badgeClass: 'bg-purple-950/80 text-purple-300 border border-purple-700 font-bold',
-          textColor: 'text-purple-400',
-          bubbleBg: 'bg-purple-600',
-          cardBg: 'bg-purple-950/40 border-purple-800'
-        };
-      } else if (days <= 15) {
-        return {
-          code: 'critico',
-          label: 'CRÍTICO',
-          badgeClass: 'bg-red-950/80 text-red-300 border border-red-700 font-black',
-          textColor: 'text-red-400',
-          bubbleBg: 'bg-red-600',
-          cardBg: 'bg-red-950/40 border-red-800'
-        };
-      } else if (days <= 45) {
-        return {
-          code: 'proximo',
-          label: 'PRÓXIMO',
-          badgeClass: 'bg-amber-950/80 text-amber-300 border border-amber-700 font-bold',
-          textColor: 'text-amber-400',
-          bubbleBg: 'bg-amber-500',
-          cardBg: 'bg-amber-950/40 border-amber-800'
-        };
-      } else {
-        return {
-          code: 'ok',
-          label: 'ÓPTIMO',
-          badgeClass: 'bg-emerald-950/80 text-emerald-300 border border-emerald-700 font-medium',
-          textColor: 'text-emerald-400',
-          bubbleBg: 'bg-emerald-600',
-          cardBg: 'bg-slate-800 border-slate-700'
-        };
-      }
-    }
-
-    /* ---------------------------------------------------------
-       F. RENDERIZADO DE TABLA & ESTADÍSTICAS
-       --------------------------------------------------------- */
-    function renderInventoryTable() {
-      const tbody = document.getElementById('inventoryTableBody');
-      const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
-      const statusVal = document.getElementById('filterStatus').value;
-      const categoryVal = document.getElementById('filterCategory').value;
-
-      let countExpired = 0;
-      let countCritical = 0;
-      let countUpcoming = 0;
-
-      inventory.forEach(p => {
-        const days = getDaysDiffFromToday(p.expiryDate);
-        const st = getStatusMetadata(days);
-        if (st.code === 'vencido') countExpired++;
-        else if (st.code === 'critico') countCritical++;
-        else if (st.code === 'proximo') countUpcoming++;
-      });
-
-      document.getElementById('kpiExpired').textContent = countExpired;
-      document.getElementById('kpiCritical').textContent = countCritical;
-      document.getElementById('kpiUpcoming').textContent = countUpcoming;
-      document.getElementById('kpiTotalProducts').textContent = inventory.length;
-
-      const totalAlerts = countExpired + countCritical + countUpcoming;
-      document.getElementById('alertBadgeCount').textContent = totalAlerts;
-
-      updateFloatingAlertBubble(countExpired, countCritical, countUpcoming);
-
-      const filtered = inventory.filter(p => {
-        const days = getDaysDiffFromToday(p.expiryDate);
-        const st = getStatusMetadata(days);
-
-        const matchSearch = (
-          p.name.toLowerCase().includes(searchVal) ||
-          p.barcode.toLowerCase().includes(searchVal) ||
-          p.sap.toLowerCase().includes(searchVal) ||
-          (p.location && p.location.toLowerCase().includes(searchVal))
-        );
-
-        const matchStatus = (statusVal === 'all') || (st.code === statusVal);
-        const matchCategory = (categoryVal === 'all') || (p.category === categoryVal);
-
-        return matchSearch && matchStatus && matchCategory;
-      });
-
-      document.getElementById('filteredBadgeCount').textContent = `${filtered.length} productos`;
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="11" class="text-center py-10 text-slate-500">
-              <i class="fa-solid fa-box-open text-3xl mb-2 text-slate-600"></i>
-              <p class="font-medium text-xs">No hay productos que coincidan con la búsqueda o filtro.</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      filtered.sort((a, b) => getDaysDiffFromToday(a.expiryDate) - getDaysDiffFromToday(b.expiryDate));
-
-      tbody.innerHTML = filtered.map(p => {
-        const days = getDaysDiffFromToday(p.expiryDate);
-        const st = getStatusMetadata(days);
-        const isPromo = p.inPromo === 'SÍ';
-
-        return `
-          <tr class="hover:bg-slate-700/40 transition border-b border-slate-800 ${days <= 15 ? 'bg-red-950/20' : ''}">
-            <td class="p-3 font-mono text-xs font-semibold text-slate-400">${p.barcode}</td>
-            <td class="p-3 font-mono font-bold text-white">${p.sap}</td>
-            <td class="p-3">
-              <div class="font-bold text-white text-xs sm:text-sm">${p.name}</div>
-              <div class="text-[11px] text-slate-400"><i class="fa-solid fa-location-dot"></i> ${p.location || 'Bodega'}</div>
-            </td>
-            <td class="p-3">
-              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">${p.category}</span>
-            </td>
-            <td class="p-3 text-center">
-              <span class="font-bold ${p.stock < 25 ? 'text-amber-400' : 'text-white'}">${p.stock}</span>
-            </td>
-            <td class="p-3 text-right font-medium text-slate-300">$${Number(p.priceReg).toLocaleString()}</td>
-            <td class="p-3 text-right">
-              ${isPromo
-                ? `<span class="text-emerald-400 font-bold">$${Number(p.pricePromo).toLocaleString()}</span> <span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-700 px-1 py-0.2 rounded font-black">PROMO</span>`
-                : `<span class="text-slate-500">-</span>`
-              }
-            </td>
-            <td class="p-3 text-center font-mono text-xs text-slate-300">${p.expiryDate}</td>
-            <td class="p-3 text-center font-black ${st.textColor}">
-              ${days < 0 ? `${Math.abs(days)}d atrás` : `${days} días`}
-            </td>
-            <td class="p-3 text-center">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${st.badgeClass}">
-                ${st.label}
-              </span>
-            </td>
-            <td class="p-3 text-center">
-              <div class="flex items-center justify-center gap-1.5">
-                <button type="button" onclick="openProductModalForEdit('${p.id}')" title="Editar Registro" class="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-700 transition">
-                  <i class="fa-solid fa-pen-to-square text-sm"></i>
-                </button>
-                <button type="button" onclick="deleteProductById('${p.id}')" title="Eliminar de Planilla" class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-700 transition">
-                  <i class="fa-regular fa-trash-can text-sm"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    /* ---------------------------------------------------------
-       G. BURBUJA FLOTANTE INTERACTIVA DE ALERTA
-       --------------------------------------------------------- */
-    function updateFloatingAlertBubble(expired, critical, upcoming) {
-      const bubble = document.getElementById('floatingAlertBubble');
-      const badge = document.getElementById('bubbleBadgeTitle');
-      const count = document.getElementById('bubbleCountText');
-      const desc = document.getElementById('bubbleDescText');
-      const iconContainer = document.getElementById('bubbleIconContainer');
-
-      const totalRisk = expired + critical + upcoming;
-      if (totalRisk === 0) {
-        bubble.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto', 'pulse-danger');
-        bubble.classList.add('translate-y-36', 'opacity-0', 'pointer-events-none');
-        return;
-      }
-
-      bubble.classList.remove('translate-y-36', 'opacity-0', 'pointer-events-none');
-      bubble.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-
-      if (expired > 0) {
-        bubble.className = "fixed bottom-4 right-4 z-40 max-w-xs sm:max-w-sm rounded-2xl shadow-2xl p-3 sm:p-4 border border-purple-600 bg-purple-950/90 backdrop-blur-md transition-all duration-300 transform translate-y-0 opacity-100 pointer-events-auto cursor-pointer flex items-center gap-3";
-        iconContainer.className = "w-11 h-11 rounded-xl flex items-center justify-center text-white text-xl font-bold shadow shrink-0 bg-purple-600";
-        badge.className = "text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block bg-purple-600 text-white";
-        badge.textContent = "¡VENCIDOS!";
-        count.textContent = `${expired} producto(s) ya vencieron`;
-        desc.textContent = "Retirar inmediatamente de góndola";
-      } else if (critical > 0) {
-        bubble.className = "fixed bottom-4 right-4 z-40 max-w-xs sm:max-w-sm rounded-2xl shadow-2xl p-3 sm:p-4 border border-red-600 bg-red-950/90 backdrop-blur-md pulse-danger transition-all duration-300 transform translate-y-0 opacity-100 pointer-events-auto cursor-pointer flex items-center gap-3";
-        iconContainer.className = "w-11 h-11 rounded-xl flex items-center justify-center text-white text-xl font-bold shadow shrink-0 bg-red-600";
-        badge.className = "text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block bg-red-600 text-white";
-        badge.textContent = "¡CRÍTICO ≤15 DÍAS!";
-        count.textContent = `${critical} producto(s) en alerta`;
-        desc.textContent = "Aplicar descuento o rotación urgente";
-      } else {
-        bubble.className = "fixed bottom-4 right-4 z-40 max-w-xs sm:max-w-sm rounded-2xl shadow-2xl p-3 sm:p-4 border border-amber-600 bg-amber-950/90 backdrop-blur-md transition-all duration-300 transform translate-y-0 opacity-100 pointer-events-auto cursor-pointer flex items-center gap-3";
-        iconContainer.className = "w-11 h-11 rounded-xl flex items-center justify-center text-white text-xl font-bold shadow shrink-0 bg-amber-600";
-        badge.className = "text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block bg-amber-600 text-white";
-        badge.textContent = "¡PRÓXIMOS!";
-        count.textContent = `${upcoming} producto(s) a vencer`;
-        desc.textContent = "Monitorear fecha de caducidad";
-      }
-    }
-
-    function evaluateExpirationAlertsOnStart() {
-      const urgent = inventory.filter(p => {
-        const d = getDaysDiffFromToday(p.expiryDate);
-        return d <= 15;
-      });
-
-      if (urgent.length > 0) {
-        setTimeout(() => {
-          playAlertSound('critical');
-        }, 500);
-      }
-    }
-
-    /* ---------------------------------------------------------
-       H. LECTOR DE CÓDIGO CON CÁMARA (PROTECCIÓN TOTAL CONTRA REFRESH)
-       --------------------------------------------------------- */
-    function openMainScanner() {
-      activeScannerTarget = 'general';
-      document.getElementById('scannerTitleText').textContent = "Escaneo General de Inventario";
-      document.getElementById('scannerModal').classList.remove('hidden');
-      startCameraScanning();
-    }
-
-    function openScannerForField(target) {
-      activeScannerTarget = target;
-      document.getElementById('scannerTitleText').textContent = target === 'barcode' 
-        ? "Escanear Código de Barras (EAN)" 
-        : "Escanear Etiqueta SAP Interna";
-      document.getElementById('scannerModal').classList.remove('hidden');
-      startCameraScanning();
-    }
-
-    function closeScannerModal() {
-      stopQrScanner();
-      activeScannerTarget = null;
-      document.getElementById('scannerModal').classList.add('hidden');
-    }
-
-    function startCameraScanning() {
-      document.getElementById('cameraErrorBox').classList.add('hidden');
-      
-      try {
-        if (qrScannerInstance) {
-          stopQrScanner();
+        // Estado Global
+        let inventory = JSON.parse(localStorage.getItem('canasto_inventory')) || DEFAULT_PRODUCTS;
+        let currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || null;
+        let registeredUsers = JSON.parse(localStorage.getItem('canasto_registered_users')) || [
+            { name: "Administrador", username: "admin", password: "123", zone: "Todas las Zonas" }
+        ];
+
+        let html5QrCode = null;
+        let scannerTarget = null; // 'barcode', 'sap', 'quickSearch'
+        let editingIndex = null;
+
+        // Sonido de alerta Web Audio API
+        function playWarningBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.setValueAtTime(600, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (e) {
+                console.log("Audio not supported or waiting for user interaction");
+            }
         }
 
-        const html5QrCode = new Html5Qrcode("scannerRegion");
-        qrScannerInstance = html5QrCode;
-
-        const scanConfig = {
-          fps: 15,
-          qrbox: { width: 250, height: 160 },
-          aspectRatio: 1.0
-        };
-
-        html5QrCode.start(
-          { facingMode: cameraFacingMode },
-          scanConfig,
-          (decodedText) => {
-            handleDetectedCode(decodedText);
-          },
-          (error) => {
-            // Cuadros sin código
-          }
-        ).catch(err => {
-          console.warn("Permiso o cámara inaccesible:", err);
-          document.getElementById('cameraErrorBox').classList.remove('hidden');
-        });
-      } catch (err) {
-        console.warn("Excepción al iniciar cámara:", err);
-        document.getElementById('cameraErrorBox').classList.remove('hidden');
-      }
-    }
-
-    function stopQrScanner() {
-      if (qrScannerInstance) {
-        try {
-          qrScannerInstance.stop().then(() => {
-            try { qrScannerInstance.clear(); } catch(e) {}
-            qrScannerInstance = null;
-          }).catch(() => {
-            qrScannerInstance = null;
-          });
-        } catch (e) {
-          qrScannerInstance = null;
-        }
-      }
-    }
-
-    function flipCameraOrientation() {
-      cameraFacingMode = (cameraFacingMode === "environment") ? "user" : "environment";
-      startCameraScanning();
-    }
-
-    function handleManualProcessCode() {
-      const code = document.getElementById('manualBarcodeInput').value.trim();
-      if (code) {
-        handleDetectedCode(code);
-        document.getElementById('manualBarcodeInput').value = "";
-      }
-    }
-
-    function handleDetectedCode(rawCode) {
-      const clean = rawCode.trim();
-      const currentTarget = activeScannerTarget;
-      closeScannerModal();
-
-      if (currentTarget === 'sap') {
-        const digitsOnly = clean.replace(/^sap\s*[-_:]*\s*/i, '').trim();
-        document.getElementById('formSapDigits').value = digitsOnly;
-        playAlertSound('success');
-        return;
-      }
-
-      if (currentTarget === 'barcode') {
-        document.getElementById('formBarcode').value = clean;
-        playAlertSound('success');
-        return;
-      }
-
-      // Modo general de escaneo
-      const cleanSapNum = clean.replace(/^sap\s*[-_:]*\s*/i, '').trim();
-      const match = inventory.find(p => 
-        p.barcode === clean || 
-        p.sap.toUpperCase() === clean.toUpperCase() ||
-        p.sap.toUpperCase() === `SAP - ${cleanSapNum}`.toUpperCase()
-      );
-
-      if (match) {
-        const days = getDaysDiffFromToday(match.expiryDate);
-        if (days <= 15) {
-          playAlertSound('critical');
-        } else {
-          playAlertSound('success');
-        }
-        openProductModalForEdit(match.id);
-      } else {
-        playAlertSound('warning');
-        openProductModalForNew();
-        document.getElementById('formBarcode').value = clean;
-        document.getElementById('formSapDigits').value = "";
-      }
-    }
-
-    /* ---------------------------------------------------------
-       I. GESTIÓN DEL MODAL NUEVO / EDITAR PRODUCTO
-       --------------------------------------------------------- */
-    function openProductModalForNew() {
-      document.getElementById('productForm').reset();
-      document.getElementById('editProductId').value = "";
-      document.getElementById('formSapDigits').value = "";
-      document.getElementById('productModalTitle').textContent = "Nuevo Registro en Inventario";
-      document.getElementById('formExpiry').value = getOffsetDateString(30);
-      togglePromoFieldState();
-      document.getElementById('productModal').classList.remove('hidden');
-    }
-
-    function openProductModalForEdit(id) {
-      const prod = inventory.find(p => p.id === id);
-      if (!prod) return;
-
-      document.getElementById('editProductId').value = prod.id;
-      document.getElementById('formBarcode').value = prod.barcode;
-
-      const sapDigits = prod.sap.replace(/^sap\s*[-_:]*\s*/i, '').trim();
-      document.getElementById('formSapDigits').value = sapDigits;
-
-      document.getElementById('formDesc').value = prod.name;
-      document.getElementById('formCategory').value = prod.category;
-      document.getElementById('formStock').value = prod.stock;
-      document.getElementById('formPriceReg').value = prod.priceReg;
-      document.getElementById('formInPromo').value = prod.inPromo || 'NO';
-      document.getElementById('formPricePromo').value = prod.pricePromo || 0;
-      document.getElementById('formExpiry').value = prod.expiryDate;
-      document.getElementById('formLocation').value = prod.location || "";
-
-      togglePromoFieldState();
-      document.getElementById('productModalTitle').textContent = `Editar Referencia SAP: ${prod.sap}`;
-      document.getElementById('productModal').classList.remove('hidden');
-    }
-
-    function closeProductModal() {
-      document.getElementById('productModal').classList.add('hidden');
-    }
-
-    function togglePromoFieldState() {
-      const isPromo = document.getElementById('formInPromo').value === 'SÍ';
-      const promoInput = document.getElementById('formPricePromo');
-      promoInput.disabled = !isPromo;
-      if (isPromo) {
-        promoInput.classList.remove('text-slate-500');
-        promoInput.classList.add('text-white');
-        promoInput.focus();
-      } else {
-        promoInput.classList.remove('text-white');
-        promoInput.classList.add('text-slate-500');
-        promoInput.value = "0";
-      }
-    }
-
-    function handleProductFormSubmit(e) {
-      if (e) e.preventDefault();
-      const editId = document.getElementById('editProductId').value;
-      const barcode = document.getElementById('formBarcode').value.trim();
-      const rawDigits = document.getElementById('formSapDigits').value.trim();
-
-      if (!rawDigits) {
-        showCustomAlert("Por favor ingresa o escanea el número interno del código SAP.");
-        return;
-      }
-
-      const sap = `SAP - ${rawDigits.replace(/^sap\s*[-_:]*\s*/i, '').trim()}`;
-      const name = document.getElementById('formDesc').value.trim();
-      const category = document.getElementById('formCategory').value;
-      const stock = parseInt(document.getElementById('formStock').value, 10) || 0;
-      const priceReg = parseFloat(document.getElementById('formPriceReg').value) || 0;
-      const inPromo = document.getElementById('formInPromo').value;
-      const pricePromo = inPromo === 'SÍ' ? (parseFloat(document.getElementById('formPricePromo').value) || 0) : 0;
-      const expiryDate = document.getElementById('formExpiry').value;
-      const location = document.getElementById('formLocation').value.trim();
-
-      if (editId) {
-        const idx = inventory.findIndex(p => p.id === editId);
-        if (idx !== -1) {
-          inventory[idx] = {
-            ...inventory[idx],
-            barcode, sap, name, category, stock, priceReg, inPromo, pricePromo, expiryDate, location
-          };
-        }
-      } else {
-        if (inventory.some(p => p.sap.toUpperCase() === sap.toUpperCase())) {
-          showCustomAlert(`El código SAP "${sap}" ya existe en la bodega. Digita un número único.`);
-          return;
+        // ==========================================
+        // GESTIÓN DE SESIÓN
+        // ==========================================
+        function initApp() {
+            if (currentUser) {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainAppScreen').classList.remove('hidden');
+                document.getElementById('mainAppScreen').classList.add('flex');
+                document.getElementById('headerUserName').textContent = currentUser.name;
+                document.getElementById('headerUserZone').textContent = currentUser.zone;
+                renderTable();
+                checkExpirationsAndAlert();
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainAppScreen').classList.add('hidden');
+            }
         }
 
-        const newProduct = {
-          id: `prod-${Date.now()}`,
-          barcode, sap, name, category, stock, priceReg, inPromo, pricePromo, expiryDate, location
-        };
-        inventory.unshift(newProduct);
-      }
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('formLogin').classList.remove('hidden');
+                document.getElementById('formRegister').classList.add('hidden');
+                document.getElementById('tabLogin').className = "w-1/2 py-2 text-center font-bold text-sm text-emerald-600 border-b-2 border-emerald-600 transition";
+                document.getElementById('tabRegister').className = "w-1/2 py-2 text-center font-bold text-sm text-gray-400 hover:text-gray-600 border-b-2 border-transparent transition";
+            } else {
+                document.getElementById('formLogin').classList.add('hidden');
+                document.getElementById('formRegister').classList.remove('hidden');
+                document.getElementById('tabRegister').className = "w-1/2 py-2 text-center font-bold text-sm text-emerald-600 border-b-2 border-emerald-600 transition";
+                document.getElementById('tabLogin').className = "w-1/2 py-2 text-center font-bold text-sm text-gray-400 hover:text-gray-600 border-b-2 border-transparent transition";
+            }
+        }
 
-      saveInventory();
-      closeProductModal();
-      renderInventoryTable();
+        function togglePassVisibility(inputId, eyeId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.classList.remove('fa-eye');
+                eye.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eye.classList.remove('fa-eye-slash');
+                eye.classList.add('fa-eye');
+            }
+        }
 
-      const days = getDaysDiffFromToday(expiryDate);
-      if (days <= 15) {
-        playAlertSound('critical');
-      } else {
-        playAlertSound('success');
-      }
-    }
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const p = document.getElementById('loginPassword').value.trim();
 
-    function deleteProductById(id) {
-      const prod = inventory.find(p => p.id === id);
-      if (!prod) return;
+            const found = registeredUsers.find(user => user.username.toLowerCase() === u && user.password === p);
+            if (found) {
+                currentUser = found;
+                localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+                initApp();
+            } else {
+                alert("Usuario o contraseña incorrectos. Verifica o crea tu usuario en la pestaña Registro.");
+            }
+        }
 
-      showCustomConfirm(`¿Seguro que deseas eliminar "${prod.name}" (${prod.sap}) del inventario?`, () => {
-        inventory = inventory.filter(p => p.id !== id);
-        saveInventory();
-        renderInventoryTable();
-      });
-    }
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const zone = document.getElementById('regZone').value;
+            const password = document.getElementById('regPassword').value.trim();
 
-    /* ---------------------------------------------------------
-       J. PANEL LATERAL / DRAWER DE ALERTAS
-       --------------------------------------------------------- */
-    function toggleAlertsDrawer() {
-      const drawer = document.getElementById('alertsDrawer');
-      const isHidden = drawer.classList.contains('hidden');
+            if (registeredUsers.some(u => u.username.toLowerCase() === username)) {
+                alert("Este nombre de usuario ya existe. Elige otro.");
+                return;
+            }
 
-      if (isHidden) {
-        renderAlertsDrawer();
-        drawer.classList.remove('hidden');
-      } else {
-        drawer.classList.add('hidden');
-      }
-    }
+            const newUser = { name, username, zone, password };
+            registeredUsers.push(newUser);
+            localStorage.setItem('canasto_registered_users', JSON.stringify(registeredUsers));
 
-    function renderAlertsDrawer() {
-      const container = document.getElementById('alertsListContainer');
-      const riskList = inventory
-        .map(p => ({ ...p, days: getDaysDiffFromToday(p.expiryDate) }))
-        .filter(p => p.days <= 45)
-        .sort((a, b) => a.days - b.days);
+            currentUser = newUser;
+            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+            alert("¡Registro exitoso! Bienvenido a Bodega Canasto 1156.");
+            initApp();
+        }
 
-      if (riskList.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-slate-500">
-            <i class="fa-solid fa-circle-check text-4xl text-emerald-500 mb-2"></i>
-            <p class="text-xs font-bold text-white">Sin productos en riesgo</p>
-            <p class="text-[11px] text-slate-400">Todos los productos cuentan con más de 45 días de vigencia.</p>
-          </div>
-        `;
-        return;
-      }
+        function handleLogout() {
+            if (confirm("¿Deseas cerrar sesión?")) {
+                currentUser = null;
+                localStorage.removeItem('canasto_current_user');
+                location.reload();
+            }
+        }
 
-      container.innerHTML = riskList.map(p => {
-        const isExp = p.days < 0;
-        const isCrit = p.days <= 15;
-        const color = isExp ? 'purple' : (isCrit ? 'red' : 'amber');
+        // ==========================================
+        // LÓGICA DE TEMPERATURA Y STOCK ENTRELAZADO
+        // ==========================================
+        function handleCategoryChange() {
+            const cat = document.getElementById('prodCategory').value;
+            const tempWrapper = document.getElementById('tempActiveBox');
+            const tempInactive = document.getElementById('tempInactiveBox');
+            const tempInput = document.getElementById('prodTemperature');
 
-        return `
-          <div class="p-3 rounded-2xl border ${isExp ? 'bg-purple-950/40 border-purple-800' : (isCrit ? 'bg-red-950/40 border-red-800' : 'bg-amber-950/40 border-amber-800')} flex items-center justify-between gap-2 shadow-xs">
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${isExp ? 'bg-purple-600' : (isCrit ? 'bg-red-600' : 'bg-amber-600')} text-white">
-                  ${isExp ? 'Vencido' : (isCrit ? 'Crítico' : 'Próximo')}
-                </span>
-                <span class="text-xs font-mono font-bold text-white">${p.sap}</span>
-              </div>
-              <h4 class="text-xs font-bold text-slate-100 mt-1 line-clamp-1">${p.name}</h4>
-              <p class="text-[11px] text-slate-400">Vence: ${p.expiryDate} • Stock: ${p.stock} unids</p>
-            </div>
-            <div class="text-right flex flex-col items-end gap-1">
-              <span class="text-xs font-black ${isExp ? 'text-purple-400' : (isCrit ? 'text-red-400' : 'text-amber-400')}">
-                ${isExp ? `${Math.abs(p.days)}d atrás` : `${p.days} días`}
-              </span>
-              <button type="button" onclick="toggleAlertsDrawer(); openProductModalForEdit('${p.id}')" class="text-[11px] font-bold text-emerald-400 hover:underline">
-                Gestionar
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+            if (cat === 'Congelados' || cat === 'Refrigerados') {
+                tempWrapper.classList.remove('hidden');
+                tempInactive.classList.add('hidden');
+                tempInput.required = true;
+            } else {
+                tempWrapper.classList.add('hidden');
+                tempInactive.classList.remove('hidden');
+                tempInput.required = false;
+                tempInput.value = '';
+            }
 
-    /* ---------------------------------------------------------
-       K. EXPORTACIÓN A CSV / EXCEL
-       --------------------------------------------------------- */
-    function exportToCSV() {
-      const headers = ["Codigo_Barras", "Codigo_SAP", "Descripcion", "Categoria", "Stock", "Precio_Regular", "En_Promocion", "Precio_Promo", "Fecha_Vencimiento", "Dias_Restantes", "Estado"];
-      
-      const rows = inventory.map(p => {
-        const days = getDaysDiffFromToday(p.expiryDate);
-        const st = getStatusMetadata(days);
-        return [
-          `"${p.barcode}"`,
-          `"${p.sap}"`,
-          `"${p.name.replace(/"/g, '""')}"`,
-          `"${p.category}"`,
-          p.stock,
-          p.priceReg,
-          `"${p.inPromo}"`,
-          p.pricePromo,
-          `"${p.expiryDate}"`,
-          days,
-          `"${st.label}"`
-        ].join(",");
-      });
+            // R1 Solo para Bebidas
+            const r1Box = document.getElementById('r1InputBox');
+            const r1Disabled = document.getElementById('r1DisabledBox');
+            const r1Input = document.getElementById('prodR1');
+            if (cat === 'Bebidas') {
+                r1Box.classList.remove('hidden');
+                r1Disabled.classList.add('hidden');
+                r1Input.disabled = false;
+            } else {
+                r1Box.classList.add('hidden');
+                r1Disabled.classList.remove('hidden');
+                r1Input.disabled = true;
+                r1Input.value = 0;
+            }
+        }
 
-      const csvData = "\uFEFF" + [headers.join(","), ...rows].join("\n");
-      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `Inventario_Bodega_Canasto_1156_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+        function syncFromUnits() {
+            const units = parseInt(document.getElementById('prodStock').value) || 0;
+            const cat = document.getElementById('prodCategory').value;
+            if (cat === 'Bebidas') {
+                document.getElementById('prodR1').value = Math.floor(units / 6);
+            }
+            document.getElementById('prodCX').value = Math.floor(units / 6);
+        }
 
-    /* ---------------------------------------------------------
-       L. DIÁLOGOS DE MENSAJERÍA (SIN ALERT NI CONFIRM NATIVOS)
-       --------------------------------------------------------- */
-    function showCustomAlert(msg) {
-      const modal = document.createElement('div');
-      modal.className = "fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 backdrop-blur-xs";
-      modal.innerHTML = `
-        <div class="bg-slate-900 rounded-2xl p-5 max-w-sm w-full shadow-2xl text-center space-y-3 border border-slate-700">
-          <div class="w-12 h-12 rounded-2xl bg-amber-950/80 text-amber-400 border border-amber-700 flex items-center justify-center mx-auto text-xl font-bold">
-            <i class="fa-solid fa-circle-exclamation"></i>
-          </div>
-          <p class="text-xs sm:text-sm text-slate-200 font-semibold leading-relaxed">${msg}</p>
-          <button type="button" id="alertBtnClose" class="w-full py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-500 transition">
-            Aceptar
-          </button>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      modal.querySelector('#alertBtnClose').onclick = () => {
-        document.body.removeChild(modal);
-      };
-    }
+        function syncFromR1() {
+            const r1 = parseInt(document.getElementById('prodR1').value) || 0;
+            const totalUnits = r1 * 6;
+            document.getElementById('prodStock').value = totalUnits;
+            document.getElementById('prodCX').value = r1;
+        }
 
-    function showCustomConfirm(msg, onConfirm) {
-      const modal = document.createElement('div');
-      modal.className = "fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 backdrop-blur-xs";
-      modal.innerHTML = `
-        <div class="bg-slate-900 rounded-2xl p-5 max-w-sm w-full shadow-2xl text-center space-y-3 border border-slate-700">
-          <div class="w-12 h-12 rounded-2xl bg-red-950/80 text-red-400 border border-red-700 flex items-center justify-center mx-auto text-xl font-bold">
-            <i class="fa-solid fa-trash"></i>
-          </div>
-          <p class="text-xs sm:text-sm text-slate-200 font-semibold leading-relaxed">${msg}</p>
-          <div class="flex gap-2 pt-2">
-            <button type="button" id="confirmCancelBtn" class="flex-1 py-2 bg-slate-800 text-slate-300 rounded-xl font-bold text-xs hover:bg-slate-700 transition">
-              Cancelar
-            </button>
-            <button type="button" id="confirmAcceptBtn" class="flex-1 py-2 bg-red-600 text-white rounded-xl font-bold text-xs hover:bg-red-500 transition">
-              Eliminar
-            </button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      modal.querySelector('#confirmCancelBtn').onclick = () => {
-        document.body.removeChild(modal);
-      };
-      modal.querySelector('#confirmAcceptBtn').onclick = () => {
-        document.body.removeChild(modal);
-        onConfirm();
-      };
-    }
-  </script>
+        function syncFromCX() {
+            const cx = parseInt(document.getElementById('prodCX').value) || 0;
+            const totalUnits = cx * 6;
+            document.getElementById('prodStock').value = totalUnits;
+            const cat = document.getElementById('prodCategory').value;
+            if (cat === 'Bebidas') {
+                document.getElementById('prodR1').value = cx;
+            }
+        }
+
+        // ==========================================
+        // GESTIÓN DE PRODUCTOS
+        // ==========================================
+        function openProductModal(index = null) {
+            editingIndex = index;
+            document.getElementById('productForm').reset();
+            const modalTitle = document.getElementById('modalTitle');
+
+            if (index !== null) {
+                const item = inventory[index];
+                modalTitle.textContent = "Editar Producto: SAP-" + item.sap;
+                document.getElementById('prodBarcode').value = item.barcode;
+                document.getElementById('prodSap').value = item.sap;
+                document.getElementById('prodName').value = item.name;
+                document.getElementById('prodCategory').value = item.category;
+                document.getElementById('prodStock').value = item.units;
+                document.getElementById('prodR1').value = item.r1 || 0;
+                document.getElementById('prodCX').value = item.cx || 0;
+                document.getElementById('prodPrice').value = item.price;
+                document.getElementById('prodExpiry').value = item.expiry;
+                
+                handleCategoryChange();
+                if (item.category === 'Congelados' || item.category === 'Refrigerados') {
+                    document.getElementById('prodTemperature').value = item.temperature !== 'No aplica' ? item.temperature : '';
+                }
+            } else {
+                modalTitle.textContent = "Registrar Producto en Bodega";
+                handleCategoryChange();
+            }
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const cat = document.getElementById('prodCategory').value;
+            let tempValue = "No aplica";
+            if (cat === 'Congelados' || cat === 'Refrigerados') {
+                tempValue = document.getElementById('prodTemperature').value || "0";
+            }
+
+            const item = {
+                barcode: document.getElementById('prodBarcode').value.trim(),
+                sap: document.getElementById('prodSap').value.trim().replace(/^SAP\s*-\s*/i, ''),
+                name: document.getElementById('prodName').value.trim(),
+                category: cat,
+                temperature: tempValue,
+                units: parseInt(document.getElementById('prodStock').value) || 0,
+                r1: parseInt(document.getElementById('prodR1').value) || 0,
+                cx: parseInt(document.getElementById('prodCX').value) || 0,
+                price: parseFloat(document.getElementById('prodPrice').value) || 0,
+                expiry: document.getElementById('prodExpiry').value
+            };
+
+            if (editingIndex !== null) {
+                inventory[editingIndex] = item;
+            } else {
+                inventory.unshift(item);
+            }
+
+            localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+            closeProductModal();
+            renderTable();
+            checkExpirationsAndAlert();
+        }
+
+        function deleteProduct(index) {
+            if (confirm(`¿Eliminar ${inventory[index].name} del inventario?`)) {
+                inventory.splice(index, 1);
+                localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+                renderTable();
+                checkExpirationsAndAlert();
+            }
+        }
+
+        // ==========================================
+        // CÁLCULO DE VENCIMIENTOS Y ALERTAS
+        // ==========================================
+        function calculateDaysRemaining(expiryDate) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const exp = new Date(expiryDate);
+            exp.setHours(0,0,0,0);
+            const diffTime = exp - today;
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function checkExpirationsAndAlert() {
+            let criticalCount = 0;
+            inventory.forEach(item => {
+                const days = calculateDaysRemaining(item.expiry);
+                if (days <= 15) {
+                    criticalCount++;
+                }
+            });
+
+            const badge = document.getElementById('badgeCriticos');
+            const bubble = document.getElementById('floatingAlertBubble');
+            const bubbleText = document.getElementById('bubbleAlertText');
+
+            if (criticalCount > 0) {
+                badge.textContent = criticalCount;
+                badge.classList.remove('hidden');
+                bubble.classList.remove('hidden');
+                bubbleText.textContent = `${criticalCount} producto(s) crítico(s) o por vencer`;
+                playWarningBeep();
+            } else {
+                badge.classList.add('hidden');
+                bubble.classList.add('hidden');
+            }
+        }
+
+        function openAlertsModal() {
+            const list = document.getElementById('alertsList');
+            list.innerHTML = '';
+
+            const criticals = inventory.filter(item => calculateDaysRemaining(item.expiry) <= 30);
+            if (criticals.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 py-4 text-center">No hay productos próximos a vencer.</p>';
+            } else {
+                criticals.forEach(item => {
+                    const days = calculateDaysRemaining(item.expiry);
+                    const isVencido = days <= 0;
+                    const isCritico = days > 0 && days <= 15;
+
+                    list.innerHTML += `
+                        <div class="py-2.5 flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-gray-800">${item.name}</h4>
+                                <span class="text-[11px] text-gray-500">SAP-${item.sap} • Stock: ${item.units} und</span>
+                            </div>
+                            <span class="px-2 py-1 rounded text-[10px] font-black uppercase ${isVencido ? 'bg-purple-100 text-purple-700' : isCritico ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
+                                ${isVencido ? 'VENCIDO' : days + ' días rest.'}
+                            </span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('alertsModal').classList.remove('hidden');
+        }
+
+        function closeAlertsModal() {
+            document.getElementById('alertsModal').classList.add('hidden');
+        }
+
+        // ==========================================
+        // RENDERIZADO DE TABLA
+        // ==========================================
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cat = document.getElementById('categoryFilter').value;
+
+            const filtered = inventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search) ||
+                                      item.sap.toLowerCase().includes(search) ||
+                                      item.barcode.includes(search);
+                const matchesCat = cat === "" || item.category === cat;
+                return matchesSearch && matchesCat;
+            });
+
+            document.getElementById('productCount').textContent = `${filtered.length} productos`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400">No se encontraron productos registrados</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((item, idx) => {
+                const realIndex = inventory.indexOf(item);
+                const days = calculateDaysRemaining(item.expiry);
+                let badgeClass = "bg-green-100 text-green-800";
+                let statusText = `${days} días`;
+
+                if (days <= 0) {
+                    badgeClass = "bg-purple-100 text-purple-800";
+                    statusText = "VENCIDO";
+                } else if (days <= 15) {
+                    badgeClass = "bg-red-100 text-red-800 font-black";
+                    statusText = `${days} d (CRÍTICO)`;
+                } else if (days <= 30) {
+                    badgeClass = "bg-amber-100 text-amber-800";
+                    statusText = `${days} d (PRÓXIMO)`;
+                }
+
+                return `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-3">
+                            <span class="block font-bold text-gray-800 font-mono text-[11px]">SAP-${item.sap}</span>
+                            <span class="text-[10px] text-gray-400 font-mono">${item.barcode}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="font-bold block text-gray-800">${item.name}</span>
+                            <span class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-semibold">${item.category}</span>
+                        </td>
+                        <td class="p-3 font-semibold">
+                            ${item.temperature !== 'No aplica' ? `<span class="text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded font-black">${item.temperature} °C</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
+                        </td>
+                        <td class="p-3">
+                            <span class="font-bold text-emerald-800">${item.units} und</span>
+                            <div class="text-[10px] text-gray-500 font-medium">
+                                ${item.category === 'Bebidas' ? `<span class="mr-1">R1: ${item.r1}</span>` : ''}
+                                <span>CX: ${item.cx}</span>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${statusText}</span>
+                            <span class="block text-[10px] text-gray-400 mt-0.5">${item.expiry}</span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="openProductModal(${realIndex})" class="text-blue-600 hover:text-blue-800 p-1 mr-1" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" onclick="deleteProduct(${realIndex})" class="text-red-500 hover:text-red-700 p-1" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // ESCÁNER DE CÁMARA BLINDADO
+        // ==========================================
+        function openScannerModal(target) {
+            scannerTarget = target;
+            const titleEl = document.getElementById('scannerModalTitle');
+
+            if (target === 'barcode') titleEl.textContent = "Escanear Código de Barras (EAN)";
+            else if (target === 'sap') titleEl.textContent = "Escanear Código SAP Interno";
+            else titleEl.textContent = "Escaneo Rápido de Producto";
+
+            document.getElementById('scannerModal').classList.remove('hidden');
+
+            try {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("reader");
+                }
+                const config = { fps: 10, qrbox: { width: 250, height: 160 } };
+                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+                    .catch(err => {
+                        console.error("Error al iniciar cámara:", err);
+                        alert("No se pudo acceder a la cámara. Asegúrate de dar los permisos correspondientes.");
+                        closeScannerModal();
+                    });
+            } catch (err) {
+                console.error(err);
+                closeScannerModal();
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            playWarningBeep();
+            closeScannerModal();
+
+            if (scannerTarget === 'barcode') {
+                document.getElementById('prodBarcode').value = decodedText;
+            } else if (scannerTarget === 'sap') {
+                const cleanSap = decodedText.replace(/[^0-9]/g, '');
+                document.getElementById('prodSap').value = cleanSap || decodedText;
+            } else if (scannerTarget === 'quickSearch') {
+                const found = inventory.find(p => p.barcode === decodedText || p.sap === decodedText);
+                if (found) {
+                    openProductModal(inventory.indexOf(found));
+                } else {
+                    if (confirm(`El código ${decodedText} no existe en inventario. ¿Deseas registrarlo como nuevo producto?`)) {
+                        openProductModal();
+                        document.getElementById('prodBarcode').value = decodedText;
+                    }
+                }
+            }
+        }
+
+        function closeScannerModal() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                }).catch(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scannerModal').classList.add('hidden');
+            }
+        }
+
+        // Arranque inicial
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
 </html>
-```
