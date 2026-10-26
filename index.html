@@ -42,6 +42,7 @@
                 <p class="text-xs font-semibold uppercase text-emerald-600 tracking-wider">Control de Inventario & Alertas SAP</p>
             </div>
 
+            <!-- Botón de acceso directo con 1 toque -->
             <div id="quickLoginBox" class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
                 <p class="text-xs text-emerald-800 font-bold mb-2">Acceso rápido con un solo toque:</p>
                 <button type="button" onclick="quickLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
@@ -233,18 +234,19 @@
                     </div>
                 </div>
 
-                <!-- 2. CÓDIGO SAP INTERNO -->
+                <!-- 2. CÓDIGO SAP INTERNO (LIMPIEZA AUTOMÁTICA DE CEROS Y 'UN') -->
                 <div>
                     <label class="block font-bold text-gray-700 uppercase mb-1">2. Código SAP Interno</label>
                     <div class="flex gap-2">
                         <div class="flex-1 flex border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
                             <span class="bg-gray-200 px-3 py-2 text-gray-600 font-bold border-r border-gray-300 select-none">SAP -</span>
-                            <input type="text" id="prodSap" required placeholder="10023" class="w-full px-3 py-2 bg-transparent font-mono text-xs">
+                            <input type="text" id="prodSap" required placeholder="Ej: 10060" class="w-full px-3 py-2 bg-transparent font-mono text-xs">
                         </div>
-                        <button type="button" onclick="openScannerModal('sap')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl" title="Escanear Código SAP">
+                        <button type="button" onclick="openScannerModal('sap')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl" title="Escanear Etiqueta / Código SAP">
                             <i class="fa-solid fa-camera"></i>
                         </button>
                     </div>
+                    <span class="text-[10px] text-gray-400 mt-0.5 block">* Al escanear 0000010060UN se registrará automáticamente como 10060</span>
                 </div>
 
                 <!-- 3. DESCRIPCIÓN -->
@@ -416,21 +418,27 @@
         </div>
     </div>
 
-    <!-- MODAL ESCÁNER CÁMARA -->
-    <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+    <!-- MODAL ESCÁNER CÁMARA MEJORADO CON LINTERNA Y ALTA SENSIBILIDAD -->
+    <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl">
             <div class="p-3 bg-gray-800 text-white flex justify-between items-center">
                 <span id="scannerModalTitle" class="text-xs font-bold uppercase tracking-wider text-emerald-400">Escaneando...</span>
-                <button type="button" onclick="closeScannerModal()" class="text-gray-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <div class="flex items-center space-x-2">
+                    <!-- Botón Linterna/Flash para cámaras de baja calidad o poca luz -->
+                    <button type="button" id="btnTorch" onclick="toggleTorch()" class="hidden px-2.5 py-1 bg-yellow-500 hover:bg-yellow-600 text-black text-xs font-bold rounded-lg transition" title="Activar Linterna">
+                        <i class="fa-solid fa-bolt mr-1"></i> Flash
+                    </button>
+                    <button type="button" onclick="closeScannerModal()" class="text-gray-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
             </div>
             <div class="p-3 bg-black flex flex-col items-center justify-center">
-                <div id="reader" class="w-full max-w-[280px] overflow-hidden rounded-xl bg-gray-950"></div>
-                <p class="text-[11px] text-gray-400 mt-2 text-center">Apunta la cámara al código de barras o etiqueta SAP</p>
+                <div id="reader" class="w-full max-w-[290px] overflow-hidden rounded-xl bg-gray-950 border border-gray-800"></div>
+                <p id="scannerHint" class="text-[11px] text-gray-300 mt-2 text-center font-medium">Apunta la cámara al código de barras o etiqueta SAP</p>
             </div>
             <div class="p-3 bg-gray-800 text-center">
-                <button type="button" onclick="closeScannerModal()" class="w-full py-2 bg-gray-700 text-white text-xs font-bold rounded-xl">
+                <button type="button" onclick="closeScannerModal()" class="w-full py-2 bg-gray-700 hover:bg-gray-600 text-white text-xs font-bold rounded-xl transition">
                     Cerrar Cámara
                 </button>
             </div>
@@ -571,6 +579,7 @@
         let html5QrCode = null;
         let scannerTarget = null;
         let editingIndex = null;
+        let isTorchOn = false;
 
         function playWarningBeep() {
             try {
@@ -783,7 +792,6 @@
         }
 
         function handleR1Change() {
-            // R1 siempre equivale a 6 unidades fijas
             const r1 = parseInt(document.getElementById('prodR1').value) || 0;
             const totalUnits = r1 * 6;
             document.getElementById('prodStock').value = totalUnits;
@@ -797,7 +805,6 @@
         }
 
         function handleCXChange() {
-            // Cuando cambias CX: calcula unidades totales y convierte R1 dividiendo entre 6
             const cx = parseInt(document.getElementById('prodCX').value) || 0;
             const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
             const totalUnits = cx * unitsPerBox;
@@ -806,14 +813,12 @@
 
             const r1NA = document.getElementById('r1NA').checked;
             if (!r1NA) {
-                // Conversión exacta: unidades totales divididas en sixpacks (6 unds)
                 document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
             }
             recalcPrices();
         }
 
         function handleCXUnitsPerBoxChange() {
-            // Al cambiar cuántas unidades trae la caja, recalcula unidades y convierte R1
             const cx = parseInt(document.getElementById('prodCX').value) || 0;
             const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 1;
             const totalUnits = cx * unitsPerBox;
@@ -849,11 +854,9 @@
             const promoPrice = parseFloat(document.getElementById('prodPromoPrice').value) || 0;
             const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
 
-            // R1 SIEMPRE 6 UNIDADES
             const priceR1Reg = price * 6;
             document.getElementById('labelPriceR1Reg').textContent = `$${priceR1Reg.toLocaleString()}`;
 
-            // CX SEGÚN EL TAMAÑO REAL DE LA CAJA (20, 24, 12, etc.)
             document.getElementById('labelCXBoxSize').textContent = `Caja de ${unitsPerBox} unds`;
             const priceCXReg = price * unitsPerBox;
             document.getElementById('labelPriceCXReg').textContent = `$${priceCXReg.toLocaleString()}`;
@@ -977,9 +980,15 @@
                 expiryVal = document.getElementById('prodExpiry').value || "No aplica";
             }
 
+            // Sanitización del SAP al guardar: eliminar ceros iniciales y terminación 'UN'
+            let cleanSap = document.getElementById('prodSap').value.trim()
+                .replace(/^SAP\s*-\s*/i, '')
+                .replace(/[^\d]/g, '')
+                .replace(/^0+/, '');
+
             const item = {
                 barcode: document.getElementById('prodBarcode').value.trim(),
-                sap: document.getElementById('prodSap').value.trim().replace(/^SAP\s*-\s*/i, ''),
+                sap: cleanSap || document.getElementById('prodSap').value.trim(),
                 name: document.getElementById('prodName').value.trim(),
                 category: cat,
                 temperature: tempValue,
@@ -1189,56 +1198,131 @@
             }).join('');
         }
 
-        // ESCÁNER
+        // ========================================================
+        // ESCÁNER DE ALTA SENSIBILIDAD PARA CÁMARAS BÁSICAS + FLASH
+        // ========================================================
         function openScannerModal(target) {
             scannerTarget = target;
             const titleEl = document.getElementById('scannerModalTitle');
+            const hintEl = document.getElementById('scannerHint');
+            const torchBtn = document.getElementById('btnTorch');
 
-            if (target === 'barcode') titleEl.textContent = "Escanear Código de Barras (EAN)";
-            else if (target === 'sap') titleEl.textContent = "Escanear Código SAP Interno";
-            else titleEl.textContent = "Escaneo Rápido de Producto";
+            if (target === 'barcode') {
+                titleEl.textContent = "Escanear Código de Barras (EAN)";
+                hintEl.textContent = "Enfoca el código de barras del empaque o lata";
+            } else if (target === 'sap') {
+                titleEl.textContent = "Escanear Código SAP de Góndola";
+                hintEl.textContent = "Apunta al código de barras o número de la etiqueta amarilla";
+            } else {
+                titleEl.textContent = "Escaneo Rápido de Producto";
+                hintEl.textContent = "Apunta al código para buscar en inventario";
+            }
 
             document.getElementById('scannerModal').classList.remove('hidden');
 
             try {
                 if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("reader");
-                }
-                const config = { fps: 10, qrbox: { width: 250, height: 160 } };
-                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-                    .catch(err => {
-                        console.error("Error al iniciar cámara:", err);
-                        alert("No se pudo acceder a la cámara. Asegúrate de otorgar los permisos necesarios.");
-                        closeScannerModal();
+                    html5QrCode = new Html5Qrcode("reader", {
+                        formatsToSupport: [
+                            Html5QrcodeSupportedFormats.CODE_128,
+                            Html5QrcodeSupportedFormats.CODE_39,
+                            Html5QrcodeSupportedFormats.EAN_13,
+                            Html5QrcodeSupportedFormats.EAN_8,
+                            Html5QrcodeSupportedFormats.UPC_A,
+                            Html5QrcodeSupportedFormats.UPC_E,
+                            Html5QrcodeSupportedFormats.QR_CODE
+                        ],
+                        verbose: false
                     });
+                }
+
+                // Configuración de escaneo rápido y autoenfoque
+                const config = {
+                    fps: 20,
+                    qrbox: { width: 270, height: 160 },
+                    aspectRatio: 1.2
+                };
+
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess
+                ).then(() => {
+                    // Si el dispositivo tiene linterna, mostramos el botón Flash
+                    try {
+                        const track = html5QrCode.getRunningTrackCameraCapabilities();
+                        if (track && track.torchFeature().isSupported()) {
+                            torchBtn.classList.remove('hidden');
+                        }
+                    } catch(e) {}
+                }).catch(err => {
+                    console.error("Error al iniciar cámara:", err);
+                    alert("No se pudo iniciar la cámara. Asegúrate de dar permisos de cámara en tu navegador.");
+                    closeScannerModal();
+                });
             } catch (err) {
                 closeScannerModal();
             }
         }
 
+        function toggleTorch() {
+            if (html5QrCode) {
+                try {
+                    isTorchOn = !isTorchOn;
+                    html5QrCode.applyVideoConstraints({
+                        advanced: [{ torch: isTorchOn }]
+                    });
+                    const btn = document.getElementById('btnTorch');
+                    btn.classList.toggle('bg-yellow-400');
+                    btn.classList.toggle('bg-yellow-200');
+                } catch(e) {
+                    console.log("Torch no disponible");
+                }
+            }
+        }
+
+        // EXTRACCIÓN Y LIMPIEZA DE SAP (EJ: '0000010060UN' -> '10060')
         function onScanSuccess(decodedText) {
             playWarningBeep();
             closeScannerModal();
 
             if (scannerTarget === 'barcode') {
-                document.getElementById('prodBarcode').value = decodedText;
+                document.getElementById('prodBarcode').value = decodedText.trim();
             } else if (scannerTarget === 'sap') {
-                const cleanSap = decodedText.replace(/[^0-9]/g, '');
-                document.getElementById('prodSap').value = cleanSap || decodedText;
+                // Elimina letras (como UN, UND), espacios y luego remueve ceros a la izquierda
+                let cleanNumbers = decodedText.replace(/[^\d]/g, '');
+                let sapExtracted = cleanNumbers.replace(/^0+/, ''); // Remueve todos los ceros antes del 1 al 9
+
+                // Si por alguna razón todo eran ceros o quedó vacío, usa el texto limpio
+                document.getElementById('prodSap').value = sapExtracted || cleanNumbers || decodedText.trim();
             } else if (scannerTarget === 'quickSearch') {
-                const found = inventory.find(p => p.barcode === decodedText || p.sap === decodedText);
+                // En búsqueda rápida busca tanto por código de barras como por SAP limpio
+                let cleanNumbers = decodedText.replace(/[^\d]/g, '');
+                let sapExtracted = cleanNumbers.replace(/^0+/, '');
+
+                const found = inventory.find(p => 
+                    p.barcode === decodedText.trim() || 
+                    p.sap === decodedText.trim() || 
+                    p.sap === sapExtracted
+                );
+
                 if (found) {
                     openProductModal(inventory.indexOf(found));
                 } else {
-                    if (confirm(`El código ${decodedText} no está en inventario. ¿Registrar como nuevo producto?`)) {
+                    if (confirm(`El código "${decodedText}" no está registrado. ¿Deseas crearlo como producto nuevo?`)) {
                         openProductModal();
-                        document.getElementById('prodBarcode').value = decodedText;
+                        document.getElementById('prodBarcode').value = decodedText.trim();
+                        if (sapExtracted) {
+                            document.getElementById('prodSap').value = sapExtracted;
+                        }
                     }
                 }
             }
         }
 
         function closeScannerModal() {
+            isTorchOn = false;
+            document.getElementById('btnTorch').classList.add('hidden');
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
                     document.getElementById('scannerModal').classList.add('hidden');
