@@ -354,4 +354,1155 @@
         </div>
 
         <div class="flex justify-between items-center pt-2">
-          <button onclick="switchCameraFacing()" class="text-xs font-semibold te
+          <button onclick="switchCameraFacing()" class="text-xs font-semibold text-slate-600 hover:text-emerald-600 flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate"></i> Cambiar Cámara
+          </button>
+          <button onclick="simulateScanDemo()" class="text-xs font-semibold text-amber-600 hover:text-amber-700">
+            Simular Escaneo Demo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL REGISTRO / EDICIÓN PRODUCTO ================= -->
+  <div id="productModal" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <div>
+          <h3 id="productModalTitle" class="font-bold text-base">Nuevo Registro en Inventario</h3>
+          <p class="text-xs text-slate-400">Estructura correspondiente a Bodega Canasto 1156</p>
+        </div>
+        <button onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Formulario con scroll -->
+      <form id="productForm" onsubmit="handleSaveProduct(event)" class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 custom-scroll">
+        <input type="hidden" id="prodEditId">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Código de Barras -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Código de Barras (EAN)</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <i class="fa-solid fa-barcode"></i>
+              </span>
+              <input type="text" id="prodBarcode" required placeholder="Ej: 770123456001" class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+            </div>
+          </div>
+
+          <!-- Código SAP -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Código SAP Interno</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <i class="fa-solid fa-hashtag"></i>
+              </span>
+              <input type="text" id="prodSap" required placeholder="Ej: SAP-1156" class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-mono">
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">3. Descripción del Producto</label>
+          <input type="text" id="prodDesc" required placeholder="Ej: Papas Margaritas Sabor Pollo 105g" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Categoría -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">4. Categoría</label>
+            <select id="prodCategory" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="Lácteos">Lácteos</option>
+              <option value="Abarrotes">Abarrotes</option>
+              <option value="Bebidas">Bebidas</option>
+              <option value="Limpieza">Limpieza</option>
+              <option value="Carnes">Carnes</option>
+              <option value="Mecato">Mecato / Snacks</option>
+              <option value="Frutas y Verduras">Frutas y Verduras</option>
+              <option value="Panadería">Panadería</option>
+            </select>
+          </div>
+
+          <!-- Stock Actual -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">5. Stock Actual (Unidades)</label>
+            <input type="number" id="prodStock" required min="0" value="10" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- Precio Regular -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">6. Precio Regular ($)</label>
+            <input type="number" id="prodPriceReg" required min="0" step="50" placeholder="4500" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+
+          <!-- En Promoción -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">7. En Promoción</label>
+            <select id="prodInPromo" onchange="togglePromoInput()" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+              <option value="NO">NO</option>
+              <option value="SÍ">SÍ</option>
+            </select>
+          </div>
+
+          <!-- Precio Promo -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">8. Precio Promo ($)</label>
+            <input type="number" id="prodPricePromo" min="0" step="50" placeholder="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50 text-slate-400" disabled>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Fecha de Vencimiento -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">9. Fecha de Vencimiento</label>
+            <input type="date" id="prodExpiry" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+
+          <!-- Ubicación / Pasillo -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">10. Ubicación Bodega / Pasillo</label>
+            <input type="text" id="prodLocation" placeholder="Pasillo 3 - Estante B" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="pt-4 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Guardar en Inventario</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= BURBUJA FLOTANTE INTERACTIVA DE ALERTA ================= -->
+  <!-- Aparece en la esquina inferior y notifica con sonido si un producto está próximo a vencer -->
+  <div id="floatingAlertBubble" class="fixed bottom-5 right-5 z-40 max-w-sm w-[90vw] sm:w-80 rounded-2xl shadow-2xl p-4 border transition-all duration-300 transform translate-y-36 opacity-0 pointer-events-none flex flex-col gap-2">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center gap-2.5">
+        <div id="alertIconBox" class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow">
+          <i id="alertIcon" class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <span id="alertBadgeTitle" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block">¡ALERTA SAP!</span>
+          <h4 id="alertProductName" class="text-xs font-bold text-slate-900 leading-tight line-clamp-1">Producto</h4>
+        </div>
+      </div>
+      <button onclick="dismissFloatingAlert()" class="text-slate-400 hover:text-slate-700 p-1">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+    <p id="alertDescription" class="text-xs text-slate-700 font-medium leading-relaxed">
+      Vence en pocos días. Se recomienda aplicar descuento o retirar de góndola.
+    </p>
+    <div class="flex justify-between items-center pt-1 border-t border-black/10">
+      <span id="alertDaysLeft" class="text-[11px] font-bold text-slate-800">0 días restantes</span>
+      <button id="alertActionBtn" class="text-xs font-black underline hover:no-underline">
+        Ver Producto
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= PANEL LATERAL / DRAWER DE NOTIFICACIONES ================= -->
+  <div id="alertsDrawer" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden">
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform transition-transform duration-300">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-bell text-amber-400"></i>
+          <h3 class="font-bold text-base">Alertas de Vencimiento</h3>
+        </div>
+        <button onclick="toggleAlertsDrawer()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-3 bg-slate-100 border-b border-slate-200 flex justify-between items-center text-xs">
+        <span class="text-slate-600 font-medium">Prioridad por fecha de caducidad</span>
+        <button onclick="playBeepAlert(880, 0.2, 'sawtooth')" class="text-emerald-700 font-bold hover:underline">
+          <i class="fa-solid fa-volume-high"></i> Test Alarma
+        </button>
+      </div>
+
+      <div id="alertsListContainer" class="p-3 space-y-2 overflow-y-auto flex-1 custom-scroll">
+        <!-- Renderizado dinámico de productos en riesgo -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* =========================================================================
+       1. BASE DE DATOS INICIAL BASADA EN LA PLANTILLA CANASTO 1156
+       ========================================================================= */
+    const DEFAULT_PRODUCTS = [
+      {
+        id: "prod-1",
+        barcode: "770123456001",
+        sap: "SAP-10023",
+        name: "Leche Entera 1L Tetrapack",
+        category: "Lácteos",
+        stock: 150,
+        priceReg: 3090,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(4), // Vence en 4 días (Crítico)
+        location: "Pasillo 1 - Lácteos"
+      },
+      {
+        id: "prod-2",
+        barcode: "770123456002",
+        sap: "SAP-10045",
+        name: "Queso Fresco Campesino 500g",
+        category: "Lácteos",
+        stock: 60,
+        priceReg: 4000,
+        inPromo: "SÍ",
+        pricePromo: 3600,
+        expiryDate: getDateOffset(-2), // Ya venció (Vencido)
+        location: "Nevera 2 - Frescos"
+      },
+      {
+        id: "prod-3",
+        barcode: "770123456003",
+        sap: "SAP-20112",
+        name: "Arroz Diana Tradicional 500g",
+        category: "Abarrotes",
+        stock: 200,
+        priceReg: 1990,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(180), // Óptimo
+        location: "Pasillo 4 - Granos"
+      },
+      {
+        id: "prod-4",
+        barcode: "770123456004",
+        sap: "SAP-20189",
+        name: "Aceite de Girasol 900ml",
+        category: "Abarrotes",
+        stock: 85,
+        priceReg: 3200,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(90), // Óptimo
+        location: "Pasillo 4 - Aceites"
+      },
+      {
+        id: "prod-5",
+        barcode: "770123456005",
+        sap: "SAP-30012",
+        name: "Agua Mineral sin Gas 1.5L",
+        category: "Bebidas",
+        stock: 300,
+        priceReg: 900,
+        inPromo: "SÍ",
+        pricePromo: 800,
+        expiryDate: getDateOffset(120), // Óptimo
+        location: "Pasillo 6 - Bebidas"
+      },
+      {
+        id: "prod-6",
+        barcode: "770123456006",
+        sap: "SAP-30055",
+        name: "Refresco Gaseosa Cola 2L",
+        category: "Bebidas",
+        stock: 120,
+        priceReg: 2100,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(22), // Próximo a vencer
+        location: "Pasillo 6 - Bebidas"
+      },
+      {
+        id: "prod-7",
+        barcode: "770123456007",
+        sap: "SAP-40088",
+        name: "Detergente Líquido Ropa 3L",
+        category: "Limpieza",
+        stock: 45,
+        priceReg: 7500,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(365), // Óptimo
+        location: "Pasillo 8 - Aseo"
+      },
+      {
+        id: "prod-8",
+        barcode: "770123456008",
+        sap: "SAP-40092",
+        name: "Papel Higiénico Triple Hoja 12u",
+        category: "Limpieza",
+        stock: 90,
+        priceReg: 5400,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(500), // Óptimo
+        location: "Pasillo 8 - Hogar"
+      },
+      {
+        id: "prod-9",
+        barcode: "770123456009",
+        sap: "SAP-50101",
+        name: "Pechuga de Pollo Fresca 1kg",
+        category: "Carnes",
+        stock: 35,
+        priceReg: 6800,
+        inPromo: "SÍ",
+        pricePromo: 6200,
+        expiryDate: getDateOffset(2), // Crítico (2 días)
+        location: "Cava Carnes Frías"
+      },
+      {
+        id: "prod-10",
+        barcode: "770123456010",
+        sap: "SAP-50210",
+        name: "Carne Molida Especial Res 1kg",
+        category: "Carnes",
+        stock: 25,
+        priceReg: 8500,
+        inPromo: "NO",
+        pricePromo: 0,
+        expiryDate: getDateOffset(12), // Crítico (12 días)
+        location: "Cava Carnes Frías"
+      },
+      {
+        id: "prod-11",
+        barcode: "7701234561156",
+        sap: "SAP-1156",
+        name: "Papas Margaritas Sabor Pollo 105g",
+        category: "Mecato",
+        stock: 300,
+        priceReg: 4600,
+        inPromo: "SÍ",
+        pricePromo: 3900,
+        expiryDate: getDateOffset(10), // Crítico (10 días)
+        location: "Góndola Central 1156"
+      }
+    ];
+
+    // Función auxiliar para generar fechas relativas a hoy
+    function getDateOffset(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split('T')[0];
+    }
+
+    // Estado de la Aplicación
+    let products = [];
+    let currentUser = null;
+    let html5QrScanner = null;
+    let currentFacingMode = "environment"; // Cámara trasera por defecto
+    let alertAudioContext = null;
+
+    /* =========================================================================
+       2. INICIALIZACIÓN & AUDIO CON WEB AUDIO API
+       ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Cargar productos de localStorage o predeterminados
+      const stored = localStorage.getItem('canasto_1156_inventory');
+      if (stored) {
+        try {
+          products = JSON.parse(stored);
+        } catch(e) {
+          products = DEFAULT_PRODUCTS;
+        }
+      } else {
+        products = DEFAULT_PRODUCTS;
+        saveProducts();
+      }
+
+      // Verificar sesión activa
+      const session = localStorage.getItem('canasto_session_user');
+      if (session) {
+        try {
+          currentUser = JSON.parse(session);
+          showApp();
+        } catch(e) {
+          showAuth();
+        }
+      } else {
+        showAuth();
+      }
+    });
+
+    // Guardar en LocalStorage
+    function saveProducts() {
+      localStorage.setItem('canasto_1156_inventory', JSON.stringify(products));
+    }
+
+    // Sintetizador de audio para alarmas (Sin requerir audios externos)
+    function playBeepAlert(freq = 700, duration = 0.35, type = 'sawtooth') {
+      try {
+        if (!alertAudioContext) {
+          alertAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (alertAudioContext.state === 'suspended') {
+          alertAudioContext.resume();
+        }
+
+        const osc = alertAudioContext.createOscillator();
+        const gain = alertAudioContext.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, alertAudioContext.currentTime);
+
+        // Envolvente de sonido con caída
+        gain.gain.setValueAtTime(0.3, alertAudioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, alertAudioContext.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(alertAudioContext.destination);
+
+        osc.start();
+        osc.stop(alertAudioContext.currentTime + duration);
+      } catch (err) {
+        console.warn("Audio Context no disponible:", err);
+      }
+    }
+
+    // Tono de Alerta Crítica (doble pitido de aviso urgente)
+    function playCriticalAlarmSound() {
+      playBeepAlert(880, 0.2, 'sawtooth');
+      setTimeout(() => {
+        playBeepAlert(660, 0.4, 'sawtooth');
+      }, 220);
+    }
+
+    function testQuickBeep() {
+      playCriticalAlarmSound();
+      showFloatingAlert({
+        name: "Alerta Sonora Activada",
+        days: 5,
+        status: "critico",
+        sap: "TEST-01"
+      });
+    }
+
+    /* =========================================================================
+       3. AUTENTICACIÓN (LOGIN / REGISTRO)
+       ========================================================================= */
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const tabLoginBtn = document.getElementById('tabLoginBtn');
+      const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        tabLoginBtn.classList.add('bg-white', 'shadow-sm', 'text-slate-800');
+        tabLoginBtn.classList.remove('text-slate-500');
+        tabRegisterBtn.classList.remove('bg-white', 'shadow-sm', 'text-slate-800');
+        tabRegisterBtn.classList.add('text-slate-500');
+      } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        tabRegisterBtn.classList.add('bg-white', 'shadow-sm', 'text-slate-800');
+        tabRegisterBtn.classList.remove('text-slate-500');
+        tabLoginBtn.classList.remove('bg-white', 'shadow-sm', 'text-slate-800');
+        tabLoginBtn.classList.add('text-slate-500');
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
+
+      // Buscar en registrados o admin por defecto
+      const registeredUsers = JSON.parse(localStorage.getItem('canasto_users') || '[]');
+      const userFound = registeredUsers.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
+
+      if (userFound || (u.toLowerCase() === 'admin' && p === '1234')) {
+        const userObj = userFound || {
+          fullName: 'Administrador Bodega',
+          username: 'admin',
+          role: 'Jefe de Tienda'
+        };
+        localStorage.setItem('canasto_session_user', JSON.stringify(userObj));
+        currentUser = userObj;
+        showApp();
+      } else {
+        alertMessage("Credenciales incorrectas. (Prueba con usuario: admin y clave: 1234)");
+      }
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('regName').value.trim();
+      const username = document.getElementById('regUser').value.trim();
+      const password = document.getElementById('regPass').value.trim();
+      const role = document.getElementById('regRole').value;
+
+      if (!fullName || !username || !password) return;
+
+      const registeredUsers = JSON.parse(localStorage.getItem('canasto_users') || '[]');
+      if (registeredUsers.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+        alertMessage("El usuario ya existe en el sistema.");
+        return;
+      }
+
+      const newUser = { fullName, username, password, role };
+      registeredUsers.push(newUser);
+      localStorage.setItem('canasto_users', JSON.stringify(registeredUsers));
+
+      // Autologuear al usuario registrado
+      localStorage.setItem('canasto_session_user', JSON.stringify(newUser));
+      currentUser = newUser;
+      showApp();
+    }
+
+    function logout() {
+      localStorage.removeItem('canasto_session_user');
+      currentUser = null;
+      if (html5QrScanner) {
+        stopScanner();
+      }
+      showAuth();
+    }
+
+    function showAuth() {
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+    }
+
+    function showApp() {
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+
+      if (currentUser) {
+        document.getElementById('sessionUserName').textContent = currentUser.fullName || currentUser.username;
+        document.getElementById('sessionUserRole').textContent = currentUser.role || 'Bodega 1156';
+      }
+
+      renderTable();
+      checkCriticalExpirationsOnLoad();
+    }
+
+    /* =========================================================================
+       4. CÁLCULO DE VENCIMIENTOS Y ESTADOS
+       ========================================================================= */
+    function calculateDaysRemaining(expiryDateStr) {
+      if (!expiryDateStr) return 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [y, m, d] = expiryDateStr.split('-').map(Number);
+      const target = new Date(y, m - 1, d);
+      target.setHours(0, 0, 0, 0);
+
+      const diffTime = target.getTime() - today.getTime();
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function getExpirationStatus(days) {
+      if (days < 0) {
+        return {
+          code: 'vencido',
+          label: 'VENCIDO',
+          badgeClass: 'bg-purple-100 text-purple-800 border border-purple-300',
+          textColor: 'text-purple-700',
+          urgency: 4
+        };
+      } else if (days <= 15) {
+        return {
+          code: 'critico',
+          label: 'CRÍTICO',
+          badgeClass: 'bg-red-100 text-red-800 border border-red-300 font-bold',
+          textColor: 'text-red-600',
+          urgency: 3
+        };
+      } else if (days <= 45) {
+        return {
+          code: 'proximo',
+          label: 'PRÓXIMO',
+          badgeClass: 'bg-amber-100 text-amber-800 border border-amber-300',
+          textColor: 'text-amber-600',
+          urgency: 2
+        };
+      } else {
+        return {
+          code: 'ok',
+          label: 'ÓPTIMO',
+          badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+          textColor: 'text-emerald-600',
+          urgency: 1
+        };
+      }
+    }
+
+    /* =========================================================================
+       5. RENDERIZADO DE TABLA & ESTADÍSTICAS
+       ========================================================================= */
+    function renderTable() {
+      const tbody = document.getElementById('inventoryTableBody');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const categoryFilter = document.getElementById('filterCategory').value;
+
+      let criticalCount = 0;
+      let upcomingCount = 0;
+      let okCount = 0;
+
+      // Calcular contadores generales
+      products.forEach(p => {
+        const days = calculateDaysRemaining(p.expiryDate);
+        const st = getExpirationStatus(days);
+        if (st.code === 'critico' || st.code === 'vencido') criticalCount++;
+        else if (st.code === 'proximo') upcomingCount++;
+        else okCount++;
+      });
+
+      document.getElementById('kpiCritical').textContent = criticalCount;
+      document.getElementById('kpiUpcoming').textContent = upcomingCount;
+      document.getElementById('kpiOk').textContent = okCount;
+      document.getElementById('kpiTotalProducts').textContent = products.length;
+      document.getElementById('alertBadgeCount').textContent = criticalCount + upcomingCount;
+
+      // Filtrado
+      const filtered = products.filter(p => {
+        const days = calculateDaysRemaining(p.expiryDate);
+        const st = getExpirationStatus(days);
+
+        const matchSearch = (
+          p.name.toLowerCase().includes(searchTerm) ||
+          p.barcode.toLowerCase().includes(searchTerm) ||
+          p.sap.toLowerCase().includes(searchTerm) ||
+          (p.location && p.location.toLowerCase().includes(searchTerm))
+        );
+
+        const matchStatus = (statusFilter === 'all') || (st.code === statusFilter);
+        const matchCategory = (categoryFilter === 'all') || (p.category === categoryFilter);
+
+        return matchSearch && matchStatus && matchCategory;
+      });
+
+      document.getElementById('filteredCount').textContent = `${filtered.length} productos`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="11" class="text-center py-8 text-slate-400">
+              <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+              <p>No se encontraron productos coincidentes en el inventario.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Ordenar por días restantes ascendente (los que vencen antes primero)
+      filtered.sort((a, b) => calculateDaysRemaining(a.expiryDate) - calculateDaysRemaining(b.expiryDate));
+
+      tbody.innerHTML = filtered.map(p => {
+        const days = calculateDaysRemaining(p.expiryDate);
+        const st = getExpirationStatus(days);
+        const isPromo = p.inPromo === 'SÍ';
+
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${days <= 15 ? 'bg-red-50/40' : ''}">
+            <td class="p-3 font-mono text-xs text-slate-600 font-semibold">${p.barcode}</td>
+            <td class="p-3 font-mono font-bold text-slate-900">${p.sap}</td>
+            <td class="p-3">
+              <div class="font-bold text-slate-800">${p.name}</div>
+              <div class="text-[11px] text-slate-400"><i class="fa-solid fa-location-dot"></i> ${p.location || 'Bodega General'}</div>
+            </td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs">${p.category}</span>
+            </td>
+            <td class="p-3 text-center">
+              <span class="font-bold ${p.stock < 30 ? 'text-orange-600' : 'text-slate-800'}">${p.stock}</span>
+            </td>
+            <td class="p-3 text-right font-medium">$${Number(p.priceReg).toLocaleString()}</td>
+            <td class="p-3 text-right">
+              ${isPromo 
+                ? `<span class="text-emerald-600 font-bold">$${Number(p.pricePromo).toLocaleString()}</span> <span class="text-[10px] bg-emerald-100 text-emerald-800 px-1 rounded font-bold">PROMO</span>` 
+                : `<span class="text-slate-400">-</span>`
+              }
+            </td>
+            <td class="p-3 text-center font-mono text-xs">${p.expiryDate}</td>
+            <td class="p-3 text-center font-bold ${st.textColor}">
+              ${days < 0 ? `${Math.abs(days)}d atrás` : `${days} días`}
+            </td>
+            <td class="p-3 text-center">
+              <span class="px-2 py-1 rounded-full text-[11px] font-bold ${st.badgeClass}">
+                ${st.label}
+              </span>
+            </td>
+            <td class="p-3 text-center">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="editProduct('${p.id}')" title="Editar Producto" class="p-1.5 rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="deleteProduct('${p.id}')" title="Eliminar de Planilla" class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /* =========================================================================
+       6. ESCÁNER DE CÓDIGO DE BARRAS CON CÁMARA
+       ========================================================================= */
+    function openScannerModal() {
+      document.getElementById('scannerModal').classList.remove('hidden');
+      document.getElementById('scannerPlaceholder').classList.add('hidden');
+      startCamera();
+    }
+
+    function closeScannerModal() {
+      stopScanner();
+      document.getElementById('scannerModal').classList.add('hidden');
+    }
+
+    function startCamera() {
+      if (html5QrScanner) {
+        stopScanner();
+      }
+
+      const html5QrCode = new Html5Qrcode("reader");
+      html5QrScanner = html5QrCode;
+
+      const config = {
+        fps: 15,
+        qrbox: { width: 260, height: 160 },
+        aspectRatio: 1.0
+      };
+
+      html5QrCode.start(
+        { facingMode: currentFacingMode },
+        config,
+        (decodedText) => {
+          // Escaneo exitoso
+          closeScannerModal();
+          processScannedCode(decodedText);
+        },
+        (errorMessage) => {
+          // Ignorar cuadros sin código
+        }
+      ).catch(err => {
+        console.error("Error al iniciar cámara:", err);
+        document.getElementById('scannerPlaceholder').classList.remove('hidden');
+      });
+    }
+
+    function stopScanner() {
+      if (html5QrScanner) {
+        html5QrScanner.stop().then(() => {
+          html5QrScanner.clear();
+          html5QrScanner = null;
+        }).catch(() => {
+          html5QrScanner = null;
+        });
+      }
+    }
+
+    function switchCameraFacing() {
+      currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+      startCamera();
+    }
+
+    // Procesar el código escaneado (cámara o manual)
+    function processScannedCode(code) {
+      if (!code) return;
+      const cleanCode = code.trim();
+
+      // Buscar si el producto ya existe por Código de Barras o SAP
+      const existing = products.find(p => p.barcode === cleanCode || p.sap.toUpperCase() === cleanCode.toUpperCase());
+
+      if (existing) {
+        // Sonido de lectura exitosa
+        const days = calculateDaysRemaining(existing.expiryDate);
+        if (days <= 15) {
+          playCriticalAlarmSound();
+          showFloatingAlert({
+            name: existing.name,
+            days: days,
+            status: days < 0 ? 'vencido' : 'critico',
+            sap: existing.sap,
+            id: existing.id
+          });
+        } else {
+          playBeepAlert(1000, 0.15, 'sine');
+        }
+
+        // Abrir ficha del producto para actualizar stock o datos
+        editProduct(existing.id);
+      } else {
+        // Producto nuevo: Abrir modal con el código prellenado
+        playBeepAlert(900, 0.2, 'triangle');
+        openProductModal();
+        document.getElementById('prodBarcode').value = cleanCode;
+        // Sugerir un SAP consecutivo
+        document.getElementById('prodSap').value = `SAP-${Math.floor(1000 + Math.random() * 9000)}`;
+      }
+    }
+
+    // Botón de demostración rápida de escaneo
+    function simulateScanDemo() {
+      closeScannerModal();
+      // Simula el escaneo del producto crítico Leche Entera
+      processScannedCode("770123456001");
+    }
+
+    /* =========================================================================
+       7. SISTEMA DE BURBUJA FLOTANTE DE ALERTA DE VENCIMIENTO
+       ========================================================================= */
+    let alertTimeout = null;
+
+    function showFloatingAlert(alertData) {
+      const bubble = document.getElementById('floatingAlertBubble');
+      const badgeTitle = document.getElementById('alertBadgeTitle');
+      const prodName = document.getElementById('alertProductName');
+      const desc = document.getElementById('alertDescription');
+      const daysLeft = document.getElementById('alertDaysLeft');
+      const iconBox = document.getElementById('alertIconBox');
+      const actionBtn = document.getElementById('alertActionBtn');
+
+      prodName.textContent = `[${alertData.sap}] ${alertData.name}`;
+
+      if (alertData.status === 'vencido') {
+        bubble.className = "fixed bottom-5 right-5 z-40 max-w-sm w-[90vw] sm:w-80 rounded-2xl shadow-2xl p-4 border bg-purple-50 border-purple-300 floating-alert-active pointer-events-auto transition-all duration-300 transform translate-y-0 opacity-100";
+        iconBox.className = "w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow bg-purple-600";
+        badgeTitle.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block bg-purple-600 text-white";
+        badgeTitle.textContent = "¡PRODUCTO VENCIDO!";
+        desc.textContent = `Caducó hace ${Math.abs(alertData.days)} días. Se debe dar de baja y retirar inmediatamente de estantería.`;
+        daysLeft.textContent = `Venció: ${Math.abs(alertData.days)} días atrás`;
+        daysLeft.className = "text-[11px] font-bold text-purple-700";
+      } else {
+        // Crítico <= 15 días
+        bubble.className = "fixed bottom-5 right-5 z-40 max-w-sm w-[90vw] sm:w-80 rounded-2xl shadow-2xl p-4 border bg-red-50 border-red-300 floating-alert-active pointer-events-auto transition-all duration-300 transform translate-y-0 opacity-100";
+        iconBox.className = "w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow bg-red-600";
+        badgeTitle.className = "text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block bg-red-600 text-white";
+        badgeTitle.textContent = "¡ALERTA DE VENCIMIENTO!";
+        desc.textContent = `Vence en ${alertData.days} días. Aplica descuento o rotación de inventario urgente.`;
+        daysLeft.textContent = `${alertData.days} días restantes`;
+        daysLeft.className = "text-[11px] font-bold text-red-700";
+      }
+
+      actionBtn.onclick = () => {
+        dismissFloatingAlert();
+        if (alertData.id) editProduct(alertData.id);
+      };
+
+      if (alertTimeout) clearTimeout(alertTimeout);
+      alertTimeout = setTimeout(() => {
+        dismissFloatingAlert();
+      }, 7000);
+    }
+
+    function dismissFloatingAlert() {
+      const bubble = document.getElementById('floatingAlertBubble');
+      bubble.classList.remove('translate-y-0', 'opacity-100', 'floating-alert-active');
+      bubble.classList.add('translate-y-36', 'opacity-0', 'pointer-events-none');
+    }
+
+    function checkCriticalExpirationsOnLoad() {
+      const urgentItems = products.filter(p => {
+        const d = calculateDaysRemaining(p.expiryDate);
+        return d <= 5;
+      });
+
+      if (urgentItems.length > 0) {
+        // Activar alarma sonora suave y mostrar la primera alerta flotante
+        setTimeout(() => {
+          const first = urgentItems[0];
+          const days = calculateDaysRemaining(first.expiryDate);
+          playCriticalAlarmSound();
+          showFloatingAlert({
+            id: first.id,
+            name: first.name,
+            sap: first.sap,
+            days: days,
+            status: days < 0 ? 'vencido' : 'critico'
+          });
+        }, 800);
+      }
+    }
+
+    /* =========================================================================
+       8. GESTIÓN DE PRODUCTOS (MODAL NUEVO / EDITAR / ELIMINAR)
+       ========================================================================= */
+    function openProductModal() {
+      document.getElementById('productForm').reset();
+      document.getElementById('prodEditId').value = "";
+      document.getElementById('productModalTitle').textContent = "Nuevo Registro en Inventario";
+      // Fecha por defecto 30 días en el futuro
+      document.getElementById('prodExpiry').value = getDateOffset(30);
+      togglePromoInput();
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.add('hidden');
+    }
+
+    function togglePromoInput() {
+      const isPromo = document.getElementById('prodInPromo').value === 'SÍ';
+      const promoInput = document.getElementById('prodPricePromo');
+      promoInput.disabled = !isPromo;
+      if (isPromo) {
+        promoInput.classList.remove('bg-slate-50', 'text-slate-400');
+        promoInput.focus();
+      } else {
+        promoInput.classList.add('bg-slate-50', 'text-slate-400');
+        promoInput.value = "0";
+      }
+    }
+
+    function editProduct(id) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) return;
+
+      document.getElementById('prodEditId').value = prod.id;
+      document.getElementById('prodBarcode').value = prod.barcode;
+      document.getElementById('prodSap').value = prod.sap;
+      document.getElementById('prodDesc').value = prod.name;
+      document.getElementById('prodCategory').value = prod.category;
+      document.getElementById('prodStock').value = prod.stock;
+      document.getElementById('prodPriceReg').value = prod.priceReg;
+      document.getElementById('prodInPromo').value = prod.inPromo || 'NO';
+      document.getElementById('prodPricePromo').value = prod.pricePromo || 0;
+      document.getElementById('prodExpiry').value = prod.expiryDate;
+      document.getElementById('prodLocation').value = prod.location || '';
+
+      togglePromoInput();
+      document.getElementById('productModalTitle').textContent = `Editar Referencia SAP: ${prod.sap}`;
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    function handleSaveProduct(e) {
+      e.preventDefault();
+      const editId = document.getElementById('prodEditId').value;
+      const barcode = document.getElementById('prodBarcode').value.trim();
+      const sap = document.getElementById('prodSap').value.trim();
+      const name = document.getElementById('prodDesc').value.trim();
+      const category = document.getElementById('prodCategory').value;
+      const stock = parseInt(document.getElementById('prodStock').value, 10) || 0;
+      const priceReg = parseFloat(document.getElementById('prodPriceReg').value) || 0;
+      const inPromo = document.getElementById('prodInPromo').value;
+      const pricePromo = inPromo === 'SÍ' ? (parseFloat(document.getElementById('prodPricePromo').value) || 0) : 0;
+      const expiryDate = document.getElementById('prodExpiry').value;
+      const location = document.getElementById('prodLocation').value.trim();
+
+      if (editId) {
+        // Actualizar existente
+        const index = products.findIndex(p => p.id === editId);
+        if (index !== -1) {
+          products[index] = {
+            ...products[index],
+            barcode, sap, name, category, stock, priceReg, inPromo, pricePromo, expiryDate, location
+          };
+        }
+      } else {
+        // Verificar duplicados de SAP
+        if (products.some(p => p.sap.toUpperCase() === sap.toUpperCase())) {
+          alertMessage(`El código SAP "${sap}" ya se encuentra registrado. Utilice un código único.`);
+          return;
+        }
+
+        const newProd = {
+          id: `prod-${Date.now()}`,
+          barcode, sap, name, category, stock, priceReg, inPromo, pricePromo, expiryDate, location
+        };
+        products.unshift(newProd);
+      }
+
+      saveProducts();
+      closeProductModal();
+      renderTable();
+
+      // Evaluar si el producto guardado está en fecha crítica
+      const days = calculateDaysRemaining(expiryDate);
+      if (days <= 15) {
+        playCriticalAlarmSound();
+        showFloatingAlert({
+          name: name,
+          days: days,
+          status: days < 0 ? 'vencido' : 'critico',
+          sap: sap,
+          id: editId || products[0].id
+        });
+      } else {
+        playBeepAlert(1200, 0.2, 'sine');
+      }
+    }
+
+    function deleteProduct(id) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) return;
+
+      const confirmDelete = confirmBox(`¿Deseas eliminar "${prod.name}" (${prod.sap}) del inventario?`, () => {
+        products = products.filter(p => p.id !== id);
+        saveProducts();
+        renderTable();
+      });
+    }
+
+    /* =========================================================================
+       9. DRAWER DE ALERTAS Y NOTIFICACIONES
+       ========================================================================= */
+    function toggleAlertsDrawer() {
+      const drawer = document.getElementById('alertsDrawer');
+      const isHidden = drawer.classList.contains('hidden');
+
+      if (isHidden) {
+        renderAlertsDrawerList();
+        drawer.classList.remove('hidden');
+      } else {
+        drawer.classList.add('hidden');
+      }
+    }
+
+    function renderAlertsDrawerList() {
+      const container = document.getElementById('alertsListContainer');
+      const riskProducts = products
+        .map(p => ({ ...p, days: calculateDaysRemaining(p.expiryDate) }))
+        .filter(p => p.days <= 45)
+        .sort((a, b) => a.days - b.days);
+
+      if (riskProducts.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-400">
+            <i class="fa-solid fa-circle-check text-4xl text-emerald-500 mb-2"></i>
+            <p class="text-sm font-semibold text-slate-700">Sin alertas de vencimiento</p>
+            <p class="text-xs">Todos los productos tienen fecha de caducidad óptima (&gt;45 días).</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = riskProducts.map(p => {
+        const isCritical = p.days <= 15;
+        const isExpired = p.days < 0;
+        const color = isExpired ? 'purple' : (isCritical ? 'red' : 'amber');
+
+        return `
+          <div class="p-3 rounded-xl border border-${color}-200 bg-${color}-50 flex items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-${color}-600 text-white">
+                  ${isExpired ? 'Vencido' : (isCritical ? 'Crítico' : 'Próximo')}
+                </span>
+                <span class="text-xs font-mono font-bold text-slate-800">${p.sap}</span>
+              </div>
+              <h4 class="text-xs font-bold text-slate-900 mt-1 line-clamp-1">${p.name}</h4>
+              <p class="text-[11px] text-slate-500">Vence: ${p.expiryDate} (Stock: ${p.stock} unids)</p>
+            </div>
+            <div class="text-right flex flex-col items-end gap-1">
+              <span class="text-xs font-black text-${color}-700">
+                ${isExpired ? `${Math.abs(p.days)}d vencido` : `${p.days} días`}
+              </span>
+              <button onclick="toggleAlertsDrawer(); editProduct('${p.id}')" class="text-[11px] font-bold text-slate-700 hover:text-emerald-700 underline">
+                Gestionar
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* =========================================================================
+       10. EXPORTACIÓN A CSV / EXCEL
+       ========================================================================= */
+    function exportToCSV() {
+      const headers = ["Codigo_Barras", "Codigo_SAP", "Descripcion", "Categoria", "Stock", "Precio_Regular", "En_Promocion", "Precio_Promo", "Fecha_Vencimiento", "Dias_Restantes", "Estado"];
+      
+      const rows = products.map(p => {
+        const days = calculateDaysRemaining(p.expiryDate);
+        const st = getExpirationStatus(days);
+        return [
+          `"${p.barcode}"`,
+          `"${p.sap}"`,
+          `"${p.name.replace(/"/g, '""')}"`,
+          `"${p.category}"`,
+          p.stock,
+          p.priceReg,
+          `"${p.inPromo}"`,
+          p.pricePromo,
+          `"${p.expiryDate}"`,
+          days,
+          `"${st.label}"`
+        ].join(",");
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Inventario_Bodega_Canasto_1156_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* =========================================================================
+       11. UTILIDADES DE MENSAJERÍA (SIN USAR ALERT/CONFIRM NATIVOS)
+       ========================================================================= */
+    function alertMessage(msg) {
+      const dialog = document.createElement('div');
+      dialog.className = "fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs";
+      dialog.innerHTML = `
+        <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl text-center space-y-3">
+          <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl font-bold">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+          <p class="text-sm text-slate-800 font-medium">${msg}</p>
+          <button id="dialogOkBtn" class="w-full py-2 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-slate-800">
+            Aceptar
+          </button>
+        </div>
+      `;
+      document.body.appendChild(dialog);
+      dialog.querySelector('#dialogOkBtn').onclick = () => {
+        document.body.removeChild(dialog);
+      };
+    }
+
+    function confirmBox(msg, onConfirm) {
+      const dialog = document.createElement('div');
+      dialog.className = "fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs";
+      dialog.innerHTML = `
+        <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl text-center space-y-3">
+          <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-xl font-bold">
+            <i class="fa-solid fa-trash"></i>
+          </div>
+          <p class="text-sm text-slate-800 font-medium">${msg}</p>
+          <div class="flex gap-2 pt-2">
+            <button id="dialogCancelBtn" class="flex-1 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-200">
+              Cancelar
+            </button>
+            <button id="dialogConfirmBtn" class="flex-1 py-2 bg-red-600 text-white rounded-xl font-bold text-xs hover:bg-red-700">
+              Confirmar
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(dialog);
+      dialog.querySelector('#dialogCancelBtn').onclick = () => {
+        document.body.removeChild(dialog);
+      };
+      dialog.querySelector('#dialogConfirmBtn').onclick = () => {
+        document.body.removeChild(dialog);
+        onConfirm();
+      };
+    }
+  </script>
+</body>
+</html>
+```
