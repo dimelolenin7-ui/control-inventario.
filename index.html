@@ -42,7 +42,7 @@
                 <p class="text-xs font-semibold uppercase text-emerald-600 tracking-wider">Control de Inventario & Alertas SAP</p>
             </div>
 
-            <!-- Botón de acceso directo con 1 clic para no trabarse -->
+            <!-- Botón de acceso directo con 1 toque -->
             <div id="quickLoginBox" class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
                 <p class="text-xs text-emerald-800 font-bold mb-2">Acceso rápido con un solo toque:</p>
                 <button type="button" onclick="quickLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
@@ -123,7 +123,7 @@
     <!-- PANTALLA PRINCIPAL -->
     <div id="mainAppScreen" class="hidden flex-1 flex-col">
         <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-30">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center font-black text-sm">
                         1156
@@ -149,7 +149,7 @@
             </div>
         </header>
 
-        <main class="max-w-6xl mx-auto w-full p-4 flex-1">
+        <main class="max-w-7xl mx-auto w-full p-4 flex-1">
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4 space-y-3">
                 <div class="flex flex-col sm:flex-row gap-2">
                     <div class="relative flex-1">
@@ -178,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- Tabla de Inventario -->
+            <!-- TABLA DE INVENTARIO DESGLOSADA EN COLUMNAS INDEPENDIENTES -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
                     <h3 class="text-xs font-black uppercase tracking-wider text-gray-700">
@@ -187,15 +187,19 @@
                     <span id="productCount" class="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">0 productos</span>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
+                    <table class="w-full text-left text-xs whitespace-nowrap">
                         <thead class="bg-gray-100 text-gray-600 uppercase font-bold text-[10px] border-b border-gray-200">
                             <tr>
                                 <th class="p-3">EAN / SAP</th>
                                 <th class="p-3">Producto / Categoría</th>
-                                <th class="p-3">Temperatura</th>
-                                <th class="p-3">Stock (und / R1 / CX)</th>
-                                <th class="p-3">Precios (Und / R1 / CX)</th>
-                                <th class="p-3">Vencimiento</th>
+                                <th class="p-3 text-center">Temperatura</th>
+                                <th class="p-3 text-center bg-emerald-50/50">Stock (Und)</th>
+                                <th class="p-3 text-center bg-blue-50/50">Stock (R1)</th>
+                                <th class="p-3 text-center bg-amber-50/50">Stock (CX)</th>
+                                <th class="p-3 text-center">Precio Unitario</th>
+                                <th class="p-3 text-center">Precio R1</th>
+                                <th class="p-3 text-center">Precio CX</th>
+                                <th class="p-3 text-center">Vencimiento</th>
                                 <th class="p-3 text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -509,7 +513,6 @@
             }
         ];
 
-        // RECUPERACIÓN SEGURA DE INVENTARIO
         let inventory = [];
         try {
             const savedInventory = localStorage.getItem('canasto_inventory');
@@ -523,7 +526,6 @@
             inventory = DEFAULT_PRODUCTS;
         }
 
-        // USUARIOS REGISTRADOS Y USUARIO ACTUAL
         const defaultUser = { 
             name: "Lenin Alexander Benjumea niño", 
             username: "lenin", 
@@ -572,7 +574,6 @@
             } catch (e) {}
         }
 
-        // ACCESO DIRECTO CON 1 CLIC
         function quickLogin() {
             currentUser = defaultUser;
             localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
@@ -667,7 +668,7 @@
             }
         }
 
-        // OPCIONES NO APLICA
+        // CONTROL DE CASILLAS NO APLICA
         function toggleTempNA() {
             const isNA = document.getElementById('tempNA').checked;
             const inputWrap = document.getElementById('tempInputWrapper');
@@ -816,7 +817,6 @@
             }
         }
 
-        // MODAL PRODUCTO
         function openProductModal(index = null) {
             editingIndex = index;
             document.getElementById('productForm').reset();
@@ -831,7 +831,6 @@
                 document.getElementById('prodCategory').value = item.category;
                 document.getElementById('prodStock').value = item.units;
 
-                // Temperatura
                 if (item.temperature === "No aplica" || item.temperature === "" || item.temperature === undefined) {
                     document.getElementById('tempNA').checked = true;
                     document.getElementById('prodTemperature').value = "";
@@ -841,7 +840,6 @@
                 }
                 toggleTempNA();
 
-                // R1
                 if (item.r1 === "No aplica" || item.r1 === undefined) {
                     document.getElementById('r1NA').checked = true;
                     document.getElementById('prodR1').value = "";
@@ -851,7 +849,6 @@
                 }
                 toggleR1NA();
 
-                // CX
                 if (item.cx === "No aplica" || item.cx === undefined) {
                     document.getElementById('cxNA').checked = true;
                     document.getElementById('prodCX').value = "";
@@ -865,7 +862,6 @@
                 document.getElementById('prodPromoSelect').value = item.isPromo || "NO";
                 document.getElementById('prodPromoPrice').value = item.promoPrice || 0;
 
-                // Vencimiento
                 if (item.expiry === "No aplica" || item.expiry === "" || item.expiry === undefined) {
                     document.getElementById('expiryNA').checked = true;
                     document.getElementById('prodExpiry').value = "";
@@ -1023,6 +1019,7 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
+        // TABLA CON COLUMNAS SEPARADAS Y CLARAS
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1039,11 +1036,11 @@
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">No se encontraron productos registrados</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-gray-400">No se encontraron productos registrados</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.map((item, idx) => {
+            tbody.innerHTML = filtered.map((item) => {
                 const realIndex = inventory.indexOf(item);
                 const days = calculateDaysRemaining(item.expiry);
                 
@@ -1052,55 +1049,93 @@
 
                 if (days !== null) {
                     if (days <= 0) {
-                        badgeClass = "bg-purple-100 text-purple-800";
+                        badgeClass = "bg-purple-100 text-purple-800 font-black";
                         statusText = "VENCIDO";
                     } else if (days <= 15) {
                         badgeClass = "bg-red-100 text-red-800 font-black";
                         statusText = `${days} d (CRÍTICO)`;
                     } else if (days <= 30) {
-                        badgeClass = "bg-amber-100 text-amber-800";
+                        badgeClass = "bg-amber-100 text-amber-800 font-bold";
                         statusText = `${days} d (PRÓXIMO)`;
                     }
                 } else {
                     badgeClass = "bg-gray-100 text-gray-500 font-medium";
                 }
 
+                // Precios desglosados
                 const pReg = item.price || 0;
-                const pPromo = item.isPromo === 'SÍ' ? item.promoPrice : 0;
+                const isPromo = item.isPromo === 'SÍ';
+                const pPromo = isPromo ? (item.promoPrice || 0) : 0;
+
                 const pR1Reg = pReg * 6;
                 const pR1Promo = pPromo * 6;
+
                 const pCXReg = pReg * 6;
                 const pCXPromo = pPromo * 6;
 
                 return `
-                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100 text-xs">
+                        <!-- 1. EAN / SAP -->
                         <td class="p-3">
-                            <span class="block font-bold text-gray-800 font-mono text-[11px]">SAP-${item.sap}</span>
+                            <span class="block font-bold text-gray-900 font-mono text-[11px]">SAP-${item.sap}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${item.barcode}</span>
                         </td>
+
+                        <!-- 2. PRODUCTO / CATEGORÍA -->
                         <td class="p-3">
-                            <span class="font-bold block text-gray-800">${item.name}</span>
+                            <span class="font-bold block text-gray-900">${item.name}</span>
                             <span class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-semibold">${item.category}</span>
                         </td>
-                        <td class="p-3 font-semibold">
-                            ${item.temperature !== 'No aplica' && item.temperature !== '' ? `<span class="text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded font-black">${item.temperature} °C</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
+
+                        <!-- 3. TEMPERATURA -->
+                        <td class="p-3 text-center">
+                            ${item.temperature !== 'No aplica' && item.temperature !== '' ? `<span class="text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-full font-black text-[11px]">${item.temperature} °C</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-                        <td class="p-3">
-                            <span class="font-bold text-emerald-800">${item.units} und</span>
-                            <div class="text-[10px] text-gray-500 font-medium">
-                                ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `<span class="mr-1 text-blue-700">R1: ${item.r1}</span>` : ''}
-                                ${item.cx !== 'No aplica' && item.cx !== undefined ? `<span class="text-amber-700">CX: ${item.cx}</span>` : ''}
-                            </div>
+
+                        <!-- 4. STOCK UNIDADES -->
+                        <td class="p-3 text-center bg-emerald-50/30">
+                            <span class="font-black text-emerald-700 text-xs">${item.units} <span class="text-[10px] font-semibold text-emerald-900">und</span></span>
                         </td>
-                        <td class="p-3">
-                            <div class="text-[11px] font-bold text-gray-800">Und: $${pReg.toLocaleString()} ${item.isPromo === 'SÍ' ? `<span class="text-red-600">($${pPromo.toLocaleString()})</span>` : ''}</div>
-                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `<div class="text-[10px] text-blue-700 font-semibold">R1: $${pR1Reg.toLocaleString()} ${item.isPromo === 'SÍ' ? `<span class="text-red-600">($${pR1Promo.toLocaleString()})</span>` : ''}</div>` : ''}
-                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `<div class="text-[10px] text-amber-700 font-semibold">CX: $${pCXReg.toLocaleString()} ${item.isPromo === 'SÍ' ? `<span class="text-red-600">($${pCXPromo.toLocaleString()})</span>` : ''}</div>` : ''}
+
+                        <!-- 5. STOCK R1 (SIXPACK) -->
+                        <td class="p-3 text-center bg-blue-50/30">
+                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `<span class="font-bold text-blue-800 text-xs">R1-${item.r1}</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${statusText}</span>
-                            <span class="block text-[10px] text-gray-400 mt-0.5">${item.expiry}</span>
+
+                        <!-- 6. STOCK CX (CAJAS) -->
+                        <td class="p-3 text-center bg-amber-50/30">
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `<span class="font-bold text-amber-800 text-xs">CX-${item.cx}</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
                         </td>
+
+                        <!-- 7. PRECIO UNITARIO -->
+                        <td class="p-3 text-center">
+                            <span class="font-bold text-gray-800 block">$${pReg.toLocaleString()}</span>
+                            ${isPromo && pPromo > 0 ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded block">Promo: $${pPromo.toLocaleString()}</span>` : ''}
+                        </td>
+
+                        <!-- 8. PRECIO R1 -->
+                        <td class="p-3 text-center">
+                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `
+                                <span class="font-bold text-blue-900 block">$${pR1Reg.toLocaleString()}</span>
+                                ${isPromo && pR1Promo > 0 ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded block">Promo: $${pR1Promo.toLocaleString()}</span>` : ''}
+                            ` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
+                        </td>
+
+                        <!-- 9. PRECIO CX -->
+                        <td class="p-3 text-center">
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `
+                                <span class="font-bold text-amber-900 block">$${pCXReg.toLocaleString()}</span>
+                                ${isPromo && pCXPromo > 0 ? `<span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 rounded block">Promo: $${pCXPromo.toLocaleString()}</span>` : ''}
+                            ` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
+                        </td>
+
+                        <!-- 10. VENCIMIENTO -->
+                        <td class="p-3 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold block ${badgeClass}">${statusText}</span>
+                            ${item.expiry !== 'No aplica' ? `<span class="text-[10px] text-gray-400 font-mono block mt-0.5">${item.expiry}</span>` : ''}
+                        </td>
+
+                        <!-- 11. ACCIONES -->
                         <td class="p-3 text-center">
                             <button type="button" onclick="openProductModal(${realIndex})" class="text-blue-600 hover:text-blue-800 p-1 mr-1" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
