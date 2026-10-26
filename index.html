@@ -294,4 +294,870 @@
                         <span class="bg-blue-100 text-blue-900 font-black px-3 py-2 border-r border-gray-300 select-none">R1-</span>
                         <input type="number" id="prodR1" oninput="syncStock('r1')" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
                     </div>
-                 
+                    <div id="r1NADisplay" class="hidden p-2 bg-gray-100 rounded-xl text-gray-400 font-semibold italic text-xs border border-gray-200">
+                        No aplica
+                    </div>
+                </div>
+
+                <!-- 8. STOCK CX (CAJAS - PAQUETES) CON OPCIÓN NO APLICA -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="font-bold text-gray-700 uppercase">8. Stock CX (Cajas - Paquetes)</label>
+                        <label class="inline-flex items-center cursor-pointer text-[11px] font-bold text-gray-500">
+                            <input type="checkbox" id="cxNA" onchange="toggleCXNA()" class="mr-1.5 accent-emerald-600 rounded"> No aplica
+                        </label>
+                    </div>
+                    <div id="cxInputWrapper" class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-gray-50">
+                        <span class="bg-amber-100 text-amber-900 font-black px-3 py-2 border-r border-gray-300 select-none">CX-</span>
+                        <input type="number" id="prodCX" oninput="syncStock('cx')" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
+                    </div>
+                    <div id="cxNADisplay" class="hidden p-2 bg-gray-100 rounded-xl text-gray-400 font-semibold italic text-xs border border-gray-200">
+                        No aplica
+                    </div>
+                </div>
+
+                <!-- 9. PRECIO REGULAR -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">9. Precio Regular ($)</label>
+                    <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="Ej: 4500" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold">
+                </div>
+
+                <!-- 10. ¿EN PROMOCIÓN? -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">10. ¿En Promoción?</label>
+                    <select id="prodPromoSelect" onchange="togglePromoField()" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold">
+                        <option value="NO">NO</option>
+                        <option value="SÍ">SÍ</option>
+                    </select>
+                </div>
+
+                <!-- 11. PRECIO PROMO CON DESCUENTO -->
+                <div id="promoPriceWrapper" class="hidden">
+                    <label class="block font-bold text-red-600 uppercase mb-1">11. Precio Promo con Descuento ($)</label>
+                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="Ej: 3800" class="w-full px-3 py-2 bg-red-50 border border-red-300 rounded-xl text-xs font-bold text-red-700">
+                </div>
+
+                <!-- 12. PRECIO R1 (SUMATORIA 6 UND) -->
+                <div id="priceR1Box">
+                    <label class="block font-bold text-blue-800 uppercase mb-1">12. Precio R1 (Sixpack - 6 Unidades)</label>
+                    <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] text-gray-500 block">Regular R1 (6 und)</span>
+                            <span id="labelPriceR1Reg" class="font-extrabold text-blue-900">$0</span>
+                        </div>
+                        <div id="labelPriceR1PromoContainer" class="hidden text-right">
+                            <span class="text-[10px] text-red-600 block font-bold">Promo R1 (Descuento)</span>
+                            <span id="labelPriceR1Promo" class="font-extrabold text-red-700">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 13. PRECIO CX (SUMATORIA CAJA / PAQUETE) -->
+                <div>
+                    <label class="block font-bold text-amber-800 uppercase mb-1">13. Precio CX (Caja / Paquete)</label>
+                    <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] text-gray-500 block">Regular CX</span>
+                            <span id="labelPriceCXReg" class="font-extrabold text-amber-900">$0</span>
+                        </div>
+                        <div id="labelPriceCXPromoContainer" class="hidden text-right">
+                            <span class="text-[10px] text-red-600 block font-bold">Promo CX (Descuento)</span>
+                            <span id="labelPriceCXPromo" class="font-extrabold text-red-700">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 14. FECHA DE VENCIMIENTO CON OPCIÓN NO APLICA -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="font-bold text-gray-700 uppercase">14. Fecha de Vencimiento</label>
+                        <label class="inline-flex items-center cursor-pointer text-[11px] font-bold text-gray-500">
+                            <input type="checkbox" id="expiryNA" onchange="toggleExpiryNA()" class="mr-1.5 accent-emerald-600 rounded"> No aplica
+                        </label>
+                    </div>
+                    <input type="date" id="prodExpiry" class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-xs font-bold">
+                    <div id="expiryNADisplay" class="hidden p-2 bg-gray-100 rounded-xl text-gray-400 font-semibold italic text-xs border border-gray-200">
+                        No aplica (Sin fecha de vencimiento)
+                    </div>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2 border-t border-gray-200">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl text-xs">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center shadow-md">
+                        <i class="fa-solid fa-save mr-1.5"></i> Guardar en Inventario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ESCÁNER CÁMARA -->
+    <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-3 bg-gray-800 text-white flex justify-between items-center">
+                <span id="scannerModalTitle" class="text-xs font-bold uppercase tracking-wider text-emerald-400">Escaneando...</span>
+                <button type="button" onclick="closeScannerModal()" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-3 bg-black flex flex-col items-center justify-center">
+                <div id="reader" class="w-full max-w-[280px] overflow-hidden rounded-xl bg-gray-950"></div>
+                <p class="text-[11px] text-gray-400 mt-2 text-center">Apunta la cámara al código de barras o etiqueta SAP</p>
+            </div>
+            <div class="p-3 bg-gray-800 text-center">
+                <button type="button" onclick="closeScannerModal()" class="w-full py-2 bg-gray-700 text-white text-xs font-bold rounded-xl">
+                    Cerrar Cámara
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BURBUJA FLOTANTE -->
+    <div id="floatingAlertBubble" onclick="openAlertsModal()" class="hidden fixed bottom-5 right-5 z-40 bg-red-600 text-white p-3 rounded-2xl shadow-2xl flex items-center space-x-3 cursor-pointer animate-bubble-alert border-2 border-white">
+        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="pr-2">
+            <h4 class="text-xs font-black uppercase tracking-tight">Alerta de Vencimiento</h4>
+            <p id="bubbleAlertText" class="text-[11px] font-semibold text-red-100">Productos por vencer</p>
+        </div>
+    </div>
+
+    <!-- MODAL LISTA DE ALERTAS -->
+    <div id="alertsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+            <div class="p-4 bg-red-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Productos Críticos o Próximos
+                </h3>
+                <button type="button" onclick="closeAlertsModal()" class="text-white hover:text-gray-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="alertsList" class="p-4 overflow-y-auto divide-y divide-gray-100 text-xs">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_PRODUCTS = [
+            {
+                barcode: "7701002345671",
+                sap: "10023",
+                name: "Leche Entera 1L",
+                category: "Lácteos",
+                temperature: "No aplica",
+                units: 150,
+                r1: "No aplica",
+                cx: 25,
+                price: 3090,
+                isPromo: "SÍ",
+                promoPrice: 2800,
+                expiry: "2026-11-05"
+            },
+            {
+                barcode: "7701004567892",
+                sap: "10045",
+                name: "Queso Fresco 500g",
+                category: "Refrigerados",
+                temperature: "4",
+                units: 60,
+                r1: "No aplica",
+                cx: 10,
+                price: 4000,
+                isPromo: "NO",
+                promoPrice: 0,
+                expiry: "2026-11-15"
+            },
+            {
+                barcode: "7703001234563",
+                sap: "30012",
+                name: "Agua Mineral 1.5L",
+                category: "Bebidas",
+                temperature: "No aplica",
+                units: 300,
+                r1: 50,
+                cx: 50,
+                price: 900,
+                isPromo: "SÍ",
+                promoPrice: 750,
+                expiry: "2026-11-20"
+            },
+            {
+                barcode: "7705010198764",
+                sap: "50101",
+                name: "Pechuga de Pollo Congelada 1kg",
+                category: "Congelados",
+                temperature: "-18",
+                units: 35,
+                r1: "No aplica",
+                cx: 5,
+                price: 6800,
+                isPromo: "NO",
+                promoPrice: 0,
+                expiry: "2026-11-03"
+            }
+        ];
+
+        // PROTECCIÓN Y PERSISTENCIA ESTRICTA (CERO PÉRDIDA DE DATOS)
+        let inventory = [];
+        try {
+            const savedInventory = localStorage.getItem('canasto_inventory');
+            if (savedInventory) {
+                inventory = JSON.parse(savedInventory);
+            } else {
+                inventory = DEFAULT_PRODUCTS;
+                localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+            }
+        } catch(e) {
+            inventory = DEFAULT_PRODUCTS;
+        }
+
+        let currentUser = null;
+        try {
+            currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || null;
+        } catch(e) {}
+
+        let registeredUsers = [];
+        try {
+            const savedUsers = localStorage.getItem('canasto_registered_users');
+            if (savedUsers) {
+                registeredUsers = JSON.parse(savedUsers);
+            } else {
+                registeredUsers = [{ name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes" }];
+                localStorage.setItem('canasto_registered_users', JSON.stringify(registeredUsers));
+            }
+        } catch(e) {
+            registeredUsers = [{ name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes" }];
+        }
+
+        let html5QrCode = null;
+        let scannerTarget = null;
+        let editingIndex = null;
+
+        function playWarningBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.setValueAtTime(600, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (e) {}
+        }
+
+        function initApp() {
+            if (currentUser) {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainAppScreen').classList.remove('hidden');
+                document.getElementById('mainAppScreen').classList.add('flex');
+                document.getElementById('headerUserName').textContent = currentUser.name;
+                document.getElementById('headerUserZone').textContent = currentUser.zone;
+                renderTable();
+                checkExpirationsAndAlert();
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainAppScreen').classList.add('hidden');
+            }
+        }
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('formLogin').classList.remove('hidden');
+                document.getElementById('formRegister').classList.add('hidden');
+                document.getElementById('tabLogin').className = "w-1/2 py-2 text-center font-bold text-sm text-emerald-600 border-b-2 border-emerald-600 transition";
+                document.getElementById('tabRegister').className = "w-1/2 py-2 text-center font-bold text-sm text-gray-400 hover:text-gray-600 border-b-2 border-transparent transition";
+            } else {
+                document.getElementById('formLogin').classList.add('hidden');
+                document.getElementById('formRegister').classList.remove('hidden');
+                document.getElementById('tabRegister').className = "w-1/2 py-2 text-center font-bold text-sm text-emerald-600 border-b-2 border-emerald-600 transition";
+                document.getElementById('tabLogin').className = "w-1/2 py-2 text-center font-bold text-sm text-gray-400 hover:text-gray-600 border-b-2 border-transparent transition";
+            }
+        }
+
+        function togglePassVisibility(inputId, eyeId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.classList.remove('fa-eye');
+                eye.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eye.classList.remove('fa-eye-slash');
+                eye.classList.add('fa-eye');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const p = document.getElementById('loginPassword').value.trim();
+
+            const found = registeredUsers.find(user => user.username.toLowerCase() === u && user.password === p);
+            if (found) {
+                currentUser = found;
+                localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+                initApp();
+            } else {
+                alert("Usuario o contraseña incorrectos.");
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const zone = document.getElementById('regZone').value;
+            const password = document.getElementById('regPassword').value.trim();
+
+            if (registeredUsers.some(u => u.username.toLowerCase() === username)) {
+                alert("Este nombre de usuario ya existe. Elige otro.");
+                return;
+            }
+
+            const newUser = { name, username, zone, password };
+            registeredUsers.push(newUser);
+            localStorage.setItem('canasto_registered_users', JSON.stringify(registeredUsers));
+
+            currentUser = newUser;
+            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+            alert("¡Registro exitoso!");
+            initApp();
+        }
+
+        function handleLogout() {
+            if (confirm("¿Deseas cerrar sesión?")) {
+                currentUser = null;
+                localStorage.removeItem('canasto_current_user');
+                location.reload();
+            }
+        }
+
+        // CONTROL DINÁMICO DE OPCIONES "NO APLICA"
+        function toggleTempNA() {
+            const isNA = document.getElementById('tempNA').checked;
+            const inputWrap = document.getElementById('tempInputWrapper');
+            const displayNA = document.getElementById('tempNADisplay');
+            const input = document.getElementById('prodTemperature');
+
+            if (isNA) {
+                inputWrap.classList.add('hidden');
+                displayNA.classList.remove('hidden');
+                input.value = '';
+            } else {
+                inputWrap.classList.remove('hidden');
+                displayNA.classList.add('hidden');
+            }
+        }
+
+        function toggleR1NA() {
+            const isNA = document.getElementById('r1NA').checked;
+            const inputWrap = document.getElementById('r1InputWrapper');
+            const displayNA = document.getElementById('r1NADisplay');
+            const input = document.getElementById('prodR1');
+            const priceR1Box = document.getElementById('priceR1Box');
+
+            if (isNA) {
+                inputWrap.classList.add('hidden');
+                displayNA.classList.remove('hidden');
+                input.value = '';
+                priceR1Box.classList.add('hidden');
+            } else {
+                inputWrap.classList.remove('hidden');
+                displayNA.classList.add('hidden');
+                priceR1Box.classList.remove('hidden');
+            }
+            recalcPrices();
+        }
+
+        function toggleCXNA() {
+            const isNA = document.getElementById('cxNA').checked;
+            const inputWrap = document.getElementById('cxInputWrapper');
+            const displayNA = document.getElementById('cxNADisplay');
+            const input = document.getElementById('prodCX');
+
+            if (isNA) {
+                inputWrap.classList.add('hidden');
+                displayNA.classList.remove('hidden');
+                input.value = '';
+            } else {
+                inputWrap.classList.remove('hidden');
+                displayNA.classList.add('hidden');
+            }
+            recalcPrices();
+        }
+
+        function toggleExpiryNA() {
+            const isNA = document.getElementById('expiryNA').checked;
+            const input = document.getElementById('prodExpiry');
+            const displayNA = document.getElementById('expiryNADisplay');
+
+            if (isNA) {
+                input.classList.add('hidden');
+                input.required = false;
+                input.value = '';
+                displayNA.classList.remove('hidden');
+            } else {
+                input.classList.remove('hidden');
+                input.required = true;
+                displayNA.classList.add('hidden');
+            }
+        }
+
+        function handleCategoryChange() {
+            // Sugerencia automática inicial según categoría pero siempre modificable
+            const cat = document.getElementById('prodCategory').value;
+            if (cat === 'Bebidas') {
+                document.getElementById('r1NA').checked = false;
+            } else if (editingIndex === null) {
+                document.getElementById('r1NA').checked = true;
+            }
+            toggleR1NA();
+        }
+
+        function syncStock(source) {
+            let units = parseInt(document.getElementById('prodStock').value) || 0;
+            let r1 = parseInt(document.getElementById('prodR1').value) || 0;
+            let cx = parseInt(document.getElementById('prodCX').value) || 0;
+
+            const r1NA = document.getElementById('r1NA').checked;
+            const cxNA = document.getElementById('cxNA').checked;
+
+            if (source === 'units') {
+                if (!r1NA) document.getElementById('prodR1').value = Math.floor(units / 6);
+                if (!cxNA) document.getElementById('prodCX').value = Math.floor(units / 6);
+            } else if (source === 'r1') {
+                units = r1 * 6;
+                document.getElementById('prodStock').value = units;
+                if (!cxNA) document.getElementById('prodCX').value = r1;
+            } else if (source === 'cx') {
+                units = cx * 6;
+                document.getElementById('prodStock').value = units;
+                if (!r1NA) document.getElementById('prodR1').value = cx;
+            }
+            recalcPrices();
+        }
+
+        function togglePromoField() {
+            const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
+            const promoWrap = document.getElementById('promoPriceWrapper');
+            const promoInput = document.getElementById('prodPromoPrice');
+
+            if (isPromo) {
+                promoWrap.classList.remove('hidden');
+                promoInput.required = true;
+            } else {
+                promoWrap.classList.add('hidden');
+                promoInput.required = false;
+                promoInput.value = '';
+            }
+            recalcPrices();
+        }
+
+        function recalcPrices() {
+            const price = parseFloat(document.getElementById('prodPrice').value) || 0;
+            const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
+            const promoPrice = parseFloat(document.getElementById('prodPromoPrice').value) || 0;
+
+            const priceR1Reg = price * 6;
+            document.getElementById('labelPriceR1Reg').textContent = `$${priceR1Reg.toLocaleString()}`;
+
+            const priceCXReg = price * 6;
+            document.getElementById('labelPriceCXReg').textContent = `$${priceCXReg.toLocaleString()}`;
+
+            const r1PromoContainer = document.getElementById('labelPriceR1PromoContainer');
+            const cxPromoContainer = document.getElementById('labelPriceCXPromoContainer');
+
+            if (isPromo && promoPrice > 0) {
+                const priceR1Promo = promoPrice * 6;
+                const priceCXPromo = promoPrice * 6;
+
+                document.getElementById('labelPriceR1Promo').textContent = `$${priceR1Promo.toLocaleString()}`;
+                document.getElementById('labelPriceCXPromo').textContent = `$${priceCXPromo.toLocaleString()}`;
+
+                r1PromoContainer.classList.remove('hidden');
+                cxPromoContainer.classList.remove('hidden');
+            } else {
+                r1PromoContainer.classList.add('hidden');
+                cxPromoContainer.classList.add('hidden');
+            }
+        }
+
+        // ABRIR Y GUARDAR PRODUCTO
+        function openProductModal(index = null) {
+            editingIndex = index;
+            document.getElementById('productForm').reset();
+            const modalTitle = document.getElementById('modalTitle');
+
+            if (index !== null) {
+                const item = inventory[index];
+                modalTitle.textContent = "Editar Producto: SAP-" + item.sap;
+                document.getElementById('prodBarcode').value = item.barcode;
+                document.getElementById('prodSap').value = item.sap;
+                document.getElementById('prodName').value = item.name;
+                document.getElementById('prodCategory').value = item.category;
+                document.getElementById('prodStock').value = item.units;
+
+                // Temperatura
+                if (item.temperature === "No aplica" || item.temperature === "" || item.temperature === undefined) {
+                    document.getElementById('tempNA').checked = true;
+                    document.getElementById('prodTemperature').value = "";
+                } else {
+                    document.getElementById('tempNA').checked = false;
+                    document.getElementById('prodTemperature').value = item.temperature;
+                }
+                toggleTempNA();
+
+                // R1
+                if (item.r1 === "No aplica" || item.r1 === undefined) {
+                    document.getElementById('r1NA').checked = true;
+                    document.getElementById('prodR1').value = "";
+                } else {
+                    document.getElementById('r1NA').checked = false;
+                    document.getElementById('prodR1').value = item.r1;
+                }
+                toggleR1NA();
+
+                // CX
+                if (item.cx === "No aplica" || item.cx === undefined) {
+                    document.getElementById('cxNA').checked = true;
+                    document.getElementById('prodCX').value = "";
+                } else {
+                    document.getElementById('cxNA').checked = false;
+                    document.getElementById('prodCX').value = item.cx;
+                }
+                toggleCXNA();
+
+                // Precios
+                document.getElementById('prodPrice').value = item.price;
+                document.getElementById('prodPromoSelect').value = item.isPromo || "NO";
+                document.getElementById('prodPromoPrice').value = item.promoPrice || 0;
+
+                // Fecha Vencimiento
+                if (item.expiry === "No aplica" || item.expiry === "" || item.expiry === undefined) {
+                    document.getElementById('expiryNA').checked = true;
+                    document.getElementById('prodExpiry').value = "";
+                } else {
+                    document.getElementById('expiryNA').checked = false;
+                    document.getElementById('prodExpiry').value = item.expiry;
+                }
+                toggleExpiryNA();
+
+                togglePromoField();
+            } else {
+                modalTitle.textContent = "Nuevo Registro en Inventario";
+                document.getElementById('tempNA').checked = true;
+                toggleTempNA();
+                document.getElementById('r1NA').checked = true;
+                toggleR1NA();
+                document.getElementById('cxNA').checked = false;
+                toggleCXNA();
+                document.getElementById('expiryNA').checked = false;
+                toggleExpiryNA();
+                togglePromoField();
+            }
+            recalcPrices();
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const cat = document.getElementById('prodCategory').value;
+
+            // Temperatura
+            let tempValue = "No aplica";
+            if (!document.getElementById('tempNA').checked) {
+                tempValue = document.getElementById('prodTemperature').value || "No aplica";
+            }
+
+            // R1
+            let r1Val = "No aplica";
+            if (!document.getElementById('r1NA').checked) {
+                r1Val = parseInt(document.getElementById('prodR1').value) || 0;
+            }
+
+            // CX
+            let cxVal = "No aplica";
+            if (!document.getElementById('cxNA').checked) {
+                cxVal = parseInt(document.getElementById('prodCX').value) || 0;
+            }
+
+            // Expiry
+            let expiryVal = "No aplica";
+            if (!document.getElementById('expiryNA').checked) {
+                expiryVal = document.getElementById('prodExpiry').value || "No aplica";
+            }
+
+            const item = {
+                barcode: document.getElementById('prodBarcode').value.trim(),
+                sap: document.getElementById('prodSap').value.trim().replace(/^SAP\s*-\s*/i, ''),
+                name: document.getElementById('prodName').value.trim(),
+                category: cat,
+                temperature: tempValue,
+                units: parseInt(document.getElementById('prodStock').value) || 0,
+                r1: r1Val,
+                cx: cxVal,
+                price: parseFloat(document.getElementById('prodPrice').value) || 0,
+                isPromo: document.getElementById('prodPromoSelect').value,
+                promoPrice: parseFloat(document.getElementById('prodPromoPrice').value) || 0,
+                expiry: expiryVal
+            };
+
+            if (editingIndex !== null) {
+                inventory[editingIndex] = item;
+            } else {
+                inventory.unshift(item);
+            }
+
+            // Guardado estricto permanente
+            localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+            closeProductModal();
+            renderTable();
+            checkExpirationsAndAlert();
+        }
+
+        function deleteProduct(index) {
+            if (confirm(`¿Eliminar ${inventory[index].name} del inventario?`)) {
+                inventory.splice(index, 1);
+                localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+                renderTable();
+                checkExpirationsAndAlert();
+            }
+        }
+
+        function calculateDaysRemaining(expiryDate) {
+            if (!expiryDate || expiryDate === "No aplica") return null;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const exp = new Date(expiryDate);
+            exp.setHours(0,0,0,0);
+            return Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+        }
+
+        function checkExpirationsAndAlert() {
+            let criticalCount = 0;
+            inventory.forEach(item => {
+                const days = calculateDaysRemaining(item.expiry);
+                if (days !== null && days <= 15) criticalCount++;
+            });
+
+            const badge = document.getElementById('badgeCriticos');
+            const bubble = document.getElementById('floatingAlertBubble');
+            const bubbleText = document.getElementById('bubbleAlertText');
+
+            if (criticalCount > 0) {
+                badge.textContent = criticalCount;
+                badge.classList.remove('hidden');
+                bubble.classList.remove('hidden');
+                bubbleText.textContent = `${criticalCount} producto(s) crítico(s) o por vencer`;
+                playWarningBeep();
+            } else {
+                badge.classList.add('hidden');
+                bubble.classList.add('hidden');
+            }
+        }
+
+        function openAlertsModal() {
+            const list = document.getElementById('alertsList');
+            list.innerHTML = '';
+            const criticals = inventory.filter(item => {
+                const days = calculateDaysRemaining(item.expiry);
+                return days !== null && days <= 30;
+            });
+
+            if (criticals.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 py-4 text-center">No hay productos próximos a vencer.</p>';
+            } else {
+                criticals.forEach(item => {
+                    const days = calculateDaysRemaining(item.expiry);
+                    const isVencido = days <= 0;
+                    const isCritico = days > 0 && days <= 15;
+                    list.innerHTML += `
+                        <div class="py-2.5 flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-gray-800">${item.name}</h4>
+                                <span class="text-[11px] text-gray-500">SAP-${item.sap} • Stock: ${item.units} und</span>
+                            </div>
+                            <span class="px-2 py-1 rounded text-[10px] font-black uppercase ${isVencido ? 'bg-purple-100 text-purple-700' : isCritico ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
+                                ${isVencido ? 'VENCIDO' : days + ' días rest.'}
+                            </span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('alertsModal').classList.remove('hidden');
+        }
+
+        function closeAlertsModal() {
+            document.getElementById('alertsModal').classList.add('hidden');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cat = document.getElementById('categoryFilter').value;
+
+            const filtered = inventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search) ||
+                                      item.sap.toLowerCase().includes(search) ||
+                                      item.barcode.includes(search);
+                const matchesCat = cat === "" || item.category === cat;
+                return matchesSearch && matchesCat;
+            });
+
+            document.getElementById('productCount').textContent = `${filtered.length} productos`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">No se encontraron productos registrados</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((item, idx) => {
+                const realIndex = inventory.indexOf(item);
+                const days = calculateDaysRemaining(item.expiry);
+                
+                let badgeClass = "bg-green-100 text-green-800";
+                let statusText = days !== null ? `${days} d (OK)` : "No aplica";
+
+                if (days !== null) {
+                    if (days <= 0) {
+                        badgeClass = "bg-purple-100 text-purple-800";
+                        statusText = "VENCIDO";
+                    } else if (days <= 15) {
+                        badgeClass = "bg-red-100 text-red-800 font-black";
+                        statusText = `${days} d (CRÍTICO)`;
+                    } else if (days <= 30) {
+                        badgeClass = "bg-amber-100 text-amber-800";
+                        statusText = `${days} d (PRÓXIMO)`;
+                    }
+                } else {
+                    badgeClass = "bg-gray-100 text-gray-500 font-medium";
+                }
+
+                const pReg = item.price || 0;
+                const pPromo = item.isPromo === 'SÍ' ? item.promoPrice : 0;
+                const pR1Reg = pReg * 6;
+                const pR1Promo = pPromo * 6;
+                const pCXReg = pReg * 6;
+                const pCXPromo = pPromo * 6;
+
+                return `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-3">
+                            <span class="block font-bold text-gray-800 font-mono text-[11px]">SAP-${item.sap}</span>
+                            <span class="text-[10px] text-gray-400 font-mono">${item.barcode}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="font-bold block text-gray-800">${item.name}</span>
+                            <span class="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-semibold">${item.category}</span>
+                        </td>
+                        <td class="p-3 font-semibold">
+                            ${item.temperature !== 'No aplica' && item.temperature !== '' ? `<span class="text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded font-black">${item.temperature} °C</span>` : '<span class="text-gray-400 text-[10px]">No aplica</span>'}
+                        </td>
+                        <td class="p-3">
+                            <span class="font-bold text-emerald-800">${item.units} und</span>
+                            <div class="text-[10px] text-gray-500 font-medium">
+                                ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `<span class="mr-1 text-blue-700">R1: ${item.r1}</span>` : ''}
+                                ${item.cx !== 'No aplica' && item.cx !== undefined ? `<span class="text-amber-700">CX: ${item.cx}</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <div class="text-[11px] font-bold text-gray-800">Und: $${pReg.toLocaleString()} ${item.isPromo === 'SÍ' ? `<span class="text-red-600">($${pPromo.toLocaleString()})</span>` : ''}</div>
+                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `<div class="text-[10px] text-blue-700 font-semibold">R1: $${pR1Reg.toLocaleString()} ${item.isPromo === 'SÍ' ? `<span class="text-red-600">($${pR1Promo.toLocaleString()})</span>` : ''}</div>` : ''}
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `<div class="text-[10px] text-amber-700 font-semibold">CX: $${pCXReg.toLocaleString()} ${item.isPromo === 'SÍ' ? `<span class="text-red-600">($${pCXPromo.toLocaleString()})</span>` : ''}</div>` : ''}
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${statusText}</span>
+                            <span class="block text-[10px] text-gray-400 mt-0.5">${item.expiry}</span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="openProductModal(${realIndex})" class="text-blue-600 hover:text-blue-800 p-1 mr-1" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" onclick="deleteProduct(${realIndex})" class="text-red-500 hover:text-red-700 p-1" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ESCÁNER
+        function openScannerModal(target) {
+            scannerTarget = target;
+            const titleEl = document.getElementById('scannerModalTitle');
+
+            if (target === 'barcode') titleEl.textContent = "Escanear Código de Barras (EAN)";
+            else if (target === 'sap') titleEl.textContent = "Escanear Código SAP Interno";
+            else titleEl.textContent = "Escaneo Rápido de Producto";
+
+            document.getElementById('scannerModal').classList.remove('hidden');
+
+            try {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("reader");
+                }
+                const config = { fps: 10, qrbox: { width: 250, height: 160 } };
+                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+                    .catch(err => {
+                        console.error("Error al iniciar cámara:", err);
+                        alert("No se pudo acceder a la cámara. Asegúrate de otorgar los permisos necesarios.");
+                        closeScannerModal();
+                    });
+            } catch (err) {
+                closeScannerModal();
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            playWarningBeep();
+            closeScannerModal();
+
+            if (scannerTarget === 'barcode') {
+                document.getElementById('prodBarcode').value = decodedText;
+            } else if (scannerTarget === 'sap') {
+                const cleanSap = decodedText.replace(/[^0-9]/g, '');
+                document.getElementById('prodSap').value = cleanSap || decodedText;
+            } else if (scannerTarget === 'quickSearch') {
+                const found = inventory.find(p => p.barcode === decodedText || p.sap === decodedText);
+                if (found) {
+                    openProductModal(inventory.indexOf(found));
+                } else {
+                    if (confirm(`El código ${decodedText} no está en inventario. ¿Registrar como nuevo producto?`)) {
+                        openProductModal();
+                        document.getElementById('prodBarcode').value = decodedText;
+                    }
+                }
+            }
+        }
+
+        function closeScannerModal() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                }).catch(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scannerModal').classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
