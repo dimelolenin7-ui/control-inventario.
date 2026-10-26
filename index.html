@@ -42,7 +42,6 @@
                 <p class="text-xs font-semibold uppercase text-emerald-600 tracking-wider">Control de Inventario & Alertas SAP</p>
             </div>
 
-            <!-- Botón de acceso directo con 1 toque -->
             <div id="quickLoginBox" class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
                 <p class="text-xs text-emerald-800 font-bold mb-2">Acceso rápido con un solo toque:</p>
                 <button type="button" onclick="quickLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
@@ -311,7 +310,7 @@
                     </div>
                 </div>
 
-                <!-- 8. STOCK CX (CAJAS - PAQUETES) CON UNIDADES POR CAJA CONFIGURABLE -->
+                <!-- 8. STOCK CX (CAJAS - PAQUETES) CONVERSOR A R1 -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">8. Stock CX (Cajas - Paquetes)</label>
@@ -324,11 +323,10 @@
                             <span class="bg-amber-100 text-amber-900 font-black px-3 py-2 border-r border-gray-300 select-none">CX-</span>
                             <input type="number" id="prodCX" oninput="handleCXChange()" min="0" placeholder="0" class="w-full px-3 py-2 bg-transparent text-xs font-bold">
                         </div>
-                        <!-- Campo para definir cuántas unidades trae la caja (24, 12, 8, etc.) -->
                         <div class="flex items-center justify-between px-2 py-1 bg-amber-50/70 border border-amber-200 rounded-xl">
                             <span class="text-[11px] font-semibold text-amber-900">¿Cuántas unds trae la caja?</span>
                             <div class="flex items-center w-24 border border-amber-300 bg-white rounded-lg overflow-hidden">
-                                <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" placeholder="Ej: 24, 12, 8" class="w-full px-2 py-1 text-xs font-black text-center text-amber-900">
+                                <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" placeholder="Ej: 20, 24, 12" class="w-full px-2 py-1 text-xs font-black text-center text-amber-900">
                                 <span class="text-[10px] text-gray-500 pr-1.5 font-bold">und</span>
                             </div>
                         </div>
@@ -767,7 +765,7 @@
         }
 
         // ========================================================
-        // LÓGICA DE STOCK: R1 ES SIXPACK (6 UNDS) Y CX ES INDEPENDIENTE
+        // CONVERSIÓN DE STOCK: CX -> R1 (DIVISIÓN ENTRE 6)
         // ========================================================
         function handleUnitsChange() {
             const units = parseInt(document.getElementById('prodStock').value) || 0;
@@ -775,11 +773,9 @@
             const cxNA = document.getElementById('cxNA').checked;
             const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
 
-            // R1 siempre viene de 6 unds y solo si aplica
             if (!r1NA) {
                 document.getElementById('prodR1').value = Math.floor(units / 6);
             }
-            // CX calcula según las unidades que trae la caja sin alterar R1
             if (!cxNA && unitsPerBox > 0) {
                 document.getElementById('prodCX').value = Math.floor(units / unitsPerBox);
             }
@@ -787,36 +783,46 @@
         }
 
         function handleR1Change() {
-            // R1 SIEMPRE viene de 6 unidades
+            // R1 siempre equivale a 6 unidades fijas
             const r1 = parseInt(document.getElementById('prodR1').value) || 0;
             const totalUnits = r1 * 6;
             document.getElementById('prodStock').value = totalUnits;
-            // NOTA: NO se modifica CX para que no se alteren entre sí
+            
+            const cxNA = document.getElementById('cxNA').checked;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
+            if (!cxNA && unitsPerBox > 0) {
+                document.getElementById('prodCX').value = Math.floor(totalUnits / unitsPerBox);
+            }
             recalcPrices();
         }
 
         function handleCXChange() {
-            // CX NO MODIFICA R1 JAMÁS
+            // Cuando cambias CX: calcula unidades totales y convierte R1 dividiendo entre 6
             const cx = parseInt(document.getElementById('prodCX').value) || 0;
             const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
-            // Opcionalmente actualiza unidades si el usuario ingresa solo cajas
-            if (unitsPerBox > 0) {
-                const currentUnits = parseInt(document.getElementById('prodStock').value) || 0;
-                if (currentUnits === 0) {
-                    document.getElementById('prodStock').value = cx * unitsPerBox;
-                }
+            const totalUnits = cx * unitsPerBox;
+            
+            document.getElementById('prodStock').value = totalUnits;
+
+            const r1NA = document.getElementById('r1NA').checked;
+            if (!r1NA) {
+                // Conversión exacta: unidades totales divididas en sixpacks (6 unds)
+                document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
             }
             recalcPrices();
         }
 
         function handleCXUnitsPerBoxChange() {
-            // Al cambiar la cantidad de unds por caja (ej: 24, 12, 8), solo actualiza CX y sus precios
-            const units = parseInt(document.getElementById('prodStock').value) || 0;
+            // Al cambiar cuántas unidades trae la caja, recalcula unidades y convierte R1
+            const cx = parseInt(document.getElementById('prodCX').value) || 0;
             const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 1;
-            const cxNA = document.getElementById('cxNA').checked;
+            const totalUnits = cx * unitsPerBox;
 
-            if (!cxNA && unitsPerBox > 0 && units > 0) {
-                document.getElementById('prodCX').value = Math.floor(units / unitsPerBox);
+            document.getElementById('prodStock').value = totalUnits;
+
+            const r1NA = document.getElementById('r1NA').checked;
+            if (!r1NA) {
+                document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
             }
             recalcPrices();
         }
@@ -847,7 +853,7 @@
             const priceR1Reg = price * 6;
             document.getElementById('labelPriceR1Reg').textContent = `$${priceR1Reg.toLocaleString()}`;
 
-            // CX SEGÚN EL TAMAÑO REAL DE LA CAJA (24, 12, 8, etc.)
+            // CX SEGÚN EL TAMAÑO REAL DE LA CAJA (20, 24, 12, etc.)
             document.getElementById('labelCXBoxSize').textContent = `Caja de ${unitsPerBox} unds`;
             const priceCXReg = price * unitsPerBox;
             document.getElementById('labelPriceCXReg').textContent = `$${priceCXReg.toLocaleString()}`;
@@ -902,7 +908,6 @@
                 }
                 toggleR1NA();
 
-                // CX y unidades por caja
                 document.getElementById('prodCXUnitsPerBox').value = item.cxUnitsPerBox || 12;
                 if (item.cx === "No aplica" || item.cx === undefined) {
                     document.getElementById('cxNA').checked = true;
@@ -1118,7 +1123,6 @@
                     badgeClass = "bg-gray-100 text-gray-500 font-medium";
                 }
 
-                // Precios
                 const pReg = item.price || 0;
                 const isPromo = item.isPromo === 'SÍ';
                 const pPromo = isPromo ? (item.promoPrice || 0) : 0;
