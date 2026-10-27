@@ -10,13 +10,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#064e3b">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- OCR Tesseract para lectura de texto impreso sin código de barras -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
+    <!-- CSS base garantizado para que NUNCA se desconfigure si falla el internet -->
     <style>
+        .hidden { display: none !important; }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background-color: #f3f4f6; color: #111827; }
         @keyframes pulse-ring {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
@@ -30,6 +28,11 @@
             box-shadow: 0 0 0 2px #059669;
         }
     </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex flex-col justify-between">
 
@@ -44,7 +47,7 @@
                 <p class="text-xs font-semibold uppercase text-emerald-600 tracking-wider">Control de Inventario & Alertas SAP</p>
             </div>
 
-            <!-- Botón de acceso directo con 1 toque -->
+            <!-- Acceso rápido 1 toque -->
             <div id="quickLoginBox" class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
                 <p class="text-xs text-emerald-800 font-bold mb-2">Acceso rápido con un solo toque:</p>
                 <button type="button" onclick="quickLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 px-4 rounded-xl text-xs flex items-center justify-center shadow-md transition">
@@ -236,7 +239,7 @@
                     </div>
                 </div>
 
-                <!-- 2. CÓDIGO SAP INTERNO (LIMPIEZA AUTOMÁTICA DE CEROS Y 'UN') -->
+                <!-- 2. CÓDIGO SAP INTERNO -->
                 <div>
                     <label class="block font-bold text-gray-700 uppercase mb-1">2. Código SAP Interno</label>
                     <div class="flex gap-2">
@@ -249,7 +252,7 @@
                             <span class="text-[10px]">Leer SAP</span>
                         </button>
                     </div>
-                    <span class="text-[10px] text-gray-400 mt-0.5 block">* Lee automáticamente el número de la etiqueta que termina en UN (ej: 0000010060UN -> 10060)</span>
+                    <span class="text-[10px] text-gray-400 mt-0.5 block">* Lee automáticamente el número de la etiqueta que termina en UN</span>
                 </div>
 
                 <!-- 3. DESCRIPCIÓN -->
@@ -272,7 +275,7 @@
                     </select>
                 </div>
 
-                <!-- 5. TEMPERATURA CON OPCIÓN NO APLICA -->
+                <!-- 5. TEMPERATURA -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">5. Temperatura</label>
@@ -298,7 +301,7 @@
                     </div>
                 </div>
 
-                <!-- 7. STOCK R1 (SIXPACK) SIEMPRE DE 6 UNIDADES -->
+                <!-- 7. STOCK R1 (SIXPACK) -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">7. Stock R1 (Sixpack - 6 unds fijas)</label>
@@ -315,7 +318,7 @@
                     </div>
                 </div>
 
-                <!-- 8. STOCK CX (CAJAS - PAQUETES) CONVERSOR A R1 -->
+                <!-- 8. STOCK CX (CAJAS - PAQUETES) -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">8. Stock CX (Cajas - Paquetes)</label>
@@ -362,7 +365,7 @@
                     <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="Ej: 3800" class="w-full px-3 py-2 bg-red-50 border border-red-300 rounded-xl text-xs font-bold text-red-700">
                 </div>
 
-                <!-- 12. PRECIO R1 (SUMATORIA 6 UND FIJAS) -->
+                <!-- 12. PRECIO R1 -->
                 <div id="priceR1Box">
                     <label class="block font-bold text-blue-800 uppercase mb-1">12. Precio R1 (Sixpack - 6 Unidades fijas)</label>
                     <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-xl flex justify-between items-center">
@@ -377,7 +380,7 @@
                     </div>
                 </div>
 
-                <!-- 13. PRECIO CX (SUMATORIA SEGÚN TAMAÑO DE LA CAJA) -->
+                <!-- 13. PRECIO CX -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-amber-800 uppercase">13. Precio CX (Caja / Paquete)</label>
@@ -395,7 +398,7 @@
                     </div>
                 </div>
 
-                <!-- 14. FECHA DE VENCIMIENTO CON OPCIÓN NO APLICA -->
+                <!-- 14. FECHA DE VENCIMIENTO -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="font-bold text-gray-700 uppercase">14. Fecha de Vencimiento</label>
@@ -421,17 +424,15 @@
         </div>
     </div>
 
-    <!-- MODAL ESCÁNER CON ZOOM Y LECTOR OCR PARA ETIQUETA SAP -->
+    <!-- MODAL ESCÁNER CON ZOOM Y LECTOR OCR -->
     <div id="scannerModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-3">
         <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl">
             <div class="p-3 bg-gray-800 text-white flex justify-between items-center">
                 <span id="scannerModalTitle" class="text-xs font-bold uppercase tracking-wider text-emerald-400">Escaneando...</span>
                 <div class="flex items-center space-x-1.5">
-                    <!-- Control de Zoom Digital para no acercarse y no desenfocar -->
                     <button type="button" id="btnZoom" onclick="cycleZoom()" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-emerald-300 text-[11px] font-black rounded-lg border border-gray-600">
                         1x
                     </button>
-                    <!-- Linterna -->
                     <button type="button" id="btnTorch" onclick="toggleTorch()" class="hidden px-2 py-0.5 bg-yellow-500 hover:bg-yellow-600 text-black text-[11px] font-bold rounded-lg">
                         <i class="fa-solid fa-bolt"></i>
                     </button>
@@ -441,7 +442,6 @@
                 </div>
             </div>
 
-            <!-- Visor de Cámara -->
             <div class="p-3 bg-black flex flex-col items-center justify-center relative">
                 <div id="reader" class="w-full max-w-[280px] overflow-hidden rounded-xl bg-gray-950 border border-gray-800"></div>
                 <div id="ocrSpinner" class="hidden absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white">
@@ -451,7 +451,6 @@
                 <p id="scannerHint" class="text-[11px] text-gray-300 mt-2 text-center font-medium">Mantén el celular a 15 cm y usa el botón Zoom si lo ves lejos</p>
             </div>
 
-            <!-- Botón Especial de Reconocimiento OCR directo sobre la etiqueta -->
             <div class="p-3 bg-gray-800 space-y-2 text-center">
                 <button type="button" id="btnCaptureOCR" onclick="captureAndReadSAP()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-black rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition">
                     <i class="fa-solid fa-eye"></i> Reconocer Número SAP (Etiqueta UN)
@@ -598,7 +597,7 @@
         let scannerTarget = null;
         let editingIndex = null;
         let isTorchOn = false;
-        let currentZoomLevel = 1; // 1x, 2x, 3x
+        let currentZoomLevel = 1;
 
         function playWarningBeep() {
             try {
@@ -711,7 +710,6 @@
             }
         }
 
-        // CONTROL DE CASILLAS NO APLICA
         function toggleTempNA() {
             const isNA = document.getElementById('tempNA').checked;
             const inputWrap = document.getElementById('tempInputWrapper');
@@ -792,7 +790,6 @@
             toggleR1NA();
         }
 
-        // GESTIÓN DE STOCK ENTRELAZADO
         function handleUnitsChange() {
             const units = parseInt(document.getElementById('prodStock').value) || 0;
             const r1NA = document.getElementById('r1NA').checked;
@@ -1214,9 +1211,6 @@
             }).join('');
         }
 
-        // ========================================================
-        // ESCÁNER AVANZADO CON ZOOM DIGITAL Y OCR
-        // ========================================================
         function openScannerModal(target) {
             scannerTarget = target;
             const titleEl = document.getElementById('scannerModalTitle');
@@ -1282,7 +1276,6 @@
             }
         }
 
-        // Control de Zoom Digital para mantener la cámara a 15-20cm y que enfoque nítido
         function cycleZoom() {
             if (currentZoomLevel === 1) currentZoomLevel = 2;
             else if (currentZoomLevel === 2) currentZoomLevel = 3;
@@ -1293,7 +1286,6 @@
             try {
                 const video = document.querySelector("#reader video");
                 if (video) {
-                    // Zoom visual por transformación CSS para compatibilidad universal en Android
                     video.style.transform = `scale(${currentZoomLevel})`;
                     video.style.transformOrigin = "center center";
                 }
@@ -1309,7 +1301,6 @@
             }
         }
 
-        // RECONOCIMIENTO OCR DIRECTO DEL NÚMERO SAP TERMINADO EN 'UN'
         async function captureAndReadSAP() {
             const video = document.querySelector("#reader video");
             if (!video) return;
@@ -1324,14 +1315,12 @@
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                // Procesamiento OCR con Tesseract buscando específicamente patrones de números con 'UN'
                 const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
                     tessedit_char_whitelist: '0123456789UNun '
                 });
 
                 spinner.classList.add('hidden');
 
-                // Expresión regular que busca dígitos seguidos de UN (ej: 0000010060UN)
                 const match = text.match(/0*([1-9]\d*)\s*UN/i);
 
                 if (match && match[1]) {
@@ -1340,7 +1329,6 @@
                     closeScannerModal();
                     document.getElementById('prodSap').value = sapFound;
                 } else {
-                    // Fallback: Si leyó una secuencia numérica larga de más de 4 dígitos
                     const numbersMatch = text.match(/0*([1-9]\d{3,7})/);
                     if (numbersMatch && numbersMatch[1]) {
                         playWarningBeep();
