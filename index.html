@@ -10,7 +10,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#064e3b">
 
-    <!-- ESTILOS VISUALES 100% INTEGRADOS Y PROTEGIDOS -->
     <style>
         .hidden { display: none !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -123,7 +122,6 @@
         </header>
 
         <main>
-            <!-- Buscador y Acciones -->
             <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
@@ -359,12 +357,15 @@
         </div>
     </div>
 
-    <!-- MODAL ESCÁNER CON LECTOR OCR, ZOOM Y OPCIÓN DE FOTO EN ALTA DEFINICIÓN -->
+    <!-- MODAL ESCÁNER CON ZOOM, FLASH Y FOTO EN ALTA DEFINICIÓN -->
     <div id="scannerModal" class="modal-overlay hidden">
         <div class="modal-box" style="background: #111827; max-width: 360px;">
             <div class="modal-header" style="background: #1f2937;">
                 <span id="scannerModalTitle" style="color: #34d399; font-size: 12px;">Escaneando...</span>
                 <div style="display: flex; align-items: center; gap: 6px;">
+                    <button type="button" id="btnTorch" onclick="toggleTorch()" style="background: #eab308; color: black; border: none; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;" title="Activar Flash">
+                        <i class="fa-solid fa-bolt"></i> Flash
+                    </button>
                     <button type="button" id="btnZoom" onclick="cycleZoom()" style="background: #374151; color: #34d399; border: 1px solid #4b5563; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;">
                         1x
                     </button>
@@ -374,33 +375,55 @@
                 </div>
             </div>
 
-            <!-- Visor de Cámara -->
             <div style="padding: 16px; display: flex; flex-direction: column; align-items: center; position: relative;">
                 <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #000;"></div>
                 
-                <div id="ocrSpinner" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                <div id="ocrSpinner" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
                     <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #38bdf8; margin-bottom: 8px;"></i>
-                    <span style="font-size: 12px; font-weight: 800;">Analizando imagen...</span>
+                    <span style="font-size: 12px; font-weight: 800;">Analizando número SAP...</span>
                 </div>
 
-                <p id="scannerHint" style="color: #9ca3af; font-size: 11px; margin-top: 10px; text-align: center;">Mantén a 15-20 cm para enfoque nítido o toma una foto</p>
+                <p id="scannerHint" style="color: #9ca3af; font-size: 11px; margin-top: 10px; text-align: center;">Mantén a 15-20 cm o toma una foto para recortar el número</p>
             </div>
 
-            <!-- Botones: Tomar Foto Nítida y Procesar -->
             <div style="padding: 12px; background: #1f2937; display: flex; flex-direction: column; gap: 8px;">
-                <!-- Botón de Cámara Nativa (Foto enfocada en HD) -->
                 <label style="width: 100%; padding: 10px; background: #059669; color: white; border-radius: 12px; font-weight: 800; font-size: 12px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                    <i class="fa-solid fa-camera"></i> Tomar Foto Nítida (Cámara Nativa)
+                    <i class="fa-solid fa-camera"></i> 📸 Tomar Foto Nítida y Recortar
                     <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" onchange="handleNativePhoto(event)" style="display: none;">
                 </label>
 
-                <!-- Botón de Reconocimiento Directo en Video (para SAP) -->
                 <button type="button" id="btnLiveOCR" onclick="captureAndReadSAP()" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <i class="fa-solid fa-eye"></i> Reconocer Número SAP (...UN)
+                    <i class="fa-solid fa-eye"></i> Reconocer Número SAP en Vivo
                 </button>
 
                 <button type="button" onclick="closeScannerModal()" style="width: 100%; padding: 8px; background: #374151; color: #d1d5db; border: none; border-radius: 10px; font-weight: 700; font-size: 11px; cursor: pointer;">
                     Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE RECORTE RÁPIDO PARA ENFOCAR SOLO EL NÚMERO SAP -->
+    <div id="cropModal" class="modal-overlay hidden" style="z-index: 60;">
+        <div class="modal-box" style="background: #111827; max-width: 420px;">
+            <div class="modal-header" style="background: #1f2937;">
+                <span style="color: #38bdf8; font-size: 12px;">Encuadra el Número SAP (Desliza con el dedo)</span>
+                <button type="button" onclick="closeCropModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div style="padding: 12px; display: flex; flex-direction: column; align-items: center; background: #030712;">
+                <div style="position: relative; max-height: 380px; overflow: auto; border: 1px solid #374151; border-radius: 12px;">
+                    <canvas id="cropCanvas" style="max-width: 100%; display: block;"></canvas>
+                </div>
+                <p style="color: #9ca3af; font-size: 11px; margin-top: 8px; text-align: center;">Mueve el recuadro para que encierre solo el número <strong>...UN</strong></p>
+            </div>
+            <div style="padding: 12px; background: #1f2937; display: flex; gap: 8px;">
+                <button type="button" onclick="closeCropModal()" style="flex: 1; padding: 10px; background: #374151; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer;">
+                    Cancelar
+                </button>
+                <button type="button" onclick="confirmCropAndProcess()" class="btn-green" style="flex: 2; padding: 10px;">
+                    <i class="fa-solid fa-check"></i> Procesar este Número
                 </button>
             </div>
         </div>
@@ -459,6 +482,13 @@
         let scannerTarget = null;
         let editingIndex = null;
         let currentZoomLevel = 1;
+        let isTorchOn = false;
+
+        // Variables para recorte
+        let originalLoadedImage = null;
+        let cropBox = { x: 50, y: 50, width: 250, height: 100 };
+        let isDraggingCrop = false;
+        let dragStartX = 0, dragStartY = 0;
 
         function playWarningBeep() {
             try {
@@ -894,7 +924,7 @@
         }
 
         // ========================================================
-        // ESCÁNER AVANZADO + FOTO NATIVA EN ALTA RESOLUCIÓN
+        // ESCÁNER Y CONTROL DE FLASH / LINTERNA
         // ========================================================
         function openScannerModal(target) {
             scannerTarget = target;
@@ -910,7 +940,7 @@
                 btnLiveOCR.classList.add('hidden');
             } else if (target === 'sap') {
                 titleEl.textContent = "Leer Código SAP de Etiqueta";
-                hintEl.textContent = "Enfoca el número '...UN' o toma una foto con el botón verde";
+                hintEl.textContent = "Toma la foto y recorta el recuadro '...UN'";
                 btnLiveOCR.classList.remove('hidden');
             } else {
                 titleEl.textContent = "Escaneo Rápido de Producto";
@@ -937,10 +967,24 @@
                 const config = { fps: 20, qrbox: { width: 250, height: 160 } };
                 html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
                     .catch(err => {
-                        console.log("Cámara en vivo esperando permiso o cerrada");
+                        console.log("Cámara en vivo lista");
                     });
             } catch (err) {
                 console.log(err);
+            }
+        }
+
+        function toggleTorch() {
+            if (html5QrCode) {
+                try {
+                    isTorchOn = !isTorchOn;
+                    html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
+                    const btn = document.getElementById('btnTorch');
+                    btn.style.background = isTorchOn ? "#facc15" : "#4b5563";
+                    btn.style.color = isTorchOn ? "#000" : "#fff";
+                } catch(e) {
+                    alert("Linterna no soportada en este modo.");
+                }
             }
         }
 
@@ -960,58 +1004,171 @@
             } catch(e) {}
         }
 
-        // PROCESAR FOTO NATIVA EN ALTA DEFINICIÓN (CÁMARA DEL CELULAR)
-        async function handleNativePhoto(event) {
+        // ========================================================
+        // RECORTE INTELIGENTE DE FOTO NATIVA
+        // ========================================================
+        function handleNativePhoto(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalLoadedImage = img;
+                    if (scannerTarget === 'sap') {
+                        // Abrir modal de recorte para enfocar solo el número SAP
+                        openCropModal(img);
+                    } else {
+                        // Código de barras directo en alta definición
+                        html5QrCode.scanFile(file, true)
+                            .then(decodedText => onScanSuccess(decodedText))
+                            .catch(err => alert("No se reconoció el código de barras en la foto."));
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = "";
+        }
+
+        function openCropModal(img) {
+            document.getElementById('cropModal').classList.remove('hidden');
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Ajustar tamaño para que quepa en pantalla móvil
+            const maxWidth = 340;
+            const scale = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = img.height * scale;
+
+            // Recuadro inicial posicionado abajo a la izquierda (donde va el número SAP)
+            cropBox.width = Math.min(220, canvas.width - 20);
+            cropBox.height = 70;
+            cropBox.x = 10;
+            cropBox.y = canvas.height - 90;
+
+            drawCropView();
+
+            // Eventos táctiles para arrastrar el recuadro
+            canvas.ontouchstart = handleTouchStart;
+            canvas.ontouchmove = handleTouchMove;
+            canvas.ontouchend = () => isDraggingCrop = false;
+        }
+
+        function drawCropView() {
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalLoadedImage, 0, 0, canvas.width, canvas.height);
+
+            // Capa oscura
+            ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Región clara dentro del recuadro
+            ctx.clearRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
+            ctx.drawImage(originalLoadedImage, 
+                (cropBox.x / canvas.width) * originalLoadedImage.width,
+                (cropBox.y / canvas.height) * originalLoadedImage.height,
+                (cropBox.width / canvas.width) * originalLoadedImage.width,
+                (cropBox.height / canvas.height) * originalLoadedImage.height,
+                cropBox.x, cropBox.y, cropBox.width, cropBox.height
+            );
+
+            // Marco verde alrededor del recorte
+            ctx.strokeStyle = "#10b981";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
+        }
+
+        function handleTouchStart(e) {
+            const rect = e.target.getBoundingClientRect();
+            const touch = e.touches[0];
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+
+            if (touchX >= cropBox.x && touchX <= cropBox.x + cropBox.width &&
+                touchY >= cropBox.y && touchY <= cropBox.y + cropBox.height) {
+                isDraggingCrop = true;
+                dragStartX = touchX - cropBox.x;
+                dragStartY = touchY - cropBox.y;
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!isDraggingCrop) return;
+            e.preventDefault();
+            const canvas = document.getElementById('cropCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+
+            cropBox.x = Math.max(0, Math.min(canvas.width - cropBox.width, touchX - dragStartX));
+            cropBox.y = Math.max(0, Math.min(canvas.height - cropBox.height, touchY - dragStartY));
+            drawCropView();
+        }
+
+        function closeCropModal() {
+            document.getElementById('cropModal').classList.add('hidden');
+        }
+
+        // PROCESAR ÚNICAMENTE LA REGIÓN RECORTADA
+        async function confirmCropAndProcess() {
+            const canvas = document.getElementById('cropCanvas');
+            closeCropModal();
 
             const spinner = document.getElementById('ocrSpinner');
             spinner.classList.remove('hidden');
 
             try {
-                if (scannerTarget === 'sap') {
-                    // Procesar etiqueta SAP buscando el texto con terminación UN
-                    const { data: { text } } = await Tesseract.recognize(file, 'eng', {
-                        tessedit_char_whitelist: '0123456789UNun '
-                    });
-                    spinner.classList.add('hidden');
+                // Crear un canvas pequeño solo con el recorte en máxima resolución
+                const croppedCanvas = document.createElement('canvas');
+                const scaleX = originalLoadedImage.width / canvas.width;
+                const scaleY = originalLoadedImage.height / canvas.height;
 
-                    const match = text.match(/0*([1-9]\d*)\s*UN/i);
-                    if (match && match[1]) {
+                const realX = cropBox.x * scaleX;
+                const realY = cropBox.y * scaleY;
+                const realW = cropBox.width * scaleX;
+                const realH = cropBox.height * scaleY;
+
+                croppedCanvas.width = realW;
+                croppedCanvas.height = realH;
+
+                const cropCtx = croppedCanvas.getContext('2d');
+                cropCtx.drawImage(originalLoadedImage, realX, realY, realW, realH, 0, 0, realW, realH);
+
+                // Procesamiento OCR ultra enfocado
+                const { data: { text } } = await Tesseract.recognize(croppedCanvas, 'eng', {
+                    tessedit_char_whitelist: '0123456789UNun '
+                });
+
+                spinner.classList.add('hidden');
+
+                const match = text.match(/0*([1-9]\d*)\s*UN/i);
+                if (match && match[1]) {
+                    playWarningBeep();
+                    closeScannerModal();
+                    document.getElementById('prodSap').value = match[1];
+                } else {
+                    const numMatch = text.match(/0*([1-9]\d{3,7})/);
+                    if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = match[1];
+                        document.getElementById('prodSap').value = numMatch[1];
                     } else {
-                        // Respaldo de números de 4 o más dígitos
-                        const numMatch = text.match(/0*([1-9]\d{3,7})/);
-                        if (numMatch && numMatch[1]) {
-                            playWarningBeep();
-                            closeScannerModal();
-                            document.getElementById('prodSap').value = numMatch[1];
-                        } else {
-                            alert("No se leyó con claridad el número '...UN'. Asegúrate de que la foto no salga borrosa ni con sombras.");
-                        }
+                        alert("No se leyó el número en el recuadro. Intenta ubicarlo justo sobre los dígitos.");
                     }
-                } else {
-                    // Procesar código de barras en la foto en alta resolución
-                    html5QrCode.scanFile(file, true)
-                        .then(decodedText => {
-                            spinner.classList.add('hidden');
-                            onScanSuccess(decodedText);
-                        })
-                        .catch(err => {
-                            spinner.classList.add('hidden');
-                            alert("No se detectó un código de barras claro en la foto. Intenta tomarla un poco más de cerca y enfocada.");
-                        });
                 }
-            } catch(err) {
+            } catch (err) {
                 spinner.classList.add('hidden');
-                alert("Error al procesar la foto.");
+                alert("Error al procesar el recorte.");
             }
-            event.target.value = "";
         }
 
-        // LECTURA DIRECTA DE SAP EN TIEMPO REAL DESDE EL VIDEO
         async function captureAndReadSAP() {
             const video = document.querySelector("#reader video");
             if (!video) return;
@@ -1044,12 +1201,11 @@
                         closeScannerModal();
                         document.getElementById('prodSap').value = numMatch[1];
                     } else {
-                        alert("No se detectó claramente '...UN'. Usa el botón verde para 'Tomar Foto Nítida' con la cámara de tu celular.");
+                        alert("No se detectó claramente. Usa 'Tomar Foto Nítida y Recortar' para seleccionar el número.");
                     }
                 }
             } catch(e) {
                 spinner.classList.add('hidden');
-                alert("Usa el botón verde 'Tomar Foto Nítida' para capturar en alta resolución.");
             }
         }
 
