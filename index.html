@@ -27,7 +27,8 @@
         .input-text, select { width: 100%; padding: 10px 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; font-size: 13px; font-weight: 500; outline: none; }
         .input-text:focus, select:focus { border-color: #059669; background-color: #ffffff; box-shadow: 0 0 0 2px rgba(5,150,105,0.2); }
         .btn-green { background-color: #059669; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-gold { background-color: #d97706; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(217,119,6,0.3); }
+        .btn-gold { background-color: #d97706; color: white; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(217,119,6,0.3); }
+        .btn-amber-dark { background-color: #b45309; color: white; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-dark { background-color: #1f2937; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-blue { background-color: #2563eb; color: white; border: none; border-radius: 12px; padding: 8px 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
 
@@ -146,17 +147,24 @@
                     </div>
                 </div>
 
-                <!-- Botones de Acción Rápida -->
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <label class="btn-gold" style="flex: 1; min-width: 180px; text-align: center; cursor: pointer;">
-                        <i class="fa-solid fa-bolt"></i> Escanear Etiqueta Completa
+                <!-- Botones de Acción: Cámara, Galería y Manual -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <label class="btn-gold" style="text-align: center; cursor: pointer;">
+                        <i class="fa-solid fa-camera"></i> 📸 Tomar Foto
                         <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
-                    <button type="button" onclick="openProductModal()" class="btn-green" style="flex: 1; min-width: 140px;">
-                        <i class="fa-solid fa-plus"></i> Manual
+                    <label class="btn-amber-dark" style="text-align: center; cursor: pointer;">
+                        <i class="fa-solid fa-image"></i> 🖼️ Galería
+                        <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="openProductModal()" class="btn-green" style="flex: 1;">
+                        <i class="fa-solid fa-plus"></i> Registro Manual
                     </button>
                     <button type="button" onclick="openScannerModal('quickSearch')" class="btn-dark">
-                        <i class="fa-solid fa-camera"></i> Buscar
+                        <i class="fa-solid fa-magnifying-glass"></i> Buscar Código
                     </button>
                 </div>
             </div>
@@ -206,10 +214,14 @@
                 </button>
             </div>
 
-            <div style="padding: 10px 16px 0 16px;">
-                <label class="btn-gold" style="width: 100%; text-align: center; cursor: pointer; padding: 8px 12px; font-size: 12px;">
-                    <i class="fa-solid fa-camera"></i> Tomar Foto a Etiqueta Amarilla para Llenar Datos
+            <div style="padding: 10px 16px 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <label class="btn-gold" style="text-align: center; cursor: pointer; padding: 8px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-camera"></i> 📸 Foto Etiqueta
                     <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
+                </label>
+                <label class="btn-amber-dark" style="text-align: center; cursor: pointer; padding: 8px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-image"></i> 🖼️ De Galería
+                    <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
                 </label>
             </div>
 
@@ -229,7 +241,7 @@
                     <div style="display: flex; gap: 6px;">
                         <div style="display: flex; flex: 1; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                             <span style="background: #e5e7eb; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #4b5563; display: flex; align-items: center;">SAP -</span>
-                            <input type="text" id="prodSap" required placeholder="17396" onchange="checkDuplicateOnInput('sap')" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
+                            <input type="text" id="prodSap" required placeholder="838" onchange="checkDuplicateOnInput('sap')" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
                         </div>
                         <button type="button" onclick="openScannerModal('sap')" class="btn-blue" style="display: flex; align-items: center; gap: 4px;" title="Escanear o Tomar Foto">
                             <i class="fa-solid fa-camera"></i> Leer SAP
@@ -602,7 +614,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE MEJORADO CON BINARIZACIÓN
+        // ESCANEO INTELIGENTE DE ETIQUETA COMPLETA (CÁMARA O GALERÍA)
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -612,7 +624,7 @@
             overlay.classList.remove('hidden');
 
             try {
-                // 1. Cargar imagen y decodificar código de barras
+                // 1. Intentar decodificar código de barras directo
                 let barcodeDetected = "";
                 try {
                     const tempQrCode = new Html5Qrcode("reader", { verbose: false });
@@ -621,25 +633,29 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
-                // 2. Preprocesar la foto en Canvas (Eliminar fondo amarillo y realzar contraste)
+                // 2. Preprocesar la foto para OCR
                 const preprocessedCanvas = await preprocessImageForOCR(file);
 
-                // 3. Procesar OCR con Tesseract en español e inglés
+                // 3. Procesar texto con Tesseract
                 const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa+eng');
 
                 overlay.classList.add('hidden');
                 playWarningBeep();
 
-                // Líneas limpias de texto
                 const lines = text.split('\n')
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER SAP (ej: 0000838UN o 00000838UN -> 838)
+                // 4. EXTRAER CÓDIGO SAP CON FILTRO ESTRICTO (Debe tener ceros a la izquierda para evitar '200 UN')
                 let extractedSap = "";
-                const sapMatch = text.match(/0*([1-9]\d{1,7})\s*UN\b/i) || text.match(/\b0*([1-9]\d{2,6})UN/i);
-                if (sapMatch && sapMatch[1]) {
-                    extractedSap = sapMatch[1];
+                // Busca ceros a la izquierda seguidos de dígitos y la palabra UN (ej: 0000838UN, 0000014114UN)
+                const sapWithZeros = text.match(/0{2,}([1-9]\d{1,7})\s*UN\b/i) || text.match(/0{2,}([1-9]\d{1,7})/);
+                if (sapWithZeros && sapWithZeros[1]) {
+                    extractedSap = sapWithZeros[1];
+                } else {
+                    // Si no encuentra con ceros, busca el patrón SAP
+                    const sapExplicit = text.match(/SAP\s*[-:]?\s*0*([1-9]\d{1,7})/i);
+                    if (sapExplicit && sapExplicit[1]) extractedSap = sapExplicit[1];
                 }
 
                 // 5. EXTRAER CÓDIGO DE BARRAS (EAN)
@@ -649,47 +665,43 @@
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER PRECIOS ESPECÍFICOS DE ETIQUETA AMARILLA
-                // Detecta patrones "C/U $4.150", "$ 4.150", "4.150"
-                const priceRegex = /(?:C\/U\s*\$?|\$\s*)([1-9]\d{0,2}[.,]\d{3})/gi;
+                // 6. EXTRAER PRECIOS REGULAR Y PROMOCIÓN / MAYORISTA
+                // Detecta patrones numéricos de precios colombianos (ej: 4.150, 4.050, 5.990, 5.490)
+                const priceRegex = /(?:C\/U\s*\$?|\$\s*|\b)([1-9]\d{0,2}[.,]\d{3})\b/gi;
                 const foundPrices = [];
                 let pMatch;
                 while ((pMatch = priceRegex.exec(text)) !== null) {
                     let val = parseInt(pMatch[1].replace(/[.,]/g, ''));
-                    if (val >= 500 && val <= 500000 && !foundPrices.includes(val)) {
+                    // Evitar que confunda con el código SAP
+                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
                         foundPrices.push(val);
                     }
                 }
 
-                // Búsqueda alternativa de precios si el formato omitió el signo $
-                if (foundPrices.length < 2) {
-                    const fallbackPriceRegex = /\b([1-9]\d{0,2}[.,]\d{3})\b/g;
-                    let fbMatch;
-                    while ((fbMatch = fallbackPriceRegex.exec(text)) !== null) {
-                        let val = parseInt(fbMatch[1].replace(/[.,]/g, ''));
-                        // Descartar si coincide con el código de barras o SAP
-                        if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
-                            foundPrices.push(val);
-                        }
-                    }
+                // Detectar si la etiqueta tiene ahorro (ej: AHORRE $100 o AHORRE $500)
+                let discountAmount = 0;
+                const ahorreMatch = text.match(/AHORRE\s*\$?([1-9]\d{1,4})/i) || text.match(/AHORRE\s*\$?\s*([1-9]\d{0,2}[.,]\d{3})/i);
+                if (ahorreMatch && ahorreMatch[1]) {
+                    discountAmount = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
                 }
 
                 let regularPrice = 0;
                 let promoPrice = 0;
 
                 if (foundPrices.length >= 2) {
-                    // En las etiquetas de Canasto 1156, el precio mayor es 1 UNIDAD y el menor es MAYORISTA
                     regularPrice = Math.max(foundPrices[0], foundPrices[1]);
                     promoPrice = Math.min(foundPrices[0], foundPrices[1]);
                 } else if (foundPrices.length === 1) {
                     regularPrice = foundPrices[0];
+                    if (discountAmount > 0 && regularPrice > discountAmount) {
+                        promoPrice = regularPrice - discountAmount;
+                    }
                 }
 
-                // 7. EXTRAER NOMBRE DEL PRODUCTO (Encabezado superior)
+                // 7. EXTRAER NOMBRE LIMPIO DEL PRODUCTO
                 let nameCandidates = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
-                    // Filtrar textos de estructura de etiqueta
                     if (upper.includes("PARTIR") || 
                         upper.includes("UNIDAD A") || 
                         upper.includes("PRECIO") || 
@@ -698,31 +710,43 @@
                         upper.includes("VOLUMEN") || 
                         upper.includes("JEFE") || 
                         upper.includes("TIENDA") ||
+                        upper.includes("C/U") ||
                         /^\d+$/.test(upper.replace(/\s/g, '')) ||
                         upper.length < 4) {
                         continue;
                     }
 
-                    // Limpiar caracteres extraños
-                    let cleanLine = line.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, '').trim();
+                    let cleanLine = line.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ').replace(/\s+/g, ' ').trim();
                     if (cleanLine.length >= 4) {
                         nameCandidates.push(cleanLine);
                     }
                 }
 
-                // Tomar las primeras dos líneas del título si están separadas
                 let extractedName = "";
                 if (nameCandidates.length > 0) {
                     extractedName = nameCandidates.slice(0, 2).join(' ').trim();
+                    // Limpiar letras sueltas al final
+                    extractedName = extractedName.replace(/\s+[a-zA-Z]$/, '').trim();
                 }
 
-                // Abrir formulario y volcar la información limpia
+                // Detectar categoría sugerida por el nombre
+                let suggestedCategory = "Abarrotes";
+                const upperName = extractedName.toUpperCase();
+                if (upperName.includes("SERVILLET") || upperName.includes("JABON") || upperName.includes("CEPILLO") || upperName.includes("PAPEL") || upperName.includes("LAVALOSA") || upperName.includes("DENTAL") || upperName.includes("CREMA")) {
+                    suggestedCategory = "Aseo del hogar y personal";
+                }
+
+                // Abrir formulario y autocompletar
                 openProductModal();
 
                 if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode;
                 if (extractedSap) document.getElementById('prodSap').value = extractedSap;
                 if (extractedName) document.getElementById('prodName').value = extractedName;
                 if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
+
+                // Asignar categoría y aplicar regla automática de Aseo
+                document.getElementById('prodCategory').value = suggestedCategory;
+                handleCategoryChange();
 
                 if (promoPrice > 0 && promoPrice < regularPrice) {
                     document.getElementById('prodPromoSelect').value = "SÍ";
@@ -735,19 +759,18 @@
                 togglePromoField();
                 recalcPrices();
 
-                // Verificar duplicados
                 if (extractedBarcode) checkDuplicateOnInput('barcode');
                 else if (extractedSap) checkDuplicateOnInput('sap');
 
             } catch (err) {
                 overlay.classList.add('hidden');
-                alert("Hubo un detalle procesando la imagen. Intenta enfocarla bien centrada y con buena luz.");
+                alert("Hubo un problema al procesar la imagen. Verifica que la foto esté nítida y bien iluminada.");
             }
 
             event.target.value = "";
         }
 
-        // Función que remueve el fondo amarillo y convierte a blanco/negro de alto contraste
+        // Preprocesamiento de imagen: remueve fondo amarillo y resalta texto negro
         function preprocessImageForOCR(file) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -773,14 +796,11 @@
                         canvas.height = h;
                         ctx.drawImage(img, 0, 0, w, h);
 
-                        // Binarización por umbral (Thresholding)
                         const imgData = ctx.getImageData(0, 0, w, h);
                         const d = imgData.data;
                         for (let i = 0; i < d.length; i += 4) {
-                            // Escala de grises ponderada
                             let gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-                            // El fondo amarillo tiene mucha luminosidad, el texto negro es oscuro
-                            let val = gray < 135 ? 0 : 255;
+                            let val = gray < 130 ? 0 : 255;
                             d[i] = val;
                             d[i+1] = val;
                             d[i+2] = val;
@@ -792,6 +812,26 @@
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        // ========================================================
+        // REGLAS DE CATEGORÍA (ASEO = VENCIMIENTO NO APLICA AUTOMÁTICO)
+        // ========================================================
+        function handleCategoryChange() {
+            const cat = document.getElementById('prodCategory').value;
+
+            // Regla automática: si es Aseo del hogar y personal, Vencimiento pasa automáticamente a No aplica
+            if (cat === 'Aseo del hogar y personal') {
+                document.getElementById('expiryNA').checked = true;
+                toggleExpiryNA();
+            }
+
+            if (cat === 'Bebidas') {
+                document.getElementById('r1NA').checked = false;
+            } else if (editingIndex === null) {
+                document.getElementById('r1NA').checked = true;
+            }
+            toggleR1NA();
         }
 
         // ========================================================
@@ -858,16 +898,6 @@
             document.getElementById('prodExpiry').classList.toggle('hidden', isNA);
             document.getElementById('expiryNADisplay').classList.toggle('hidden', !isNA);
             if (isNA) document.getElementById('prodExpiry').value = '';
-        }
-
-        function handleCategoryChange() {
-            const cat = document.getElementById('prodCategory').value;
-            if (cat === 'Bebidas') {
-                document.getElementById('r1NA').checked = false;
-            } else if (editingIndex === null) {
-                document.getElementById('r1NA').checked = true;
-            }
-            toggleR1NA();
         }
 
         function handleUnitsChange() {
@@ -1328,7 +1358,7 @@
             } catch(e) {}
         }
 
-        // RECORTE INTELIGENTE DE FOTO NATIVA
+        // RECORTE MANUAL SAP
         function handleNativePhoto(event) {
             const file = event.target.files[0];
             if (!file) return;
