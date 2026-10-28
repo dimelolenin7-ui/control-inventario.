@@ -27,6 +27,7 @@
         .input-text, select { width: 100%; padding: 10px 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; font-size: 13px; font-weight: 500; outline: none; }
         .input-text:focus, select:focus { border-color: #059669; background-color: #ffffff; box-shadow: 0 0 0 2px rgba(5,150,105,0.2); }
         .btn-green { background-color: #059669; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-gold { background-color: #d97706; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(217,119,6,0.3); }
         .btn-dark { background-color: #1f2937; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-blue { background-color: #2563eb; color: white; border: none; border-radius: 12px; padding: 8px 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
 
@@ -145,12 +146,17 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="openProductModal()" class="btn-green" style="flex: 1;">
-                        <i class="fa-solid fa-plus"></i> Registrar Nuevo Producto
+                <!-- Botones de Acción Rápida -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <label class="btn-gold" style="flex: 1; min-width: 180px; text-align: center; cursor: pointer;">
+                        <i class="fa-solid fa-bolt"></i> Escanear Etiqueta Completa
+                        <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
+                    </label>
+                    <button type="button" onclick="openProductModal()" class="btn-green" style="flex: 1; min-width: 140px;">
+                        <i class="fa-solid fa-plus"></i> Manual
                     </button>
                     <button type="button" onclick="openScannerModal('quickSearch')" class="btn-dark">
-                        <i class="fa-solid fa-camera"></i> Escaneo Rápido
+                        <i class="fa-solid fa-camera"></i> Buscar
                     </button>
                 </div>
             </div>
@@ -190,7 +196,7 @@
         </main>
     </div>
 
-    <!-- MODAL REGISTRO / EDICIÓN CON DETECCIÓN AUTOMÁTICA DE DUPLICADOS -->
+    <!-- MODAL REGISTRO / EDICIÓN -->
     <div id="productModal" class="modal-overlay hidden">
         <div class="modal-box">
             <div class="modal-header">
@@ -198,6 +204,14 @@
                 <button type="button" onclick="closeProductModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
+            </div>
+
+            <!-- Botón interno de autocompletar con etiqueta dentro del modal -->
+            <div style="padding: 10px 16px 0 16px;">
+                <label class="btn-gold" style="width: 100%; text-align: center; cursor: pointer; padding: 8px 12px; font-size: 12px;">
+                    <i class="fa-solid fa-camera"></i> Tomar Foto a Etiqueta Amarilla para Llenar Datos
+                    <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
+                </label>
             </div>
 
             <form id="productForm" onsubmit="saveProduct(event)" class="modal-body">
@@ -222,12 +236,12 @@
                             <i class="fa-solid fa-camera"></i> Leer SAP
                         </button>
                     </div>
-                    <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 2px;">* Lee la etiqueta amarilla y guarda el número quitando los ceros (ej: 0000017396UN → 17396)</span>
+                    <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 2px;">* Lee la etiqueta amarilla y guarda el número quitando los ceros (ej: 0000014114UN → 14114)</span>
                 </div>
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO</label>
-                    <input type="text" id="prodName" required placeholder="Ej: Lavalosa crema Diez de 10" class="input-text">
+                    <input type="text" id="prodName" required placeholder="Ej: Cepillo dental extra clean duro 1un" class="input-text">
                 </div>
 
                 <div>
@@ -306,7 +320,7 @@
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">10. PRECIO REGULAR ($)</label>
-                    <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="4500" class="input-text">
+                    <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="5990" class="input-text">
                 </div>
 
                 <div>
@@ -319,7 +333,7 @@
 
                 <div id="promoPriceWrapper" class="hidden">
                     <label style="display: block; font-weight: 800; font-size: 11px; color: #dc2626; margin-bottom: 4px;">12. PRECIO PROMO CON DESCUENTO ($)</label>
-                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="3800" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
+                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="5490" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
                 </div>
 
                 <div id="priceR1Box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between;">
@@ -390,7 +404,7 @@
                 
                 <div id="ocrSpinner" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
                     <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #38bdf8; margin-bottom: 8px;"></i>
-                    <span style="font-size: 12px; font-weight: 800;">Analizando número SAP...</span>
+                    <span id="ocrSpinnerText" style="font-size: 12px; font-weight: 800;">Analizando etiqueta...</span>
                 </div>
 
                 <p id="scannerHint" style="color: #9ca3af; font-size: 11px; margin-top: 10px; text-align: center;">Mantén a 15-20 cm o toma una foto para recortar el número</p>
@@ -439,6 +453,15 @@
         </div>
     </div>
 
+    <!-- PANTALLA DE CARGA PROCESANDO ETIQUETA COMPLETA -->
+    <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(0,0,0,0.85);">
+        <div style="text-align: center; color: white; padding: 24px;">
+            <i class="fa-solid fa-wand-magic-sparkles fa-spin" style="font-size: 42px; color: #fbbf24; margin-bottom: 16px;"></i>
+            <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Leyendo Información de Etiqueta...</h3>
+            <p style="font-size: 12px; color: #9ca3af;">Extrayendo Nombre, SAP, EAN, Precio Regular y Promoción</p>
+        </div>
+    </div>
+
     <!-- BURBUJA DE ALERTA -->
     <div id="floatingAlertBubble" onclick="openAlertsModal()" class="hidden animate-bubble-alert" style="position: fixed; bottom: 20px; right: 20px; z-index: 40; background: #dc2626; color: white; padding: 12px 16px; border-radius: 16px; border: 2px solid white; cursor: pointer; display: flex; align-items: center; gap: 10px;">
         <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px;"></i>
@@ -464,7 +487,8 @@
     <script>
         const DEFAULT_PRODUCTS = [
             { barcode: "7704269499256", sap: "45863", name: "Lavalosa crema Diez de 10 DC limon 500g", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
-            { barcode: "7704269658325", sap: "45849", name: "Papel higiénico Diez de 10 DC x 33M und", location: "Pasillo 2 - Bloque 1", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." }
+            { barcode: "7704269658325", sap: "45849", name: "Papel higiénico Diez de 10 DC x 33M und", location: "Pasillo 2 - Bloque 1", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
+            { barcode: "7702010130625", sap: "14114", name: "CEPILLO DENTAL EXTRA CLEAN DURO 1un", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 240, r1: "No aplica", cx: 20, cxUnitsPerBox: 12, price: 5990, isPromo: "SÍ", promoPrice: 5490, expiry: "No aplica", updatedAt: "28/10/2026, 10:15 a. m." }
         ];
 
         let inventory = [];
@@ -579,10 +603,129 @@
         }
 
         // ========================================================
+        // ESCANEO INTELIGENTE DE ETIQUETA COMPLETA
+        // ========================================================
+        async function handleFullLabelScan(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const overlay = document.getElementById('fullScanLoadingOverlay');
+            overlay.classList.remove('hidden');
+
+            try {
+                // Intentar leer código de barras en paralelo si es visible en la foto
+                let barcodeDetected = "";
+                try {
+                    const tempQrCode = new Html5Qrcode("reader", { verbose: false });
+                    const decodedText = await tempQrCode.scanFile(file, false);
+                    if (decodedText) barcodeDetected = decodedText.trim();
+                    tempQrCode.clear();
+                } catch(e) {
+                    // Si no decodifica ópticamente, se extraerá por OCR
+                }
+
+                // OCR con Tesseract
+                const { data: { text } } = await Tesseract.recognize(file, 'spa+eng');
+
+                overlay.classList.add('hidden');
+                playWarningBeep();
+
+                // 1. EXTRAER LÍNEAS DE TEXTO
+                const lines = text.split('\n')
+                    .map(l => l.trim())
+                    .filter(l => l.length > 2);
+
+                // 2. EXTRAER CÓDIGO SAP (0000014114UN -> 14114)
+                let extractedSap = "";
+                const sapMatch = text.match(/0*([1-9]\d{2,7})\s*UN/i) || text.match(/SAP\s*[-:]?\s*0*([1-9]\d{2,7})/i);
+                if (sapMatch && sapMatch[1]) {
+                    extractedSap = sapMatch[1];
+                }
+
+                // 3. EXTRAER CÓDIGO DE BARRAS (EAN)
+                let extractedBarcode = barcodeDetected;
+                if (!extractedBarcode) {
+                    const eanMatch = text.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
+                    if (eanMatch) extractedBarcode = eanMatch[1];
+                }
+
+                // 4. EXTRAER PRECIOS (REGULAR Y PROMO)
+                // Busca patrones de precio con formato $X.XXX o números de 3 a 6 dígitos
+                const priceMatches = [];
+                const regexPrice = /\$?\s*([1-9]\d{0,2}[.,]\d{3})/g;
+                let m;
+                while ((m = regexPrice.exec(text)) !== null) {
+                    let cleanP = parseInt(m[1].replace(/[.,]/g, ''));
+                    if (cleanP >= 500 && cleanP <= 500000 && !priceMatches.includes(cleanP)) {
+                        priceMatches.push(cleanP);
+                    }
+                }
+
+                let regularPrice = 0;
+                let promoPrice = 0;
+
+                // Si encontramos precios: en las etiquetas el precio superior es el regular y el inferior es el mayorista/promo
+                if (priceMatches.length >= 2) {
+                    regularPrice = Math.max(priceMatches[0], priceMatches[1]);
+                    promoPrice = Math.min(priceMatches[0], priceMatches[1]);
+                } else if (priceMatches.length === 1) {
+                    regularPrice = priceMatches[0];
+                }
+
+                // 5. EXTRAER NOMBRE DEL PRODUCTO
+                // Generalmente la primera o segunda línea que no contenga palabras clave como "A PARTIR", "MAYOR", "CANASTO"
+                let extractedName = "";
+                for (let line of lines) {
+                    const upper = line.toUpperCase();
+                    if (!upper.includes("PARTIR") && 
+                        !upper.includes("UNIDAD") && 
+                        !upper.includes("PRECIO") && 
+                        !upper.includes("AHORRE") && 
+                        !upper.includes("MAYOR") && 
+                        !upper.includes("CANASTO") &&
+                        !upper.includes("VOLUMEN") &&
+                        !/^\d+$/.test(upper) &&
+                        upper.length > 5) {
+                        extractedName = line.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ').replace(/\s+/g, ' ').trim();
+                        break;
+                    }
+                }
+
+                // Abrir el formulario y rellenar automáticamente
+                openProductModal();
+
+                if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode;
+                if (extractedSap) document.getElementById('prodSap').value = extractedSap;
+                if (extractedName) document.getElementById('prodName').value = extractedName;
+                if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
+
+                if (promoPrice > 0 && promoPrice < regularPrice) {
+                    document.getElementById('prodPromoSelect').value = "SÍ";
+                    document.getElementById('prodPromoPrice').value = promoPrice;
+                } else {
+                    document.getElementById('prodPromoSelect').value = "NO";
+                    document.getElementById('prodPromoPrice').value = 0;
+                }
+
+                togglePromoField();
+                recalcPrices();
+
+                // Si el producto ya existe en la base, avisar de inmediato
+                if (extractedBarcode) checkDuplicateOnInput('barcode');
+                else if (extractedSap) checkDuplicateOnInput('sap');
+
+            } catch (err) {
+                overlay.classList.add('hidden');
+                alert("No se pudo procesar la etiqueta completa. Por favor toma la foto de nuevo más cerca y nítida.");
+            }
+
+            event.target.value = "";
+        }
+
+        // ========================================================
         // DETECCIÓN INTELIGENTE DE DUPLICADOS EN TIEMPO REAL
         // ========================================================
         function checkDuplicateOnInput(type) {
-            // Solo se activa si estamos creando un NUEVO producto
             if (editingIndex !== null) return;
 
             let barcodeVal = document.getElementById('prodBarcode').value.trim();
@@ -609,7 +752,7 @@
                       `📍 Ubicación: ${prod.location || 'Sin ubicación'}\n` +
                       `📊 Stock Actual: ${prod.units} unds (CX-${prod.cx || 0} | R1-${prod.r1 || 0})\n` +
                       `📅 Vencimiento: ${prod.expiry}\n\n` +
-                      `No se creará un duplicado. Abriremos directamente su pestaña para que revises o actualices.`);
+                      `No se creará un duplicado. Se abrirá directamente su pestaña para que revises o actualices.`);
                 openProductModal(foundIndex);
             }
         }
@@ -803,7 +946,6 @@
 
             const barcodeVal = document.getElementById('prodBarcode').value.trim();
 
-            // DOBLE VERIFICACIÓN: Evitar guardar un producto si su código EAN o SAP ya pertenece a otro
             if (editingIndex === null) {
                 const duplicateIndex = inventory.findIndex(p => 
                     (barcodeVal && p.barcode === barcodeVal) ||
@@ -931,6 +1073,7 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
+        // TABLA CON ORDEN ALFABÉTICO, UBICACIÓN Y ÚLTIMA ACTUALIZACIÓN
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1221,6 +1364,7 @@
             closeCropModal();
 
             const spinner = document.getElementById('ocrSpinner');
+            document.getElementById('ocrSpinnerText').textContent = "Analizando número SAP...";
             spinner.classList.remove('hidden');
 
             try {
@@ -1273,6 +1417,7 @@
             if (!video) return;
 
             const spinner = document.getElementById('ocrSpinner');
+            document.getElementById('ocrSpinnerText').textContent = "Analizando número SAP...";
             spinner.classList.remove('hidden');
 
             try {
