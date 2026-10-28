@@ -122,6 +122,7 @@
         </header>
 
         <main>
+            <!-- Buscador y Filtro en Orden Alfabético -->
             <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
@@ -130,13 +131,13 @@
                     <div style="width: 220px;">
                         <select id="categoryFilter" onchange="renderTable()">
                             <option value="">Todas las Categorías</option>
-                            <option value="Lácteos">Lácteos</option>
                             <option value="Abarrotes">Abarrotes</option>
-                            <option value="Bebidas">Bebidas</option>
                             <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
+                            <option value="Bebidas">Bebidas</option>
                             <option value="Congelados">Congelados</option>
-                            <option value="Refrigerados">Refrigerados</option>
+                            <option value="Lácteos">Lácteos</option>
                             <option value="Mecato / Snacks">Mecato / Snacks</option>
+                            <option value="Refrigerados">Refrigerados</option>
                         </select>
                     </div>
                 </div>
@@ -151,11 +152,11 @@
                 </div>
             </div>
 
-            <!-- Tabla de Inventario Desglosada -->
+            <!-- Tabla de Inventario Desglosada Ordenada A - Z -->
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 900; font-size: 12px; text-transform: uppercase; color: #374151;">
-                        <i class="fa-solid fa-boxes-stacked" style="color: #059669; margin-right: 6px;"></i> Stock en Bodega
+                        <i class="fa-solid fa-arrow-down-a-z" style="color: #059669; margin-right: 6px;"></i> Stock en Bodega (Orden A - Z)
                     </span>
                     <span id="productCount" class="badge badge-green">0 productos</span>
                 </div>
@@ -225,16 +226,17 @@
                     <input type="text" id="prodName" required placeholder="Ej: Lavalosa crema Diez de 10" class="input-text">
                 </div>
 
+                <!-- Categorías en Orden Alfabético -->
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">4. CATEGORÍA</label>
                     <select id="prodCategory" onchange="handleCategoryChange()" required>
-                        <option value="Lácteos">Lácteos</option>
                         <option value="Abarrotes">Abarrotes</option>
-                        <option value="Bebidas">Bebidas</option>
                         <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
+                        <option value="Bebidas">Bebidas</option>
                         <option value="Congelados">Congelados</option>
-                        <option value="Refrigerados">Refrigerados</option>
+                        <option value="Lácteos">Lácteos</option>
                         <option value="Mecato / Snacks">Mecato / Snacks</option>
+                        <option value="Refrigerados">Refrigerados</option>
                     </select>
                 </div>
 
@@ -484,7 +486,6 @@
         let currentZoomLevel = 1;
         let isTorchOn = false;
 
-        // Variables para recorte
         let originalLoadedImage = null;
         let cropBox = { x: 50, y: 50, width: 250, height: 100 };
         let isDraggingCrop = false;
@@ -828,18 +829,24 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
+        // ========================================================
+        // TABLA CON ORDENAMIENTO ALFABÉTICO (A - Z)
+        // ========================================================
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
             const cat = document.getElementById('categoryFilter').value;
 
-            const filtered = inventory.filter(item => {
+            let filtered = inventory.filter(item => {
                 const matchesSearch = item.name.toLowerCase().includes(search) ||
                                       item.sap.toLowerCase().includes(search) ||
                                       item.barcode.includes(search);
                 const matchesCat = cat === "" || item.category === cat;
                 return matchesSearch && matchesCat;
             });
+
+            // Ordenamiento alfabético A-Z por nombre del producto
+            filtered.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
 
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
 
@@ -1017,10 +1024,8 @@
                 img.onload = function() {
                     originalLoadedImage = img;
                     if (scannerTarget === 'sap') {
-                        // Abrir modal de recorte para enfocar solo el número SAP
                         openCropModal(img);
                     } else {
-                        // Código de barras directo en alta definición
                         html5QrCode.scanFile(file, true)
                             .then(decodedText => onScanSuccess(decodedText))
                             .catch(err => alert("No se reconoció el código de barras en la foto."));
@@ -1037,13 +1042,11 @@
             const canvas = document.getElementById('cropCanvas');
             const ctx = canvas.getContext('2d');
 
-            // Ajustar tamaño para que quepa en pantalla móvil
             const maxWidth = 340;
             const scale = maxWidth / img.width;
             canvas.width = maxWidth;
             canvas.height = img.height * scale;
 
-            // Recuadro inicial posicionado abajo a la izquierda (donde va el número SAP)
             cropBox.width = Math.min(220, canvas.width - 20);
             cropBox.height = 70;
             cropBox.x = 10;
@@ -1051,7 +1054,6 @@
 
             drawCropView();
 
-            // Eventos táctiles para arrastrar el recuadro
             canvas.ontouchstart = handleTouchStart;
             canvas.ontouchmove = handleTouchMove;
             canvas.ontouchend = () => isDraggingCrop = false;
@@ -1064,11 +1066,9 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(originalLoadedImage, 0, 0, canvas.width, canvas.height);
 
-            // Capa oscura
             ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Región clara dentro del recuadro
             ctx.clearRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
             ctx.drawImage(originalLoadedImage, 
                 (cropBox.x / canvas.width) * originalLoadedImage.width,
@@ -1078,7 +1078,6 @@
                 cropBox.x, cropBox.y, cropBox.width, cropBox.height
             );
 
-            // Marco verde alrededor del recorte
             ctx.strokeStyle = "#10b981";
             ctx.lineWidth = 3;
             ctx.strokeRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
@@ -1102,8 +1101,8 @@
             if (!isDraggingCrop) return;
             e.preventDefault();
             const canvas = document.getElementById('cropCanvas');
-            const rect = canvas.getBoundingClientRect();
             const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
             const touchX = touch.clientX - rect.left;
             const touchY = touch.clientY - rect.top;
 
@@ -1116,7 +1115,6 @@
             document.getElementById('cropModal').classList.add('hidden');
         }
 
-        // PROCESAR ÚNICAMENTE LA REGIÓN RECORTADA
         async function confirmCropAndProcess() {
             const canvas = document.getElementById('cropCanvas');
             closeCropModal();
@@ -1125,7 +1123,6 @@
             spinner.classList.remove('hidden');
 
             try {
-                // Crear un canvas pequeño solo con el recorte en máxima resolución
                 const croppedCanvas = document.createElement('canvas');
                 const scaleX = originalLoadedImage.width / canvas.width;
                 const scaleY = originalLoadedImage.height / canvas.height;
@@ -1141,7 +1138,6 @@
                 const cropCtx = croppedCanvas.getContext('2d');
                 cropCtx.drawImage(originalLoadedImage, realX, realY, realW, realH, 0, 0, realW, realH);
 
-                // Procesamiento OCR ultra enfocado
                 const { data: { text } } = await Tesseract.recognize(croppedCanvas, 'eng', {
                     tessedit_char_whitelist: '0123456789UNun '
                 });
