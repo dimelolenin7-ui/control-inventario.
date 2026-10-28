@@ -42,6 +42,7 @@
         .badge-amber { background-color: #fef3c7; color: #92400e; }
         .badge-gray { background-color: #f3f4f6; color: #4b5563; }
         .badge-cyan { background-color: #cffafe; color: #155e75; }
+        .badge-purple { background-color: #f3e8ff; color: #6b21a8; }
 
         .modal-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 12px; }
         .modal-box { background: #ffffff; border-radius: 20px; width: 100%; max-width: 500px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
@@ -62,7 +63,7 @@
 </head>
 <body>
 
-    <!-- PANTALLA DE INGRESO CON LOGO DL COMPANY -->
+    <!-- PANTALLA DE INGRESO CON CREDENCIALES GUARDADAS -->
     <div id="authScreen" class="hidden" style="min-height: 100vh; background: linear-gradient(135deg, #022c22, #111827); display: flex; align-items: center; justify-content: center; padding: 16px;">
         <div style="background: white; border-radius: 20px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
             <div style="text-align: center; margin-bottom: 20px;">
@@ -83,11 +84,11 @@
             <form id="formLogin" onsubmit="handleLogin(event)" style="display: flex; flex-direction: column; gap: 12px;">
                 <div>
                     <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #374151; margin-bottom: 4px;">Usuario</label>
-                    <input type="text" id="loginUsername" required value="lenin" class="input-text">
+                    <input type="text" id="loginUsername" required class="input-text">
                 </div>
                 <div>
                     <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #374151; margin-bottom: 4px;">Contraseña</label>
-                    <input type="password" id="loginPassword" required value="123" class="input-text">
+                    <input type="password" id="loginPassword" required class="input-text">
                 </div>
                 <button type="submit" class="btn-green" style="width: 100%; padding: 12px; margin-top: 6px;">
                     Ingresar a Bodega <i class="fa-solid fa-arrow-right"></i>
@@ -96,7 +97,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA PRINCIPAL DE LA BODEGA CON LOGO DL COMPANY -->
+    <!-- PANTALLA PRINCIPAL DE LA BODEGA -->
     <div id="mainAppScreen" style="display: flex; flex-direction: column; flex: 1;">
         <header>
             <div class="header-container">
@@ -117,6 +118,7 @@
                         <i class="fa-solid fa-bell"></i>
                         <span id="badgeCriticos" class="hidden" style="position: absolute; top: -4px; right: -4px; background: #dc2626; color: white; font-size: 10px; font-weight: 900; width: 18px; height: 18px; border-radius: 9999px; display: flex; align-items: center; justify-content: center;">0</span>
                     </button>
+                    <!-- Botón Cerrar Sesión (mantiene credenciales guardadas) -->
                     <button type="button" onclick="handleLogout()" class="header-btn" style="background: #991b1b;" title="Cerrar Sesión">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
@@ -128,7 +130,7 @@
             <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
-                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 Buscar por Nombre, Código SAP o EAN..." class="input-text">
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 Buscar por Nombre, Ubicación, Código SAP o EAN..." class="input-text">
                     </div>
                     <div style="width: 220px;">
                         <select id="categoryFilter" onchange="renderTable()">
@@ -154,7 +156,7 @@
                 </div>
             </div>
 
-            <!-- Tabla de Inventario Desglosada Ordenada A - Z -->
+            <!-- Tabla de Inventario Desglosada con Ubicación y Última Actualización -->
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 900; font-size: 12px; text-transform: uppercase; color: #374151;">
@@ -168,7 +170,7 @@
                         <thead>
                             <tr>
                                 <th>EAN / SAP</th>
-                                <th>Producto / Categoría</th>
+                                <th>Producto / Categoría / Ubicación</th>
                                 <th style="text-align: center;">Temperatura</th>
                                 <th style="text-align: center; background: #ecfdf5;">Stock (Und)</th>
                                 <th style="text-align: center; background: #eff6ff;">Stock (R1)</th>
@@ -177,6 +179,7 @@
                                 <th style="text-align: center;">Precio R1</th>
                                 <th style="text-align: center;">Precio CX</th>
                                 <th style="text-align: center;">Vencimiento</th>
+                                <th style="text-align: center; background: #f8fafc;">Última Actualización</th>
                                 <th style="text-align: center;">Acciones</th>
                             </tr>
                         </thead>
@@ -228,8 +231,14 @@
                     <input type="text" id="prodName" required placeholder="Ej: Lavalosa crema Diez de 10" class="input-text">
                 </div>
 
+                <!-- Campo de Ubicación en Bodega -->
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">4. CATEGORÍA</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">4. UBICACIÓN EN BODEGA</label>
+                    <input type="text" id="prodLocation" placeholder="Ej: Pasillo 1 - Bloque 2" class="input-text">
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">5. CATEGORÍA</label>
                     <select id="prodCategory" onchange="handleCategoryChange()" required>
                         <option value="Abarrotes">Abarrotes</option>
                         <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
@@ -243,7 +252,7 @@
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">5. TEMPERATURA</label>
+                        <label style="font-weight: 800; font-size: 11px;">6. TEMPERATURA</label>
                         <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
                             <input type="checkbox" id="tempNA" onchange="toggleTempNA()"> No aplica
                         </label>
@@ -256,7 +265,7 @@
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">6. STOCK (UNIDADES)</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">7. STOCK (UNIDADES)</label>
                     <div style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                         <input type="number" id="prodStock" oninput="handleUnitsChange()" required min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 800; color: #047857; outline: none;">
                         <span style="background: #e5e7eb; color: #374151; padding: 8px 12px; font-weight: 800; font-size: 12px;">und</span>
@@ -265,7 +274,7 @@
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">7. STOCK R1 (SIXPACK - 6 UNDS)</label>
+                        <label style="font-weight: 800; font-size: 11px;">8. STOCK R1 (SIXPACK - 6 UNDS)</label>
                         <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
                             <input type="checkbox" id="r1NA" onchange="toggleR1NA()"> No aplica
                         </label>
@@ -279,7 +288,7 @@
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">8. STOCK CX (CAJAS - PAQUETES)</label>
+                        <label style="font-weight: 800; font-size: 11px;">9. STOCK CX (CAJAS - PAQUETES)</label>
                         <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
                             <input type="checkbox" id="cxNA" onchange="toggleCXNA()"> No aplica
                         </label>
@@ -298,12 +307,12 @@
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">9. PRECIO REGULAR ($)</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">10. PRECIO REGULAR ($)</label>
                     <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="4500" class="input-text">
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">10. ¿EN PROMOCIÓN?</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">11. ¿EN PROMOCIÓN?</label>
                     <select id="prodPromoSelect" onchange="togglePromoField()">
                         <option value="NO">NO</option>
                         <option value="SÍ">SÍ</option>
@@ -311,7 +320,7 @@
                 </div>
 
                 <div id="promoPriceWrapper" class="hidden">
-                    <label style="display: block; font-weight: 800; font-size: 11px; color: #dc2626; margin-bottom: 4px;">11. PRECIO PROMO CON DESCUENTO ($)</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; color: #dc2626; margin-bottom: 4px;">12. PRECIO PROMO CON DESCUENTO ($)</label>
                     <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="3800" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
                 </div>
 
@@ -339,7 +348,7 @@
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">14. FECHA DE VENCIMIENTO</label>
+                        <label style="font-weight: 800; font-size: 11px;">13. FECHA DE VENCIMIENTO</label>
                         <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
                             <input type="checkbox" id="expiryNA" onchange="toggleExpiryNA()"> No aplica
                         </label>
@@ -456,8 +465,8 @@
 
     <script>
         const DEFAULT_PRODUCTS = [
-            { barcode: "7704269499256", sap: "45863", name: "Lavalosa crema Diez de 10 DC limon 500g", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica" },
-            { barcode: "7704269658325", sap: "45849", name: "Papel higiénico Diez de 10 DC x 33M und", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica" }
+            { barcode: "7704269499256", sap: "45863", name: "Lavalosa crema Diez de 10 DC limon 500g", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
+            { barcode: "7704269658325", sap: "45849", name: "Papel higiénico Diez de 10 DC x 33M und", location: "Pasillo 2 - Bloque 1", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." }
         ];
 
         let inventory = [];
@@ -473,7 +482,15 @@
             inventory = DEFAULT_PRODUCTS;
         }
 
+        // Credenciales predeterminadas y guardadas
         const defaultUser = { name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes" };
+        let rememberedUser = null;
+        try {
+            rememberedUser = JSON.parse(localStorage.getItem('canasto_remembered_credentials')) || defaultUser;
+        } catch(e) {
+            rememberedUser = defaultUser;
+        }
+
         let currentUser = null;
         try {
             currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || defaultUser;
@@ -510,12 +527,18 @@
         }
 
         function quickLogin() {
-            currentUser = defaultUser;
+            currentUser = rememberedUser || defaultUser;
             localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
             initApp();
         }
 
         function initApp() {
+            // Autocompletar siempre usuario y contraseña grabados
+            if (rememberedUser) {
+                document.getElementById('loginUsername').value = rememberedUser.username || "lenin";
+                document.getElementById('loginPassword').value = rememberedUser.password || "123";
+            }
+
             if (currentUser) {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainAppScreen').classList.remove('hidden');
@@ -531,7 +554,18 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            currentUser = defaultUser;
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+
+            currentUser = {
+                name: (rememberedUser && rememberedUser.name) ? rememberedUser.name : "Lenin Alexander",
+                username: u,
+                password: p,
+                zone: (rememberedUser && rememberedUser.zone) ? rememberedUser.zone : "Abarrotes"
+            };
+
+            // Guardar credenciales para que siempre queden memorizadas
+            localStorage.setItem('canasto_remembered_credentials', JSON.stringify(currentUser));
             localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
             initApp();
         }
@@ -540,7 +574,13 @@
             if (confirm("¿Deseas cerrar sesión?")) {
                 currentUser = null;
                 localStorage.removeItem('canasto_current_user');
-                location.reload();
+                // Al cerrar sesión mostramos la pantalla de login con usuario y contraseña ya escritos
+                document.getElementById('mainAppScreen').classList.add('hidden');
+                document.getElementById('authScreen').classList.remove('hidden');
+                if (rememberedUser) {
+                    document.getElementById('loginUsername').value = rememberedUser.username || "lenin";
+                    document.getElementById('loginPassword').value = rememberedUser.password || "123";
+                }
             }
         }
 
@@ -669,6 +709,7 @@
                 document.getElementById('prodBarcode').value = item.barcode;
                 document.getElementById('prodSap').value = item.sap;
                 document.getElementById('prodName').value = item.name;
+                document.getElementById('prodLocation').value = item.location || "";
                 document.getElementById('prodCategory').value = item.category;
                 document.getElementById('prodStock').value = item.units;
 
@@ -697,6 +738,7 @@
             } else {
                 modalTitle.textContent = "Nuevo Registro en Inventario";
                 document.getElementById('prodCXUnitsPerBox').value = 12;
+                document.getElementById('prodLocation').value = "Pasillo 1 - Bloque 2";
                 document.getElementById('tempNA').checked = true;
                 toggleTempNA();
                 document.getElementById('r1NA').checked = true;
@@ -729,10 +771,15 @@
                 .replace(/[^\d]/g, '')
                 .replace(/^0+/, '');
 
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ", " +
+                                  now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+
             const item = {
                 barcode: document.getElementById('prodBarcode').value.trim(),
                 sap: cleanSap || document.getElementById('prodSap').value.trim(),
                 name: document.getElementById('prodName').value.trim(),
+                location: document.getElementById('prodLocation').value.trim() || "Sin ubicación",
                 category: cat,
                 temperature: tempValue,
                 units: parseInt(document.getElementById('prodStock').value) || 0,
@@ -742,7 +789,8 @@
                 price: parseFloat(document.getElementById('prodPrice').value) || 0,
                 isPromo: document.getElementById('prodPromoSelect').value,
                 promoPrice: parseFloat(document.getElementById('prodPromoPrice').value) || 0,
-                expiry: expiryVal
+                expiry: expiryVal,
+                updatedAt: formattedDate
             };
 
             if (editingIndex !== null) {
@@ -816,7 +864,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
                             <div>
                                 <span style="font-weight: 800; color: #111827; display: block;">${item.name}</span>
-                                <span style="font-size: 11px; color: #6b7280;">SAP-${item.sap} • Stock: ${item.units} und</span>
+                                <span style="font-size: 11px; color: #6b7280;">SAP-${item.sap} • ${item.location || 'Sin ubicación'} • Stock: ${item.units} und</span>
                             </div>
                             <span class="badge ${isVencido ? 'badge-red' : 'badge-amber'}">${isVencido ? 'VENCIDO' : days + ' días rest.'}</span>
                         </div>
@@ -830,6 +878,7 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
+        // TABLA CON ORDEN ALFABÉTICO, UBICACIÓN Y ÚLTIMA ACTUALIZACIÓN
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -838,6 +887,7 @@
             let filtered = inventory.filter(item => {
                 const matchesSearch = item.name.toLowerCase().includes(search) ||
                                       item.sap.toLowerCase().includes(search) ||
+                                      (item.location && item.location.toLowerCase().includes(search)) ||
                                       item.barcode.includes(search);
                 const matchesCat = cat === "" || item.category === cat;
                 return matchesSearch && matchesCat;
@@ -848,7 +898,7 @@
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; padding: 24px; color: #9ca3af;">No se encontraron productos</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 24px; color: #9ca3af;">No se encontraron productos</td></tr>`;
                 return;
             }
 
@@ -879,8 +929,11 @@
                             <span style="font-size: 10px; color: #9ca3af; font-family: monospace;">${item.barcode}</span>
                         </td>
                         <td>
-                            <span style="font-weight: 700; display: block; max-width: 200px; white-space: normal;">${item.name}</span>
-                            <span class="badge badge-gray" style="margin-top: 2px;">${item.category}</span>
+                            <span style="font-weight: 700; display: block; max-width: 220px; white-space: normal;">${item.name}</span>
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px;">
+                                <span class="badge badge-gray">${item.category}</span>
+                                ${item.location ? `<span class="badge badge-purple"><i class="fa-solid fa-location-dot" style="margin-right: 3px;"></i>${item.location}</span>` : ''}
+                            </div>
                         </td>
                         <td style="text-align: center;">
                             ${item.temperature !== 'No aplica' && item.temperature !== '' ? `<span class="badge badge-cyan">${item.temperature} °C</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
@@ -914,6 +967,9 @@
                             <span class="badge ${badgeClass}" style="display: block;">${statusText}</span>
                             ${item.expiry !== 'No aplica' ? `<span style="font-size: 10px; color: #9ca3af; font-family: monospace; display: block; margin-top: 2px;">${item.expiry}</span>` : ''}
                         </td>
+                        <td style="text-align: center; background: #f8fafc; font-size: 11px; color: #475569; font-weight: 600;">
+                            <i class="fa-regular fa-clock" style="margin-right: 4px; color: #059669;"></i>${item.updatedAt || 'Inicial'}
+                        </td>
                         <td style="text-align: center;">
                             <button type="button" onclick="openProductModal(${realIndex})" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; font-size: 14px;" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
@@ -927,9 +983,7 @@
             }).join('');
         }
 
-        // ========================================================
-        // ESCÁNER Y CONTROL DE FLASH / LINTERNA
-        // ========================================================
+        // ESCÁNER Y FLASH
         function openScannerModal(target) {
             scannerTarget = target;
             const titleEl = document.getElementById('scannerModalTitle');
@@ -1008,9 +1062,7 @@
             } catch(e) {}
         }
 
-        // ========================================================
         // RECORTE INTELIGENTE DE FOTO NATIVA
-        // ========================================================
         function handleNativePhoto(event) {
             const file = event.target.files[0];
             if (!file) return;
