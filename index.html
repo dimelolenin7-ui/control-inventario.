@@ -154,7 +154,7 @@
                         <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
                     <label class="btn-amber-dark" style="text-align: center; cursor: pointer;">
-                        <i class="fa-solid fa-image"></i> 🖼️ Galería
+                        <i class="fa-solid fa-image"></i> 🖼️ De Galería
                         <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
                 </div>
@@ -252,7 +252,9 @@
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO</label>
-                    <input type="text" id="prodName" required placeholder="Ej: Cepillo dental extra clean duro 1un" class="input-text">
+                    <input type="text" id="prodName" required placeholder="Ej: SERVILLET ARBORA DOBLAD BOLSA 200 UN" class="input-text">
+                    <!-- Fila de sugerencias rápidas por si se necesita corregir con un toque -->
+                    <div id="nameSuggestionsBox" class="hidden" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;"></div>
                 </div>
 
                 <div>
@@ -614,7 +616,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE DE ETIQUETA COMPLETA (CÁMARA O GALERÍA)
+        // ESCANEO INTELIGENTE DE ETIQUETA COMPLETA CON LIMPIEZA
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -624,7 +626,7 @@
             overlay.classList.remove('hidden');
 
             try {
-                // 1. Intentar decodificar código de barras directo
+                // 1. Código de barras directo con html5-qrcode
                 let barcodeDetected = "";
                 try {
                     const tempQrCode = new Html5Qrcode("reader", { verbose: false });
@@ -633,10 +635,10 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
-                // 2. Preprocesar la foto para OCR
+                // 2. Preprocesar foto
                 const preprocessedCanvas = await preprocessImageForOCR(file);
 
-                // 3. Procesar texto con Tesseract
+                // 3. OCR con Tesseract
                 const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa+eng');
 
                 overlay.classList.add('hidden');
@@ -646,14 +648,12 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER CÓDIGO SAP CON FILTRO ESTRICTO (Debe tener ceros a la izquierda para evitar '200 UN')
+                // 4. EXTRAER SAP (Exige ceros iniciales como 0000838UN para nunca confundir con "200 UN")
                 let extractedSap = "";
-                // Busca ceros a la izquierda seguidos de dígitos y la palabra UN (ej: 0000838UN, 0000014114UN)
                 const sapWithZeros = text.match(/0{2,}([1-9]\d{1,7})\s*UN\b/i) || text.match(/0{2,}([1-9]\d{1,7})/);
                 if (sapWithZeros && sapWithZeros[1]) {
                     extractedSap = sapWithZeros[1];
                 } else {
-                    // Si no encuentra con ceros, busca el patrón SAP
                     const sapExplicit = text.match(/SAP\s*[-:]?\s*0*([1-9]\d{1,7})/i);
                     if (sapExplicit && sapExplicit[1]) extractedSap = sapExplicit[1];
                 }
@@ -665,20 +665,18 @@
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER PRECIOS REGULAR Y PROMOCIÓN / MAYORISTA
-                // Detecta patrones numéricos de precios colombianos (ej: 4.150, 4.050, 5.990, 5.490)
+                // 6. EXTRAER PRECIOS Y DESCUENTO (AHORRE $...)
                 const priceRegex = /(?:C\/U\s*\$?|\$\s*|\b)([1-9]\d{0,2}[.,]\d{3})\b/gi;
                 const foundPrices = [];
                 let pMatch;
                 while ((pMatch = priceRegex.exec(text)) !== null) {
                     let val = parseInt(pMatch[1].replace(/[.,]/g, ''));
-                    // Evitar que confunda con el código SAP
                     if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
                         foundPrices.push(val);
                     }
                 }
 
-                // Detectar si la etiqueta tiene ahorro (ej: AHORRE $100 o AHORRE $500)
+                // Detección del cuadro AHORRE (ej: AHORRE $100 -> resta matemática exacta)
                 let discountAmount = 0;
                 const ahorreMatch = text.match(/AHORRE\s*\$?([1-9]\d{1,4})/i) || text.match(/AHORRE\s*\$?\s*([1-9]\d{0,2}[.,]\d{3})/i);
                 if (ahorreMatch && ahorreMatch[1]) {
@@ -691,6 +689,10 @@
                 if (foundPrices.length >= 2) {
                     regularPrice = Math.max(foundPrices[0], foundPrices[1]);
                     promoPrice = Math.min(foundPrices[0], foundPrices[1]);
+                    // Si el precio promo terminó en 5 o número impar por ruido visual, usar el descuento exacto
+                    if (discountAmount > 0 && (regularPrice - discountAmount > 0)) {
+                        promoPrice = regularPrice - discountAmount;
+                    }
                 } else if (foundPrices.length === 1) {
                     regularPrice = foundPrices[0];
                     if (discountAmount > 0 && regularPrice > discountAmount) {
@@ -698,7 +700,7 @@
                     }
                 }
 
-                // 7. EXTRAER NOMBRE LIMPIO DEL PRODUCTO
+                // 7. EXTRAER NOMBRE LIMPIO (Exclusivamente mayúsculas, sin basura de reflejos)
                 let nameCandidates = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -716,7 +718,13 @@
                         continue;
                     }
 
-                    let cleanLine = line.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ').replace(/\s+/g, ' ').trim();
+                    // Eliminar palabras minúsculas de 1 o 2 letras (reflejos de arrugas como "qu", "m", "du")
+                    let words = line.split(/\s+/).filter(w => {
+                        // Conservar palabras en mayúsculas completas o números como "200" o "1UN"
+                        return (/^[A-Z0-9/.-]{2,}$/.test(w) || w === "UN" || w === "DC" || w === "DE");
+                    });
+
+                    let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, '').trim();
                     if (cleanLine.length >= 4) {
                         nameCandidates.push(cleanLine);
                     }
@@ -725,18 +733,16 @@
                 let extractedName = "";
                 if (nameCandidates.length > 0) {
                     extractedName = nameCandidates.slice(0, 2).join(' ').trim();
-                    // Limpiar letras sueltas al final
-                    extractedName = extractedName.replace(/\s+[a-zA-Z]$/, '').trim();
                 }
 
-                // Detectar categoría sugerida por el nombre
+                // Detección sugerida de categoría
                 let suggestedCategory = "Abarrotes";
                 const upperName = extractedName.toUpperCase();
                 if (upperName.includes("SERVILLET") || upperName.includes("JABON") || upperName.includes("CEPILLO") || upperName.includes("PAPEL") || upperName.includes("LAVALOSA") || upperName.includes("DENTAL") || upperName.includes("CREMA")) {
                     suggestedCategory = "Aseo del hogar y personal";
                 }
 
-                // Abrir formulario y autocompletar
+                // Abrir modal y asignar valores
                 openProductModal();
 
                 if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode;
@@ -744,7 +750,24 @@
                 if (extractedName) document.getElementById('prodName').value = extractedName;
                 if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
 
-                // Asignar categoría y aplicar regla automática de Aseo
+                // Sugerencias de texto alternativas tocables
+                const suggBox = document.getElementById('nameSuggestionsBox');
+                suggBox.innerHTML = '';
+                if (nameCandidates.length > 1) {
+                    suggBox.classList.remove('hidden');
+                    nameCandidates.forEach(cand => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.textContent = cand;
+                        btn.style.cssText = 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer;';
+                        btn.onclick = () => { document.getElementById('prodName').value = cand; };
+                        suggBox.appendChild(btn);
+                    });
+                } else {
+                    suggBox.classList.add('hidden');
+                }
+
+                // Aplicar categoría y fecha de vencimiento según regla de Aseo
                 document.getElementById('prodCategory').value = suggestedCategory;
                 handleCategoryChange();
 
@@ -770,7 +793,6 @@
             event.target.value = "";
         }
 
-        // Preprocesamiento de imagen: remueve fondo amarillo y resalta texto negro
         function preprocessImageForOCR(file) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -820,7 +842,6 @@
         function handleCategoryChange() {
             const cat = document.getElementById('prodCategory').value;
 
-            // Regla automática: si es Aseo del hogar y personal, Vencimiento pasa automáticamente a No aplica
             if (cat === 'Aseo del hogar y personal') {
                 document.getElementById('expiryNA').checked = true;
                 toggleExpiryNA();
@@ -976,6 +997,7 @@
         function openProductModal(index = null) {
             editingIndex = index;
             document.getElementById('productForm').reset();
+            document.getElementById('nameSuggestionsBox').classList.add('hidden');
             const modalTitle = document.getElementById('modalTitle');
 
             if (index !== null) {
