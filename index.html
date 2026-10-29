@@ -474,8 +474,8 @@
     <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(0,0,0,0.85);">
         <div style="text-align: center; color: white; padding: 24px;">
             <i class="fa-solid fa-wand-magic-sparkles fa-spin" style="font-size: 42px; color: #fbbf24; margin-bottom: 16px;"></i>
-            <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Leyendo Información de Etiqueta...</h3>
-            <p style="font-size: 12px; color: #9ca3af;">Extrayendo Nombre, SAP, EAN, Precio Regular y Promoción</p>
+            <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Escaneando Etiqueta por Zonas...</h3>
+            <p style="font-size: 12px; color: #9ca3af;">Extrayendo Nombre Frontal, SAP Inferior, Precio y Promoción</p>
         </div>
     </div>
 
@@ -641,7 +641,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE ROBUSTO (ETIQUETAS AMARILLAS)
+        // ESCANEO INTELIGENTE POR ZONAS EXACTAS DE ETIQUETA
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -662,10 +662,10 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
-                // 2. Preprocesar foto
+                // 2. Preprocesar foto en Canvas
                 const preprocessedCanvas = await preprocessImageForOCR(file);
 
-                // 3. OCR con Tesseract en español
+                // 3. OCR con Tesseract
                 const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa');
 
                 overlay.classList.add('hidden');
@@ -675,13 +675,16 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER CÓDIGO SAP (Limpia ceros iniciales de secuencias como 0000020121UN o 0000838UN)
+                // 4. EXTRAER CÓDIGO SAP (Limpia ceros de secuencias como 0000020121UN o 0000838UN)
                 let extractedSap = "";
-                // Prioridad 1: Número de 2 a 7 dígitos precedido por al menos 2 ceros
-                const sapWithZeros = text.match(/0{2,}([1-9]\d{1,7})(?:\s*UN)?/i);
-                if (sapWithZeros && sapWithZeros[1]) {
-                    extractedSap = sapWithZeros[1];
-                } else {
+                const sapMatches = text.matchAll(/0{2,}([1-9]\d{1,7})(?:\s*UN)?/gi);
+                for (const sm of sapMatches) {
+                    if (sm[1] !== "1" && sm[1] !== "200" && sm[1] !== "12") {
+                        extractedSap = sm[1];
+                        break;
+                    }
+                }
+                if (!extractedSap) {
                     const sapExplicit = text.match(/SAP\s*[-:]?\s*0*([1-9]\d{1,7})/i);
                     if (sapExplicit && sapExplicit[1]) extractedSap = sapExplicit[1];
                 }
@@ -693,7 +696,7 @@
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER DESCUENTO AHORRE (Compatible con puntos ej: $3.000, $100, $90)
+                // 6. EXTRAER DESCUENTO AHORRE
                 let discountAmount = 0;
                 const ahorreMatch = text.match(/AHORRE[^\d]*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
                 if (ahorreMatch && ahorreMatch[1]) {
@@ -703,7 +706,7 @@
                     }
                 }
 
-                // 7. EXTRAER PRECIOS
+                // 7. EXTRAER TODOS LOS PRECIOS
                 let textForPrices = text.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
                                         .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
 
@@ -712,7 +715,6 @@
                 let pm;
                 while ((pm = regexPrices.exec(textForPrices)) !== null) {
                     let val = parseInt(pm[1].replace(/[.,]/g, ''));
-                    // Evitar tomar la fecha o el código SAP
                     if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
                         foundPrices.push(val);
                     }
@@ -722,18 +724,18 @@
                 let promoPrice = 0;
                 const hasMayoristaBox = /MAYORISTA/i.test(text) || discountAmount > 0;
 
+                // LÓGICA DE PRECIOS POR COMPARACIÓN DIRECTA: EL MAYOR ES EL INICIAL, EL MENOR ES LA PROMOCIÓN
                 if (foundPrices.length >= 2) {
-                    regularPrice = Math.max(foundPrices[0], foundPrices[1]);
-                    promoPrice = Math.min(foundPrices[0], foundPrices[1]);
+                    regularPrice = Math.max(...foundPrices);
+                    promoPrice = Math.min(...foundPrices);
                     if (discountAmount > 0 && regularPrice - discountAmount > 0) {
                         promoPrice = regularPrice - discountAmount;
                     }
                 } else if (foundPrices.length === 1) {
                     if (discountAmount > 0) {
-                        // Si el precio captado es el de la caja de descuento/mayorista (ej: 14990)
                         if (hasMayoristaBox) {
                             promoPrice = foundPrices[0];
-                            regularPrice = promoPrice + discountAmount; // 14990 + 3000 = 17990
+                            regularPrice = promoPrice + discountAmount;
                         } else {
                             regularPrice = foundPrices[0];
                             promoPrice = regularPrice - discountAmount;
@@ -743,10 +745,11 @@
                     }
                 }
 
-                // 8. EXTRAER NOMBRE LIMPIO CON LÍNEA 1 Y LÍNEA 2 DE MEDIDAS
+                // 8. EXTRAER NOMBRE FRONTAL DE LA ETIQUETA (FILTRANDO EL EMPAQUE SUPERIOR)
                 let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
+                    // Descartar empaque plástico de fondo (como AhorraMAX arriba del cartón) y textos de estructura
                     if (upper.includes("PARTIR") || 
                         upper.includes("UNIDAD A") || 
                         upper.includes("METRO A") || 
@@ -757,6 +760,9 @@
                         upper.includes("JEFE") || 
                         upper.includes("TIENDA") || 
                         upper.includes("C/U") || 
+                        upper.includes("RENDIMIENTO") ||
+                        upper.includes("ALCANCE") ||
+                        upper.includes("FIBRAS") ||
                         upper.includes("ENJUAG") || 
                         upper.includes("CON ALCOHOL") || 
                         /^\d+$/.test(upper.replace(/\s/g, '')) || 
@@ -764,13 +770,22 @@
                         continue;
                     }
 
-                    // Limpieza y unión de palabras
-                    let cleanLine = line.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ')
+                    // Limpieza estricta de palabras
+                    let words = line.split(/\s+/).filter(w => {
+                        let uw = w.toUpperCase();
+                        // Filtrar la palabra del logo superior si quedó suelta
+                        if (uw === "AHORRAMAX" && line.length < 15) return false;
+                        return (/^[A-Z0-9/.-]{2,}$/i.test(w) || uw === "X" || uw === "DE" || uw === "DC" || uw === "UN" || uw === "1UN" || uw === "X1UND");
+                    });
+
+                    let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ')
                                         .replace(/\s+/g, ' ')
                                         .trim()
                                         .toUpperCase();
 
-                    // Omitir palabras residuales cortas
+                    // Evitar residuos
+                    cleanLine = cleanLine.replace(/^AHORRAMA\s+/i, '').replace(/\s+MED$/i, '').trim();
+
                     if (cleanLine.length >= 3 && !cleanLine.startsWith("METRO") && !cleanLine.startsWith("UNIDAD")) {
                         validHeaderLines.push(cleanLine);
                     }
@@ -778,10 +793,16 @@
 
                 let extractedName = "";
                 if (validHeaderLines.length > 0) {
-                    // Tomar la primera y segunda línea (ej: PAPEL HIG SCOTT AHORRAMAX + X 12R X30M)
-                    extractedName = validHeaderLines.slice(0, 2).join(' ').trim().toUpperCase();
-                    // Limpiar sufijos como "MED" o letras aisladas al final
-                    extractedName = extractedName.replace(/\s+MED$/i, '').trim();
+                    // Si la primera línea empieza por la bolsa superior "AHORRAMAX", priorizar la línea que tiene "PAPEL HIG" o el producto real
+                    let prodIndex = validHeaderLines.findIndex(l => l.includes("PAPEL") || l.includes("CEPILLO") || l.includes("TOALLA") || l.includes("SERVILLET") || l.includes("JABON") || l.includes("LAVALOSA"));
+                    
+                    if (prodIndex !== -1) {
+                        extractedName = validHeaderLines.slice(prodIndex, prodIndex + 2).join(' ').trim().toUpperCase();
+                    } else {
+                        extractedName = validHeaderLines.slice(0, 2).join(' ').trim().toUpperCase();
+                    }
+                    // Quitar "MED" o ruidos finales
+                    extractedName = extractedName.replace(/\s+MED$/i, '').replace(/\s+IL\s+E$/i, '').trim();
                 }
 
                 // Detección de Categoría
@@ -822,7 +843,8 @@
                 document.getElementById('prodCategory').value = suggestedCategory;
                 handleCategoryChange();
 
-                if (promoPrice > 0 && promoPrice < regularPrice && hasMayoristaBox) {
+                // SIEMPRE QUE EL PRECIO PROMO SEA MENOR AL REGULAR O EXISTA MAYORISTA -> PROMO SÍ
+                if (promoPrice > 0 && promoPrice < regularPrice) {
                     document.getElementById('prodPromoSelect').value = "SÍ";
                     document.getElementById('prodPromoPrice').value = promoPrice;
                 } else {
@@ -1258,9 +1280,7 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
-        // ========================================================
         // ORDENAMIENTO POR UBICACIÓN (PASILLOS ASC, BLOQUES DESC)
-        // ========================================================
         function parseLocationSort(locStr) {
             if (!locStr) return { pasillo: 9999, bloque: -1 };
             const pMatch = locStr.match(/pasillo\s*(\d+)/i);
@@ -1600,14 +1620,14 @@
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
-                    document.getElementById('prodSap').value = match[1];
+                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
                     checkDuplicateOnInput('sap');
                 } else {
                     const numMatch = text.match(/0*([1-9]\d{1,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1];
+                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
                         checkDuplicateOnInput('sap');
                     } else {
                         alert("No se leyó el número en el recuadro. Intenta ubicarlo justo sobre los dígitos.");
@@ -1644,14 +1664,14 @@
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
-                    document.getElementById('prodSap').value = match[1];
+                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
                     checkDuplicateOnInput('sap');
                 } else {
                     const numMatch = text.match(/0*([1-9]\d{1,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1];
+                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
                         checkDuplicateOnInput('sap');
                     } else {
                         alert("No se detectó claramente. Usa 'Tomar Foto Nítida y Recortar' para seleccionar el número.");
