@@ -641,7 +641,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE POR ZONAS (SEPARACIÓN TOTAL DE AHORRO Y PRECIOS)
+        // ESCANEO INTELIGENTE ROBUSTO (BASADO ESTRICTAMENTE EN C/U Y SAP REAL)
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -671,31 +671,34 @@
                 overlay.classList.add('hidden');
                 playWarningBeep();
 
-                const lines = text.split('\n')
+                // Normalizar texto: letras 'O' o 'o' pegadas a dígitos se convierten en ceros numéricos
+                const normalizedText = text.replace(/[Oo](?=\d)/g, '0');
+
+                const lines = normalizedText.split('\n')
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER CÓDIGO SAP CON FILTRO EXACTO (Mínimo 3 dígitos, ceros iniciales como 0000020121UN)
+                // 4. EXTRAER CÓDIGO SAP (Exige mínimo 3 dígitos y ceros previos, ej: 0000020121UN o 0000838UN)
                 let extractedSap = "";
-                // Busca de 3 a 7 dígitos precedidos por 2 o más ceros (ej: 0000020121UN o 0000838UN)
-                const sapWithZeros = text.match(/0{2,}([1-9]\d{2,7})(?:\s*UN)?/i);
+                // Busca de 3 a 7 dígitos precedidos por 2 o más ceros (o letras O normalizadas)
+                const sapWithZeros = normalizedText.match(/[0Oo]{2,}([1-9]\d{2,7})(?:\s*UN)?/i);
                 if (sapWithZeros && sapWithZeros[1]) {
                     extractedSap = sapWithZeros[1];
                 } else {
-                    const sapExplicit = text.match(/SAP\s*[-:]?\s*0*([1-9]\d{2,7})/i);
-                    if (sapExplicit && sapExplicit[1]) extractedSap = sapExplicit[1];
+                    const unMatch = normalizedText.match(/\b([1-9]\d{2,7})\s*UN\b/i);
+                    if (unMatch && unMatch[1]) extractedSap = unMatch[1];
                 }
 
                 // 5. EXTRAER CÓDIGO DE BARRAS (EAN)
                 let extractedBarcode = barcodeDetected;
                 if (!extractedBarcode) {
-                    const eanMatch = text.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
+                    const eanMatch = normalizedText.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER DESCUENTO AHORRE (Soporta salto de línea entre AHORRE y el número, ej: AHORRE \n $3.000)
+                // 6. EXTRAER DESCUENTO AHORRE (solo para referencia matemática)
                 let discountAmount = 0;
-                const ahorreMatch = text.match(/AHORRE\s*[\r\n\s]*[$8S]?\s*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
+                const ahorreMatch = normalizedText.match(/AHORRE\s*[\r\n\s]*[$8S]?\s*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
                 if (ahorreMatch && ahorreMatch[1]) {
                     let cleanD = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
                     if (cleanD >= 50 && cleanD <= 50000) {
@@ -703,49 +706,43 @@
                     }
                 }
 
-                // 7. ELIMINAR EL BLOQUE COMPLETO DE "AHORRE" (INCLUYENDO SU NÚMERO) PARA NO CONFUNDIRLO CON UN PRECIO
-                let textWithoutAhorre = text.replace(/AHORRE\s*[\r\n\s]*[$8S]?\s*[0-9.,]+/gi, '');
-
-                let textForPrices = textWithoutAhorre.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
-                                                    .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
-
-                const foundPrices = [];
-                const regexPrices = /(?:C\/U\s*[$8S]?|\$\s*|\b)([1-9]\d{0,2}[.,]\d{3})\b/gi;
-                let pm;
-                while ((pm = regexPrices.exec(textForPrices)) !== null) {
-                    let val = parseInt(pm[1].replace(/[.,]/g, ''));
-                    // Descartar si coincide con el SAP o el código de barras
-                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
-                        foundPrices.push(val);
+                // 7. EXTRAER PRECIOS DE VENTA REALES (ESTRICTAMENTE LOS QUE LLEVAN 'C/U')
+                // Esto garantiza que el monto de AHORRE nunca se tome como un precio
+                const cuPrices = [];
+                const regexCU = /C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})\b/gi;
+                let cum;
+                while ((cum = regexCU.exec(normalizedText)) !== null) {
+                    let val = parseInt(cum[1].replace(/[.,]/g, ''));
+                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !cuPrices.includes(val)) {
+                        cuPrices.push(val);
                     }
                 }
 
                 let regularPrice = 0;
                 let promoPrice = 0;
-                const hasMayoristaBox = /MAYORISTA/i.test(text) || discountAmount > 0;
 
-                // LÓGICA DE PRECIOS EXACTA: EL MAYOR ES EL INICIAL (REGULAR), EL MENOR ES LA PROMOCIÓN
-                if (foundPrices.length >= 2) {
-                    regularPrice = Math.max(...foundPrices);
-                    promoPrice = Math.min(...foundPrices);
-                    if (discountAmount > 0 && regularPrice - discountAmount > 0) {
-                        promoPrice = regularPrice - discountAmount;
+                if (cuPrices.length >= 2) {
+                    // Si hay 2 precios con C/U: el mayor es Regular y el menor es Promo
+                    regularPrice = Math.max(...cuPrices);
+                    promoPrice = Math.min(...cuPrices);
+                } else if (cuPrices.length === 1) {
+                    // Si solo se captó un precio con C/U
+                    regularPrice = cuPrices[0];
+                    if (discountAmount > 0 && /MAYORISTA/i.test(normalizedText)) {
+                        // El precio captado es el de la caja mayorista
+                        promoPrice = regularPrice;
+                        regularPrice = promoPrice + discountAmount;
                     }
-                } else if (foundPrices.length === 1) {
-                    if (discountAmount > 0) {
-                        if (hasMayoristaBox) {
-                            promoPrice = foundPrices[0];
-                            regularPrice = promoPrice + discountAmount; // 14990 + 3000 = 17990
-                        } else {
-                            regularPrice = foundPrices[0];
-                            promoPrice = regularPrice - discountAmount;
-                        }
-                    } else {
-                        regularPrice = foundPrices[0];
+                } else {
+                    // Formato 2: No tiene C/U (precio único gigante de $ 6.790 como las toallas)
+                    const giantPriceMatch = normalizedText.match(/\$\s*([1-9]\d{0,2}[.,]\d{3})\b/);
+                    if (giantPriceMatch) {
+                        regularPrice = parseInt(giantPriceMatch[1].replace(/[.,]/g, ''));
+                        promoPrice = 0;
                     }
                 }
 
-                // 8. EXTRAER NOMBRE FRONTAL DE LA ETIQUETA (FILTRANDO LA BOLSA SUPERIOR)
+                // 8. EXTRAER NOMBRE LIMPIO (FILTRANDO LA BOLSA SUPERIOR)
                 let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -801,7 +798,7 @@
 
                 // Detección de Categoría
                 let suggestedCategory = "Abarrotes";
-                const upperName = (extractedName + " " + text).toUpperCase();
+                const upperName = (extractedName + " " + normalizedText).toUpperCase();
                 if (upperName.includes("SERVILLET") || upperName.includes("JABON") || upperName.includes("CEPILLO") || 
                     upperName.includes("PAPEL") || upperName.includes("SCOTT") || upperName.includes("LAVALOSA") || 
                     upperName.includes("DENTAL") || upperName.includes("TOALLA") || upperName.includes("NOSOTRAS") || 
@@ -837,7 +834,7 @@
                 document.getElementById('prodCategory').value = suggestedCategory;
                 handleCategoryChange();
 
-                // SIEMPRE QUE EL PRECIO PROMO SEA MENOR AL REGULAR O EXISTA MAYORISTA -> PROMO SÍ
+                // SIEMPRE QUE EL PRECIO PROMO SEA MENOR AL REGULAR -> PROMO SÍ
                 if (promoPrice > 0 && promoPrice < regularPrice) {
                     document.getElementById('prodPromoSelect').value = "SÍ";
                     document.getElementById('prodPromoPrice').value = promoPrice;
@@ -1605,19 +1602,20 @@
                 cropCtx.drawImage(originalLoadedImage, realX, realY, realW, realH, 0, 0, realW, realH);
 
                 const { data: { text } } = await Tesseract.recognize(croppedCanvas, 'eng', {
-                    tessedit_char_whitelist: '0123456789UNun '
+                    tessedit_char_whitelist: '0123456789UNunOo '
                 });
 
                 spinner.classList.add('hidden');
 
-                const match = text.match(/0*([1-9]\d{2,7})\s*UN/i);
+                const normCrop = text.replace(/[Oo](?=\d)/g, '0');
+                const match = normCrop.match(/0*([1-9]\d{2,7})\s*UN/i);
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
                     document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
                     checkDuplicateOnInput('sap');
                 } else {
-                    const numMatch = text.match(/0*([1-9]\d{2,7})/);
+                    const numMatch = normCrop.match(/0*([1-9]\d{2,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
@@ -1649,19 +1647,20 @@
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                 const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
-                    tessedit_char_whitelist: '0123456789UNun '
+                    tessedit_char_whitelist: '0123456789UNunOo '
                 });
 
                 spinner.classList.add('hidden');
 
-                const match = text.match(/0*([1-9]\d{2,7})\s*UN/i);
+                const normVid = text.replace(/[Oo](?=\d)/g, '0');
+                const match = normVid.match(/0*([1-9]\d{2,7})\s*UN/i);
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
                     document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
                     checkDuplicateOnInput('sap');
                 } else {
-                    const numMatch = text.match(/0*([1-9]\d{2,7})/);
+                    const numMatch = normVid.match(/0*([1-9]\d{2,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
