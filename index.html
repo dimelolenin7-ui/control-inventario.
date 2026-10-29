@@ -169,11 +169,11 @@
                 </div>
             </div>
 
-            <!-- Tabla de Inventario Desglosada -->
+            <!-- Tabla de Inventario Desglosada (Orden por Pasillo y Bloque) -->
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 900; font-size: 12px; text-transform: uppercase; color: #374151;">
-                        <i class="fa-solid fa-arrow-down-a-z" style="color: #059669; margin-right: 6px;"></i> Stock en Bodega (Orden A - Z)
+                        <i class="fa-solid fa-layer-group" style="color: #059669; margin-right: 6px;"></i> Stock en Bodega (Pasillos 1... / Bloques 17, 16...9)
                     </span>
                     <span id="productCount" class="badge badge-green">0 productos</span>
                 </div>
@@ -229,7 +229,6 @@
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">1. CÓDIGO DE BARRAS (EAN)</label>
                     <div style="display: flex; gap: 6px;">
-                        <!-- Limpieza instantánea de espacios para EAN -->
                         <input type="text" id="prodBarcode" required placeholder="770123456001" 
                                oninput="cleanBarcodeSpaces(this)" 
                                onchange="checkDuplicateOnInput('barcode')" class="input-text">
@@ -244,7 +243,6 @@
                     <div style="display: flex; gap: 6px;">
                         <div style="display: flex; flex: 1; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                             <span style="background: #e5e7eb; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #4b5563; display: flex; align-items: center;">SAP -</span>
-                            <!-- Limpieza instantánea de espacios para SAP -->
                             <input type="text" id="prodSap" required placeholder="16092" 
                                    oninput="cleanSapSpaces(this)" 
                                    onchange="checkDuplicateOnInput('sap')" 
@@ -265,7 +263,7 @@
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">4. UBICACIÓN EN BODEGA</label>
-                    <input type="text" id="prodLocation" placeholder="Ej: Pasillo 1 - Bloque 2" class="input-text">
+                    <input type="text" id="prodLocation" placeholder="Ej: Pasillo 1 - Bloque 17" class="input-text">
                 </div>
 
                 <div>
@@ -505,10 +503,10 @@
 
     <script>
         const DEFAULT_PRODUCTS = [
-            { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
-            { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 2 - Bloque 1", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
-            { barcode: "7704269100374", sap: "838", name: "SERVILLET ARBORA DOBLAD BOLSA 200 UN", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 4150, isPromo: "SÍ", promoPrice: 4050, expiry: "No aplica", updatedAt: "28/10/2026, 11:00 a. m." },
-            { barcode: "7704269538313", sap: "16092", name: "CEPILLO DENTAL MEDIO CRISTAL ICE X1UND", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 144, r1: "No aplica", cx: 12, cxUnitsPerBox: 12, price: 1490, isPromo: "SÍ", promoPrice: 1400, expiry: "No aplica", updatedAt: "28/10/2026, 3:00 p. m." }
+            { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
+            { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 1 - Bloque 16", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
+            { barcode: "7704269100374", sap: "838", name: "SERVILLET ARBORA DOBLAD BOLSA 200 UN", location: "Pasillo 1 - Bloque 9", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 4150, isPromo: "SÍ", promoPrice: 4050, expiry: "No aplica", updatedAt: "28/10/2026, 11:00 a. m." },
+            { barcode: "7704269538313", sap: "16092", name: "CEPILLO DENTAL MEDIO CRISTAL ICE X1UND", location: "Pasillo 2 - Bloque 15", category: "Aseo del hogar y personal", temperature: "No aplica", units: 144, r1: "No aplica", cx: 12, cxUnitsPerBox: 12, price: 1490, isPromo: "SÍ", promoPrice: 1400, expiry: "No aplica", updatedAt: "28/10/2026, 3:00 p. m." }
         ];
 
         let inventory = [];
@@ -516,7 +514,6 @@
             const savedInventory = localStorage.getItem('canasto_inventory');
             if (savedInventory) {
                 inventory = JSON.parse(savedInventory);
-                // Garantizar mayúsculas en todos los productos existentes
                 let modified = false;
                 inventory = inventory.map(item => {
                     if (item.name && item.name !== item.name.toUpperCase()) {
@@ -562,12 +559,10 @@
         let isDraggingCrop = false;
         let dragStartX = 0, dragStartY = 0;
 
-        // Limpieza de espacios en Código de Barras (EAN)
         function cleanBarcodeSpaces(input) {
             input.value = input.value.replace(/\s+/g, '').replace(/[^\d]/g, '');
         }
 
-        // Limpieza de espacios en Código SAP
         function cleanSapSpaces(input) {
             input.value = input.value.replace(/\s+/g, '').replace(/[^\d]/g, '');
         }
@@ -657,7 +652,6 @@
             overlay.classList.remove('hidden');
 
             try {
-                // 1. Decodificar código de barras directo
                 let barcodeDetected = "";
                 try {
                     const tempQrCode = new Html5Qrcode("reader", { verbose: false });
@@ -666,10 +660,7 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
-                // 2. Preprocesar foto
                 const preprocessedCanvas = await preprocessImageForOCR(file);
-
-                // 3. OCR con Tesseract en español
                 const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa');
 
                 overlay.classList.add('hidden');
@@ -679,7 +670,6 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER SAP (Limpia ceros y une espacios)
                 let extractedSap = "";
                 const sapMatches = text.matchAll(/0*([1-9]\d{1,7})\s*UN\b/gi);
                 for (const sm of sapMatches) {
@@ -693,14 +683,12 @@
                     if (sapWithZeros && sapWithZeros[1]) extractedSap = sapWithZeros[1];
                 }
 
-                // 5. EXTRAER CÓDIGO DE BARRAS (EAN)
                 let extractedBarcode = barcodeDetected;
                 if (!extractedBarcode) {
                     const eanMatch = text.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER PRECIOS Y CORRECCIÓN DE SIGNOS ($ / 8)
                 let textForPrices = text.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
                                         .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
 
@@ -738,7 +726,6 @@
                     }
                 }
 
-                // 7. EXTRAER NOMBRE LIMPIO (EN MAYÚSCULAS)
                 let nameCandidates = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -899,9 +886,6 @@
             });
         }
 
-        // ========================================================
-        // REGLAS DE CATEGORÍA (ASEO = VENCIMIENTO NO APLICA AUTOMÁTICO)
-        // ========================================================
         function handleCategoryChange() {
             const cat = document.getElementById('prodCategory').value;
 
@@ -918,9 +902,6 @@
             toggleR1NA();
         }
 
-        // ========================================================
-        // DETECCIÓN INTELIGENTE DE DUPLICADOS EN TIEMPO REAL
-        // ========================================================
         function checkDuplicateOnInput(type) {
             if (editingIndex !== null) return;
 
@@ -1099,7 +1080,7 @@
                 modalTitle.textContent = "Nuevo Registro en Inventario";
                 resetModalFields();
                 document.getElementById('prodCXUnitsPerBox').value = 12;
-                document.getElementById('prodLocation').value = "Pasillo 1 - Bloque 2";
+                document.getElementById('prodLocation').value = "Pasillo 1 - Bloque 17";
                 document.getElementById('tempNA').checked = true;
                 toggleTempNA();
                 document.getElementById('r1NA').checked = true;
@@ -1127,7 +1108,6 @@
             let cxVal = document.getElementById('cxNA').checked ? "No aplica" : (parseInt(document.getElementById('prodCX').value) || 0);
             let expiryVal = document.getElementById('expiryNA').checked ? "No aplica" : (document.getElementById('prodExpiry').value || "No aplica");
 
-            // Limpieza estricta de espacios antes de guardar
             let cleanSap = document.getElementById('prodSap').value.replace(/\s+/g, '')
                 .replace(/^SAP\s*-\s*/i, '')
                 .replace(/[^\d]/g, '')
@@ -1262,6 +1242,18 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
+        // ========================================================
+        // ORDENAMIENTO POR UBICACIÓN (PASILLOS ASC, BLOQUES DESC)
+        // ========================================================
+        function parseLocationSort(locStr) {
+            if (!locStr) return { pasillo: 9999, bloque: -1 };
+            const pMatch = locStr.match(/pasillo\s*(\d+)/i);
+            const bMatch = locStr.match(/bloque\s*(\d+)/i);
+            const pasillo = pMatch ? parseInt(pMatch[1]) : 9999;
+            const bloque = bMatch ? parseInt(bMatch[1]) : -1;
+            return { pasillo, bloque };
+        }
+
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1276,7 +1268,24 @@
                 return matchesSearch && matchesCat;
             });
 
-            filtered.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+            // Ordenamiento estricto por Pasillo (1, 2, 3...) y Bloque (17, 16... 9)
+            filtered.sort((a, b) => {
+                const locA = parseLocationSort(a.location);
+                const locB = parseLocationSort(b.location);
+
+                // 1. Pasillo ascendente (Pasillo 1 primero, luego 2, etc.)
+                if (locA.pasillo !== locB.pasillo) {
+                    return locA.pasillo - locB.pasillo;
+                }
+
+                // 2. Bloque descendente (Bloque 17 primero, luego 16... hasta 9)
+                if (locA.bloque !== locB.bloque) {
+                    return locB.bloque - locA.bloque;
+                }
+
+                // 3. Alfabético por nombre si están en el mismo pasillo y bloque
+                return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+            });
 
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
 
