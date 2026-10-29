@@ -641,7 +641,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE POR ZONAS EXACTAS DE ETIQUETA
+        // ESCANEO INTELIGENTE POR ZONAS (SEPARACIÓN DE AHORRO Y PRECIOS)
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -665,7 +665,7 @@
                 // 2. Preprocesar foto en Canvas
                 const preprocessedCanvas = await preprocessImageForOCR(file);
 
-                // 3. OCR con Tesseract
+                // 3. OCR con Tesseract en español
                 const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa');
 
                 overlay.classList.add('hidden');
@@ -677,7 +677,7 @@
 
                 // 4. EXTRAER CÓDIGO SAP (Limpia ceros de secuencias como 0000020121UN o 0000838UN)
                 let extractedSap = "";
-                const sapMatches = text.matchAll(/0{2,}([1-9]\d{1,7})(?:\s*UN)?/gi);
+                const sapMatches = text.matchAll(/0*([1-9]\d{1,7})(?:\s*UN)?/gi);
                 for (const sm of sapMatches) {
                     if (sm[1] !== "1" && sm[1] !== "200" && sm[1] !== "12") {
                         extractedSap = sm[1];
@@ -696,7 +696,7 @@
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER DESCUENTO AHORRE
+                // 6. EXTRAER DESCUENTO AHORRE (Compatible con puntos ej: $3.000, $100, $90)
                 let discountAmount = 0;
                 const ahorreMatch = text.match(/AHORRE[^\d]*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
                 if (ahorreMatch && ahorreMatch[1]) {
@@ -706,16 +706,19 @@
                     }
                 }
 
-                // 7. EXTRAER TODOS LOS PRECIOS
-                let textForPrices = text.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
-                                        .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
+                // 7. ELIMINAR EL BLOQUE DE "AHORRE" ANTES DE EXTRAER PRECIOS PARA NO CONFUNDIRLOS
+                let textWithoutAhorre = text.replace(/AHORRE[^\n\r]*/gi, '');
+
+                let textForPrices = textWithoutAhorre.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
+                                                    .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
 
                 const foundPrices = [];
                 const regexPrices = /(?:C\/U\s*\$?|\$\s*|\b)([1-9]\d{0,2}[.,]\d{3})\b/gi;
                 let pm;
                 while ((pm = regexPrices.exec(textForPrices)) !== null) {
                     let val = parseInt(pm[1].replace(/[.,]/g, ''));
-                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
+                    // Descartar si coincide con el SAP, con el código de barras o con el propio descuento
+                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && val !== discountAmount && !foundPrices.includes(val)) {
                         foundPrices.push(val);
                     }
                 }
@@ -724,7 +727,7 @@
                 let promoPrice = 0;
                 const hasMayoristaBox = /MAYORISTA/i.test(text) || discountAmount > 0;
 
-                // LÓGICA DE PRECIOS POR COMPARACIÓN DIRECTA: EL MAYOR ES EL INICIAL, EL MENOR ES LA PROMOCIÓN
+                // LÓGICA DE PRECIOS: EL MAYOR ES EL INICIAL, EL MENOR ES LA PROMOCIÓN
                 if (foundPrices.length >= 2) {
                     regularPrice = Math.max(...foundPrices);
                     promoPrice = Math.min(...foundPrices);
@@ -734,8 +737,9 @@
                 } else if (foundPrices.length === 1) {
                     if (discountAmount > 0) {
                         if (hasMayoristaBox) {
+                            // Si solo se detectó el precio menor del cuadro mayorista (ej: 14990)
                             promoPrice = foundPrices[0];
-                            regularPrice = promoPrice + discountAmount;
+                            regularPrice = promoPrice + discountAmount; // 14990 + 3000 = 17990
                         } else {
                             regularPrice = foundPrices[0];
                             promoPrice = regularPrice - discountAmount;
@@ -749,7 +753,6 @@
                 let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
-                    // Descartar empaque plástico de fondo (como AhorraMAX arriba del cartón) y textos de estructura
                     if (upper.includes("PARTIR") || 
                         upper.includes("UNIDAD A") || 
                         upper.includes("METRO A") || 
@@ -770,10 +773,8 @@
                         continue;
                     }
 
-                    // Limpieza estricta de palabras
                     let words = line.split(/\s+/).filter(w => {
                         let uw = w.toUpperCase();
-                        // Filtrar la palabra del logo superior si quedó suelta
                         if (uw === "AHORRAMAX" && line.length < 15) return false;
                         return (/^[A-Z0-9/.-]{2,}$/i.test(w) || uw === "X" || uw === "DE" || uw === "DC" || uw === "UN" || uw === "1UN" || uw === "X1UND");
                     });
@@ -783,7 +784,6 @@
                                         .trim()
                                         .toUpperCase();
 
-                    // Evitar residuos
                     cleanLine = cleanLine.replace(/^AHORRAMA\s+/i, '').replace(/\s+MED$/i, '').trim();
 
                     if (cleanLine.length >= 3 && !cleanLine.startsWith("METRO") && !cleanLine.startsWith("UNIDAD")) {
@@ -793,7 +793,6 @@
 
                 let extractedName = "";
                 if (validHeaderLines.length > 0) {
-                    // Si la primera línea empieza por la bolsa superior "AHORRAMAX", priorizar la línea que tiene "PAPEL HIG" o el producto real
                     let prodIndex = validHeaderLines.findIndex(l => l.includes("PAPEL") || l.includes("CEPILLO") || l.includes("TOALLA") || l.includes("SERVILLET") || l.includes("JABON") || l.includes("LAVALOSA"));
                     
                     if (prodIndex !== -1) {
@@ -801,7 +800,6 @@
                     } else {
                         extractedName = validHeaderLines.slice(0, 2).join(' ').trim().toUpperCase();
                     }
-                    // Quitar "MED" o ruidos finales
                     extractedName = extractedName.replace(/\s+MED$/i, '').replace(/\s+IL\s+E$/i, '').trim();
                 }
 
