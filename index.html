@@ -251,8 +251,8 @@
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO</label>
-                    <input type="text" id="prodName" required placeholder="Ej: CEPILLO DENTAL MEDIO CRISTAL ICE X1UND" class="input-text">
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO (EN MAYÚSCULAS)</label>
+                    <input type="text" id="prodName" required placeholder="EJ: CEPILLO DENTAL MEDIO CRISTAL ICE X1UND" oninput="this.value = this.value.toUpperCase()" style="text-transform: uppercase;" class="input-text">
                     <div id="nameSuggestionsBox" class="hidden" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;"></div>
                 </div>
 
@@ -498,8 +498,8 @@
 
     <script>
         const DEFAULT_PRODUCTS = [
-            { barcode: "7704269499256", sap: "45863", name: "Lavalosa crema Diez de 10 DC limon 500g", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
-            { barcode: "7704269658325", sap: "45849", name: "Papel higiénico Diez de 10 DC x 33M und", location: "Pasillo 2 - Bloque 1", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
+            { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
+            { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 2 - Bloque 1", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
             { barcode: "7704269100374", sap: "838", name: "SERVILLET ARBORA DOBLAD BOLSA 200 UN", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 4150, isPromo: "SÍ", promoPrice: 4050, expiry: "No aplica", updatedAt: "28/10/2026, 11:00 a. m." },
             { barcode: "7704269538313", sap: "16092", name: "CEPILLO DENTAL MEDIO CRISTAL ICE X1UND", location: "Pasillo 1 - Bloque 2", category: "Aseo del hogar y personal", temperature: "No aplica", units: 144, r1: "No aplica", cx: 12, cxUnitsPerBox: 12, price: 1490, isPromo: "SÍ", promoPrice: 1400, expiry: "No aplica", updatedAt: "28/10/2026, 3:00 p. m." }
         ];
@@ -509,6 +509,18 @@
             const savedInventory = localStorage.getItem('canasto_inventory');
             if (savedInventory) {
                 inventory = JSON.parse(savedInventory);
+                // Conversión automática de productos registrados a MAYÚSCULAS
+                let modified = false;
+                inventory = inventory.map(item => {
+                    if (item.name && item.name !== item.name.toUpperCase()) {
+                        item.name = item.name.toUpperCase();
+                        modified = true;
+                    }
+                    return item;
+                });
+                if (modified) {
+                    localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+                }
             } else {
                 inventory = DEFAULT_PRODUCTS;
                 localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
@@ -616,7 +628,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE ROBUSTO (SIN CORTES DESTRUTIVOS)
+        // ESCANEO INTELIGENTE ROBUSTO (EN MAYÚSCULAS)
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -637,7 +649,7 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
-                // 2. Preprocesar foto con escala suave y contraste natural
+                // 2. Preprocesar foto
                 const preprocessedCanvas = await preprocessImageForOCR(file);
 
                 // 3. OCR con Tesseract en español
@@ -710,7 +722,7 @@
                     }
                 }
 
-                // 7. EXTRAER NOMBRE LIMPIO DE LA ETIQUETA AMARILLA
+                // 7. EXTRAER NOMBRE LIMPIO DE LA ETIQUETA AMARILLA (SIEMPRE EN MAYÚSCULAS)
                 let nameCandidates = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -731,10 +743,10 @@
                     }
 
                     let words = line.split(/\s+/).filter(w => {
-                        return (/^[A-Z0-9/.-]{2,}$/.test(w) || w === "X" || w === "DE" || w === "DC" || w === "UN" || w === "1UN" || w === "X1UND");
+                        return (/^[A-Z0-9/.-]{2,}$/i.test(w) || w.toUpperCase() === "X" || w.toUpperCase() === "DE" || w.toUpperCase() === "DC" || w.toUpperCase() === "UN" || w.toUpperCase() === "1UN" || w.toUpperCase() === "X1UND");
                     });
 
-                    let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, '').trim();
+                    let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, '').trim().toUpperCase();
                     if (cleanLine.length >= 3) {
                         nameCandidates.push(cleanLine);
                     }
@@ -743,16 +755,15 @@
                 let extractedName = "";
                 if (nameCandidates.length > 0) {
                     let bestLines = nameCandidates.filter(l => {
-                        const u = l.toUpperCase();
-                        return u.includes("CEPILLO") || u.includes("DENTAL") || u.includes("CRISTAL") || 
-                               u.includes("TOALLA") || u.includes("NOSOTRAS") || u.includes("SERVILLET") || 
-                               u.includes("JABON") || u.includes("PAPEL") || u.includes("LAVALOSA");
+                        return l.includes("CEPILLO") || l.includes("DENTAL") || l.includes("CRISTAL") || 
+                               l.includes("TOALLA") || l.includes("NOSOTRAS") || l.includes("SERVILLET") || 
+                               l.includes("JABON") || l.includes("PAPEL") || l.includes("LAVALOSA");
                     });
 
                     if (bestLines.length > 0) {
-                        extractedName = bestLines.slice(0, 2).join(' ').trim();
+                        extractedName = bestLines.slice(0, 2).join(' ').trim().toUpperCase();
                     } else {
-                        extractedName = nameCandidates.slice(0, 2).join(' ').trim();
+                        extractedName = nameCandidates.slice(0, 2).join(' ').trim().toUpperCase();
                     }
                 }
 
@@ -771,10 +782,10 @@
 
                 if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode;
                 if (extractedSap) document.getElementById('prodSap').value = extractedSap;
-                if (extractedName) document.getElementById('prodName').value = extractedName;
+                if (extractedName) document.getElementById('prodName').value = extractedName.toUpperCase();
                 if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
 
-                // Sugerencias de texto alternativas
+                // Sugerencias alternativas
                 const suggBox = document.getElementById('nameSuggestionsBox');
                 suggBox.innerHTML = '';
                 if (nameCandidates.length > 1) {
@@ -784,7 +795,7 @@
                         btn.type = 'button';
                         btn.textContent = cand;
                         btn.style.cssText = 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer;';
-                        btn.onclick = () => { document.getElementById('prodName').value = cand; };
+                        btn.onclick = () => { document.getElementById('prodName').value = cand.toUpperCase(); };
                         suggBox.appendChild(btn);
                     });
                 } else {
@@ -795,7 +806,6 @@
                 document.getElementById('prodCategory').value = suggestedCategory;
                 handleCategoryChange();
 
-                // Lógica de activación de promoción
                 if (promoPrice > 0 && promoPrice < regularPrice && hasMayoristaBox) {
                     document.getElementById('prodPromoSelect').value = "SÍ";
                     document.getElementById('prodPromoPrice').value = promoPrice;
@@ -831,7 +841,6 @@
             document.getElementById('nameSuggestionsBox').classList.add('hidden');
         }
 
-        // Preprocesamiento con ecualización de luz natural para no quemar sombras
         function preprocessImageForOCR(file) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -857,14 +866,11 @@
                         canvas.height = h;
                         ctx.drawImage(img, 0, 0, w, h);
 
-                        // Aclarar sombras superiores y realzar nitidez de texto
                         const imgData = ctx.getImageData(0, 0, w, h);
                         const d = imgData.data;
                         for (let i = 0; i < d.length; i += 4) {
                             let r = d[i], g = d[i+1], b = d[i+2];
-                            // Escala de grises balanceada
                             let gray = 0.3 * r + 0.59 * g + 0.11 * b;
-                            // Realce de contraste suave para mantener legibles áreas bajo sombra
                             let contrast = (gray - 128) * 1.35 + 128;
                             contrast = Math.max(0, Math.min(255, contrast));
                             d[i] = contrast;
@@ -1049,7 +1055,7 @@
                 modalTitle.textContent = "Editar Producto: SAP-" + item.sap;
                 document.getElementById('prodBarcode').value = item.barcode;
                 document.getElementById('prodSap').value = item.sap;
-                document.getElementById('prodName').value = item.name;
+                document.getElementById('prodName').value = (item.name || "").toUpperCase();
                 document.getElementById('prodLocation').value = item.location || "";
                 document.getElementById('prodCategory').value = item.category;
                 document.getElementById('prodStock').value = item.units;
@@ -1142,7 +1148,7 @@
             const item = {
                 barcode: barcodeVal,
                 sap: cleanSap || document.getElementById('prodSap').value.trim(),
-                name: document.getElementById('prodName').value.trim(),
+                name: document.getElementById('prodName').value.trim().toUpperCase(),
                 location: document.getElementById('prodLocation').value.trim() || "Sin ubicación",
                 category: cat,
                 temperature: tempValue,
@@ -1292,7 +1298,7 @@
                             <span style="font-size: 10px; color: #9ca3af; font-family: monospace;">${item.barcode}</span>
                         </td>
                         <td>
-                            <span style="font-weight: 700; display: block; max-width: 220px; white-space: normal;">${item.name}</span>
+                            <span style="font-weight: 800; text-transform: uppercase; display: block; max-width: 220px; white-space: normal;">${item.name}</span>
                             <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px;">
                                 <span class="badge badge-gray">${item.category}</span>
                                 ${item.location ? `<span class="badge badge-purple"><i class="fa-solid fa-location-dot" style="margin-right: 3px;"></i>${item.location}</span>` : ''}
