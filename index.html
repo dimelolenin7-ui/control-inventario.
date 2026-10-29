@@ -243,7 +243,7 @@
                     <div style="display: flex; gap: 6px;">
                         <div style="display: flex; flex: 1; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                             <span style="background: #e5e7eb; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #4b5563; display: flex; align-items: center;">SAP -</span>
-                            <input type="text" id="prodSap" required placeholder="16092" 
+                            <input type="text" id="prodSap" required placeholder="20121" 
                                    oninput="cleanSapSpaces(this)" 
                                    onchange="checkDuplicateOnInput('sap')" 
                                    style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
@@ -252,12 +252,12 @@
                             <i class="fa-solid fa-camera"></i> Leer SAP
                         </button>
                     </div>
-                    <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 2px;">* Lee la etiqueta amarilla y guarda el número quitando los ceros (ej: 0000016092UN → 16092)</span>
+                    <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 2px;">* Lee la etiqueta amarilla y guarda el número quitando los ceros (ej: 0000020121UN → 20121)</span>
                 </div>
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO (EN MAYÚSCULAS)</label>
-                    <input type="text" id="prodName" required placeholder="EJ: CEPILLO DENTAL MEDIO CRISTAL ICE X1UND" oninput="this.value = this.value.toUpperCase()" style="text-transform: uppercase;" class="input-text">
+                    <input type="text" id="prodName" required placeholder="EJ: PAPEL HIG SCOTT AHORRAMAX X 12R X30M" oninput="this.value = this.value.toUpperCase()" style="text-transform: uppercase;" class="input-text">
                     <div id="nameSuggestionsBox" class="hidden" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;"></div>
                 </div>
 
@@ -337,7 +337,7 @@
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">10. PRECIO REGULAR ($)</label>
-                    <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="1490" class="input-text">
+                    <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="17990" class="input-text">
                 </div>
 
                 <div>
@@ -350,7 +350,7 @@
 
                 <div id="promoPriceWrapper" class="hidden">
                     <label style="display: block; font-weight: 800; font-size: 11px; color: #dc2626; margin-bottom: 4px;">12. PRECIO PROMO CON DESCUENTO ($)</label>
-                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="1400" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
+                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="14990" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
                 </div>
 
                 <div id="priceR1Box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between;">
@@ -506,7 +506,8 @@
             { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
             { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 1 - Bloque 16", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
             { barcode: "7704269100374", sap: "838", name: "SERVILLET ARBORA DOBLAD BOLSA 200 UN", location: "Pasillo 1 - Bloque 9", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 4150, isPromo: "SÍ", promoPrice: 4050, expiry: "No aplica", updatedAt: "28/10/2026, 11:00 a. m." },
-            { barcode: "7704269538313", sap: "16092", name: "CEPILLO DENTAL MEDIO CRISTAL ICE X1UND", location: "Pasillo 2 - Bloque 15", category: "Aseo del hogar y personal", temperature: "No aplica", units: 144, r1: "No aplica", cx: 12, cxUnitsPerBox: 12, price: 1490, isPromo: "SÍ", promoPrice: 1400, expiry: "No aplica", updatedAt: "28/10/2026, 3:00 p. m." }
+            { barcode: "7704269538313", sap: "16092", name: "CEPILLO DENTAL MEDIO CRISTAL ICE X1UND", location: "Pasillo 2 - Bloque 15", category: "Aseo del hogar y personal", temperature: "No aplica", units: 144, r1: "No aplica", cx: 12, cxUnitsPerBox: 12, price: 1490, isPromo: "SÍ", promoPrice: 1400, expiry: "No aplica", updatedAt: "28/10/2026, 3:00 p. m." },
+            { barcode: "7702425796096", sap: "20121", name: "PAPEL HIG SCOTT AHORRAMAX X 12R X30M", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 17990, isPromo: "SÍ", promoPrice: 14990, expiry: "No aplica", updatedAt: "29/10/2026, 9:30 a. m." }
         ];
 
         let inventory = [];
@@ -640,7 +641,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE ROBUSTO (EN MAYÚSCULAS)
+        // ESCANEO INTELIGENTE ROBUSTO (ETIQUETAS AMARILLAS)
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -652,6 +653,7 @@
             overlay.classList.remove('hidden');
 
             try {
+                // 1. Decodificar código de barras directo
                 let barcodeDetected = "";
                 try {
                     const tempQrCode = new Html5Qrcode("reader", { verbose: false });
@@ -660,7 +662,10 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
+                // 2. Preprocesar foto
                 const preprocessedCanvas = await preprocessImageForOCR(file);
+
+                // 3. OCR con Tesseract en español
                 const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa');
 
                 overlay.classList.add('hidden');
@@ -670,25 +675,35 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
+                // 4. EXTRAER CÓDIGO SAP (Limpia ceros iniciales de secuencias como 0000020121UN o 0000838UN)
                 let extractedSap = "";
-                const sapMatches = text.matchAll(/0*([1-9]\d{1,7})\s*UN\b/gi);
-                for (const sm of sapMatches) {
-                    if (sm[1] !== "1" && sm[1] !== "200" && sm[1] !== "12") {
-                        extractedSap = sm[1];
-                        break;
-                    }
-                }
-                if (!extractedSap) {
-                    const sapWithZeros = text.match(/0{2,}([1-9]\d{1,7})/);
-                    if (sapWithZeros && sapWithZeros[1]) extractedSap = sapWithZeros[1];
+                // Prioridad 1: Número de 2 a 7 dígitos precedido por al menos 2 ceros
+                const sapWithZeros = text.match(/0{2,}([1-9]\d{1,7})(?:\s*UN)?/i);
+                if (sapWithZeros && sapWithZeros[1]) {
+                    extractedSap = sapWithZeros[1];
+                } else {
+                    const sapExplicit = text.match(/SAP\s*[-:]?\s*0*([1-9]\d{1,7})/i);
+                    if (sapExplicit && sapExplicit[1]) extractedSap = sapExplicit[1];
                 }
 
+                // 5. EXTRAER CÓDIGO DE BARRAS (EAN)
                 let extractedBarcode = barcodeDetected;
                 if (!extractedBarcode) {
                     const eanMatch = text.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
+                // 6. EXTRAER DESCUENTO AHORRE (Compatible con puntos ej: $3.000, $100, $90)
+                let discountAmount = 0;
+                const ahorreMatch = text.match(/AHORRE[^\d]*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
+                if (ahorreMatch && ahorreMatch[1]) {
+                    let cleanD = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
+                    if (cleanD >= 50 && cleanD <= 50000) {
+                        discountAmount = cleanD;
+                    }
+                }
+
+                // 7. EXTRAER PRECIOS
                 let textForPrices = text.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
                                         .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
 
@@ -697,20 +712,14 @@
                 let pm;
                 while ((pm = regexPrices.exec(textForPrices)) !== null) {
                     let val = parseInt(pm[1].replace(/[.,]/g, ''));
+                    // Evitar tomar la fecha o el código SAP
                     if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
                         foundPrices.push(val);
                     }
                 }
 
-                let discountAmount = 0;
-                const ahorreMatch = text.match(/AHORRE[^\d]*(\d{2,5})/i);
-                if (ahorreMatch && ahorreMatch[1]) {
-                    discountAmount = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
-                }
-
                 let regularPrice = 0;
                 let promoPrice = 0;
-
                 const hasMayoristaBox = /MAYORISTA/i.test(text) || discountAmount > 0;
 
                 if (foundPrices.length >= 2) {
@@ -720,17 +729,27 @@
                         promoPrice = regularPrice - discountAmount;
                     }
                 } else if (foundPrices.length === 1) {
-                    regularPrice = foundPrices[0];
-                    if (discountAmount > 0 && regularPrice - discountAmount > 0) {
-                        promoPrice = regularPrice - discountAmount;
+                    if (discountAmount > 0) {
+                        // Si el precio captado es el de la caja de descuento/mayorista (ej: 14990)
+                        if (hasMayoristaBox) {
+                            promoPrice = foundPrices[0];
+                            regularPrice = promoPrice + discountAmount; // 14990 + 3000 = 17990
+                        } else {
+                            regularPrice = foundPrices[0];
+                            promoPrice = regularPrice - discountAmount;
+                        }
+                    } else {
+                        regularPrice = foundPrices[0];
                     }
                 }
 
-                let nameCandidates = [];
+                // 8. EXTRAER NOMBRE LIMPIO CON LÍNEA 1 Y LÍNEA 2 DE MEDIDAS
+                let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
                     if (upper.includes("PARTIR") || 
                         upper.includes("UNIDAD A") || 
+                        upper.includes("METRO A") || 
                         upper.includes("PRECIO") || 
                         upper.includes("AHORRE") || 
                         upper.includes("MAYOR") || 
@@ -745,38 +764,34 @@
                         continue;
                     }
 
-                    let words = line.split(/\s+/).filter(w => {
-                        return (/^[A-Z0-9/.-]{2,}$/i.test(w) || w.toUpperCase() === "X" || w.toUpperCase() === "DE" || w.toUpperCase() === "DC" || w.toUpperCase() === "UN" || w.toUpperCase() === "1UN" || w.toUpperCase() === "X1UND");
-                    });
+                    // Limpieza y unión de palabras
+                    let cleanLine = line.replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ')
+                                        .replace(/\s+/g, ' ')
+                                        .trim()
+                                        .toUpperCase();
 
-                    let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, '').trim().toUpperCase();
-                    if (cleanLine.length >= 3) {
-                        nameCandidates.push(cleanLine);
+                    // Omitir palabras residuales cortas
+                    if (cleanLine.length >= 3 && !cleanLine.startsWith("METRO") && !cleanLine.startsWith("UNIDAD")) {
+                        validHeaderLines.push(cleanLine);
                     }
                 }
 
                 let extractedName = "";
-                if (nameCandidates.length > 0) {
-                    let bestLines = nameCandidates.filter(l => {
-                        return l.includes("CEPILLO") || l.includes("DENTAL") || l.includes("CRISTAL") || 
-                               l.includes("TOALLA") || l.includes("NOSOTRAS") || l.includes("SERVILLET") || 
-                               l.includes("JABON") || l.includes("PAPEL") || l.includes("LAVALOSA");
-                    });
-
-                    if (bestLines.length > 0) {
-                        extractedName = bestLines.slice(0, 2).join(' ').trim().toUpperCase();
-                    } else {
-                        extractedName = nameCandidates.slice(0, 2).join(' ').trim().toUpperCase();
-                    }
+                if (validHeaderLines.length > 0) {
+                    // Tomar la primera y segunda línea (ej: PAPEL HIG SCOTT AHORRAMAX + X 12R X30M)
+                    extractedName = validHeaderLines.slice(0, 2).join(' ').trim().toUpperCase();
+                    // Limpiar sufijos como "MED" o letras aisladas al final
+                    extractedName = extractedName.replace(/\s+MED$/i, '').trim();
                 }
 
+                // Detección de Categoría
                 let suggestedCategory = "Abarrotes";
                 const upperName = (extractedName + " " + text).toUpperCase();
                 if (upperName.includes("SERVILLET") || upperName.includes("JABON") || upperName.includes("CEPILLO") || 
-                    upperName.includes("PAPEL") || upperName.includes("LAVALOSA") || upperName.includes("DENTAL") || 
-                    upperName.includes("TOALLA") || upperName.includes("NOSOTRAS") || upperName.includes("PROTECTOR") || 
-                    upperName.includes("PAÑAL") || upperName.includes("CREMA") || upperName.includes("SHAMPOO") || 
-                    upperName.includes("CRISTAL ICE")) {
+                    upperName.includes("PAPEL") || upperName.includes("SCOTT") || upperName.includes("LAVALOSA") || 
+                    upperName.includes("DENTAL") || upperName.includes("TOALLA") || upperName.includes("NOSOTRAS") || 
+                    upperName.includes("PROTECTOR") || upperName.includes("PAÑAL") || upperName.includes("CREMA") || 
+                    upperName.includes("SHAMPOO") || upperName.includes("CRISTAL ICE")) {
                     suggestedCategory = "Aseo del hogar y personal";
                 }
 
@@ -787,11 +802,12 @@
                 if (extractedName) document.getElementById('prodName').value = extractedName.toUpperCase();
                 if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
 
+                // Sugerencias alternativas
                 const suggBox = document.getElementById('nameSuggestionsBox');
                 suggBox.innerHTML = '';
-                if (nameCandidates.length > 1) {
+                if (validHeaderLines.length > 1) {
                     suggBox.classList.remove('hidden');
-                    nameCandidates.forEach(cand => {
+                    validHeaderLines.forEach(cand => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.textContent = cand;
@@ -1268,22 +1284,16 @@
                 return matchesSearch && matchesCat;
             });
 
-            // Ordenamiento estricto por Pasillo (1, 2, 3...) y Bloque (17, 16... 9)
             filtered.sort((a, b) => {
                 const locA = parseLocationSort(a.location);
                 const locB = parseLocationSort(b.location);
 
-                // 1. Pasillo ascendente (Pasillo 1 primero, luego 2, etc.)
                 if (locA.pasillo !== locB.pasillo) {
                     return locA.pasillo - locB.pasillo;
                 }
-
-                // 2. Bloque descendente (Bloque 17 primero, luego 16... hasta 9)
                 if (locA.bloque !== locB.bloque) {
                     return locB.bloque - locA.bloque;
                 }
-
-                // 3. Alfabético por nombre si están en el mismo pasillo y bloque
                 return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
             });
 
@@ -1590,14 +1600,14 @@
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
-                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
+                    document.getElementById('prodSap').value = match[1];
                     checkDuplicateOnInput('sap');
                 } else {
                     const numMatch = text.match(/0*([1-9]\d{1,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
+                        document.getElementById('prodSap').value = numMatch[1];
                         checkDuplicateOnInput('sap');
                     } else {
                         alert("No se leyó el número en el recuadro. Intenta ubicarlo justo sobre los dígitos.");
@@ -1634,14 +1644,14 @@
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
-                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
+                    document.getElementById('prodSap').value = match[1];
                     checkDuplicateOnInput('sap');
                 } else {
                     const numMatch = text.match(/0*([1-9]\d{1,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
+                        document.getElementById('prodSap').value = numMatch[1];
                         checkDuplicateOnInput('sap');
                     } else {
                         alert("No se detectó claramente. Usa 'Tomar Foto Nítida y Recortar' para seleccionar el número.");
