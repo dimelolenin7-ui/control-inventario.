@@ -229,7 +229,10 @@
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">1. CÓDIGO DE BARRAS (EAN)</label>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="prodBarcode" required placeholder="770123456001" onchange="checkDuplicateOnInput('barcode')" class="input-text">
+                        <!-- Limpieza instantánea de espacios para EAN -->
+                        <input type="text" id="prodBarcode" required placeholder="770123456001" 
+                               oninput="cleanBarcodeSpaces(this)" 
+                               onchange="checkDuplicateOnInput('barcode')" class="input-text">
                         <button type="button" onclick="openScannerModal('barcode')" class="btn-green" style="padding: 0 14px;" title="Escanear Código de Barras">
                             <i class="fa-solid fa-camera"></i>
                         </button>
@@ -241,7 +244,11 @@
                     <div style="display: flex; gap: 6px;">
                         <div style="display: flex; flex: 1; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                             <span style="background: #e5e7eb; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #4b5563; display: flex; align-items: center;">SAP -</span>
-                            <input type="text" id="prodSap" required placeholder="16092" onchange="checkDuplicateOnInput('sap')" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
+                            <!-- Limpieza instantánea de espacios para SAP -->
+                            <input type="text" id="prodSap" required placeholder="16092" 
+                                   oninput="cleanSapSpaces(this)" 
+                                   onchange="checkDuplicateOnInput('sap')" 
+                                   style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
                         </div>
                         <button type="button" onclick="openScannerModal('sap')" class="btn-blue" style="display: flex; align-items: center; gap: 4px;" title="Escanear o Tomar Foto">
                             <i class="fa-solid fa-camera"></i> Leer SAP
@@ -509,7 +516,7 @@
             const savedInventory = localStorage.getItem('canasto_inventory');
             if (savedInventory) {
                 inventory = JSON.parse(savedInventory);
-                // Conversión automática de productos registrados a MAYÚSCULAS
+                // Garantizar mayúsculas en todos los productos existentes
                 let modified = false;
                 inventory = inventory.map(item => {
                     if (item.name && item.name !== item.name.toUpperCase()) {
@@ -554,6 +561,16 @@
         let cropBox = { x: 50, y: 50, width: 250, height: 100 };
         let isDraggingCrop = false;
         let dragStartX = 0, dragStartY = 0;
+
+        // Limpieza de espacios en Código de Barras (EAN)
+        function cleanBarcodeSpaces(input) {
+            input.value = input.value.replace(/\s+/g, '').replace(/[^\d]/g, '');
+        }
+
+        // Limpieza de espacios en Código SAP
+        function cleanSapSpaces(input) {
+            input.value = input.value.replace(/\s+/g, '').replace(/[^\d]/g, '');
+        }
 
         function playWarningBeep() {
             try {
@@ -662,7 +679,7 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER SAP (Limpia ceros de secuencias como 0000016092UN o 0000838UN)
+                // 4. EXTRAER SAP (Limpia ceros y une espacios)
                 let extractedSap = "";
                 const sapMatches = text.matchAll(/0*([1-9]\d{1,7})\s*UN\b/gi);
                 for (const sm of sapMatches) {
@@ -697,7 +714,6 @@
                     }
                 }
 
-                // Detección de Ahorro multilínea (ej: AHORRE \n $90 -> 90)
                 let discountAmount = 0;
                 const ahorreMatch = text.match(/AHORRE[^\d]*(\d{2,5})/i);
                 if (ahorreMatch && ahorreMatch[1]) {
@@ -722,7 +738,7 @@
                     }
                 }
 
-                // 7. EXTRAER NOMBRE LIMPIO DE LA ETIQUETA AMARILLA (SIEMPRE EN MAYÚSCULAS)
+                // 7. EXTRAER NOMBRE LIMPIO (EN MAYÚSCULAS)
                 let nameCandidates = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -734,10 +750,10 @@
                         upper.includes("VOLUMEN") || 
                         upper.includes("JEFE") || 
                         upper.includes("TIENDA") || 
-                        upper.includes("C/U") ||
-                        upper.includes("ENJUAG") ||
-                        upper.includes("CON ALCOHOL") ||
-                        /^\d+$/.test(upper.replace(/\s/g, '')) ||
+                        upper.includes("C/U") || 
+                        upper.includes("ENJUAG") || 
+                        upper.includes("CON ALCOHOL") || 
+                        /^\d+$/.test(upper.replace(/\s/g, '')) || 
                         upper.length < 3) {
                         continue;
                     }
@@ -767,7 +783,6 @@
                     }
                 }
 
-                // Detección de Categoría
                 let suggestedCategory = "Abarrotes";
                 const upperName = (extractedName + " " + text).toUpperCase();
                 if (upperName.includes("SERVILLET") || upperName.includes("JABON") || upperName.includes("CEPILLO") || 
@@ -780,12 +795,11 @@
 
                 openProductModal();
 
-                if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode;
-                if (extractedSap) document.getElementById('prodSap').value = extractedSap;
+                if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode.replace(/\s+/g, '');
+                if (extractedSap) document.getElementById('prodSap').value = extractedSap.replace(/\s+/g, '');
                 if (extractedName) document.getElementById('prodName').value = extractedName.toUpperCase();
                 if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
 
-                // Sugerencias alternativas
                 const suggBox = document.getElementById('nameSuggestionsBox');
                 suggBox.innerHTML = '';
                 if (nameCandidates.length > 1) {
@@ -802,7 +816,6 @@
                     suggBox.classList.add('hidden');
                 }
 
-                // Categoría y regla de aseo
                 document.getElementById('prodCategory').value = suggestedCategory;
                 handleCategoryChange();
 
@@ -911,8 +924,8 @@
         function checkDuplicateOnInput(type) {
             if (editingIndex !== null) return;
 
-            let barcodeVal = document.getElementById('prodBarcode').value.trim();
-            let sapVal = document.getElementById('prodSap').value.trim()
+            let barcodeVal = document.getElementById('prodBarcode').value.replace(/\s+/g, '');
+            let sapVal = document.getElementById('prodSap').value.replace(/\s+/g, '')
                 .replace(/^SAP\s*-\s*/i, '')
                 .replace(/[^\d]/g, '')
                 .replace(/^0+/, '');
@@ -1114,12 +1127,13 @@
             let cxVal = document.getElementById('cxNA').checked ? "No aplica" : (parseInt(document.getElementById('prodCX').value) || 0);
             let expiryVal = document.getElementById('expiryNA').checked ? "No aplica" : (document.getElementById('prodExpiry').value || "No aplica");
 
-            let cleanSap = document.getElementById('prodSap').value.trim()
+            // Limpieza estricta de espacios antes de guardar
+            let cleanSap = document.getElementById('prodSap').value.replace(/\s+/g, '')
                 .replace(/^SAP\s*-\s*/i, '')
                 .replace(/[^\d]/g, '')
                 .replace(/^0+/, '');
 
-            const barcodeVal = document.getElementById('prodBarcode').value.trim();
+            let barcodeVal = document.getElementById('prodBarcode').value.replace(/\s+/g, '').replace(/[^\d]/g, '');
 
             if (editingIndex === null) {
                 const duplicateIndex = inventory.findIndex(p => 
@@ -1147,7 +1161,7 @@
 
             const item = {
                 barcode: barcodeVal,
-                sap: cleanSap || document.getElementById('prodSap').value.trim(),
+                sap: cleanSap || document.getElementById('prodSap').value.replace(/\s+/g, ''),
                 name: document.getElementById('prodName').value.trim().toUpperCase(),
                 location: document.getElementById('prodLocation').value.trim() || "Sin ubicación",
                 category: cat,
@@ -1567,14 +1581,14 @@
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
-                    document.getElementById('prodSap').value = match[1];
+                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
                     checkDuplicateOnInput('sap');
                 } else {
                     const numMatch = text.match(/0*([1-9]\d{1,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1];
+                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
                         checkDuplicateOnInput('sap');
                     } else {
                         alert("No se leyó el número en el recuadro. Intenta ubicarlo justo sobre los dígitos.");
@@ -1611,14 +1625,14 @@
                 if (match && match[1]) {
                     playWarningBeep();
                     closeScannerModal();
-                    document.getElementById('prodSap').value = match[1];
+                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
                     checkDuplicateOnInput('sap');
                 } else {
                     const numMatch = text.match(/0*([1-9]\d{1,7})/);
                     if (numMatch && numMatch[1]) {
                         playWarningBeep();
                         closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1];
+                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
                         checkDuplicateOnInput('sap');
                     } else {
                         alert("No se detectó claramente. Usa 'Tomar Foto Nítida y Recortar' para seleccionar el número.");
@@ -1634,24 +1648,25 @@
             closeScannerModal();
 
             if (scannerTarget === 'barcode') {
-                document.getElementById('prodBarcode').value = decodedText.trim();
+                document.getElementById('prodBarcode').value = decodedText.trim().replace(/\s+/g, '');
                 checkDuplicateOnInput('barcode');
             } else if (scannerTarget === 'sap') {
                 let cleanNumbers = decodedText.replace(/[^\d]/g, '');
                 let sapExtracted = cleanNumbers.replace(/^0+/, '');
-                document.getElementById('prodSap').value = sapExtracted || cleanNumbers || decodedText.trim();
+                document.getElementById('prodSap').value = (sapExtracted || cleanNumbers || decodedText.trim()).replace(/\s+/g, '');
                 checkDuplicateOnInput('sap');
             } else if (scannerTarget === 'quickSearch') {
                 let cleanNumbers = decodedText.replace(/[^\d]/g, '');
                 let sapExtracted = cleanNumbers.replace(/^0+/, '');
+                let cleanText = decodedText.trim().replace(/\s+/g, '');
 
-                const found = inventory.find(p => p.barcode === decodedText.trim() || p.sap === decodedText.trim() || p.sap === sapExtracted);
+                const found = inventory.find(p => p.barcode === cleanText || p.sap === cleanText || p.sap === sapExtracted);
                 if (found) {
                     openProductModal(inventory.indexOf(found));
                 } else {
                     if (confirm(`El código "${decodedText}" no está en inventario. ¿Registrar nuevo producto?`)) {
                         openProductModal();
-                        document.getElementById('prodBarcode').value = decodedText.trim();
+                        document.getElementById('prodBarcode').value = cleanText;
                         if (sapExtracted) document.getElementById('prodSap').value = sapExtracted;
                     }
                 }
