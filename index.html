@@ -641,7 +641,7 @@
         }
 
         // ========================================================
-        // ESCANEO INTELIGENTE POR ZONAS (EXTRACCIÓN EXACTA)
+        // ESCANEO INTELIGENTE POR ZONAS (SEPARACIÓN TOTAL DE AHORRO Y PRECIOS)
         // ========================================================
         async function handleFullLabelScan(event) {
             const file = event.target.files[0];
@@ -653,7 +653,7 @@
             overlay.classList.remove('hidden');
 
             try {
-                // 1. Decodificar código de barras
+                // 1. Decodificar código de barras directo
                 let barcodeDetected = "";
                 try {
                     const tempQrCode = new Html5Qrcode("reader", { verbose: false });
@@ -662,7 +662,7 @@
                     tempQrCode.clear();
                 } catch(e) {}
 
-                // 2. Preprocesar foto
+                // 2. Preprocesar foto en Canvas
                 const preprocessedCanvas = await preprocessImageForOCR(file);
 
                 // 3. OCR con Tesseract en español
@@ -675,10 +675,10 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER CÓDIGO SAP EXACTO
-                // Requiere obligatoriamente 3 o más ceros a la izquierda (ej: 0000020121UN, 0000016092UN, 0000838UN)
+                // 4. EXTRAER CÓDIGO SAP CON FILTRO EXACTO (Mínimo 3 dígitos, ceros iniciales como 0000020121UN)
                 let extractedSap = "";
-                const sapWithZeros = text.match(/0{3,}([1-9]\d{2,7})/);
+                // Busca de 3 a 7 dígitos precedidos por 2 o más ceros (ej: 0000020121UN o 0000838UN)
+                const sapWithZeros = text.match(/0{2,}([1-9]\d{2,7})(?:\s*UN)?/i);
                 if (sapWithZeros && sapWithZeros[1]) {
                     extractedSap = sapWithZeros[1];
                 } else {
@@ -693,9 +693,9 @@
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER DESCUENTO AHORRE (ej: AHORRE $3.000, $100, $90)
+                // 6. EXTRAER DESCUENTO AHORRE (Soporta salto de línea entre AHORRE y el número, ej: AHORRE \n $3.000)
                 let discountAmount = 0;
-                const ahorreMatch = text.match(/AHORRE[^\d]*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
+                const ahorreMatch = text.match(/AHORRE\s*[\r\n\s]*[$8S]?\s*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
                 if (ahorreMatch && ahorreMatch[1]) {
                     let cleanD = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
                     if (cleanD >= 50 && cleanD <= 50000) {
@@ -703,20 +703,19 @@
                     }
                 }
 
-                // 7. EXTRAER PRECIOS EXCLUYENDO TOTALMENTE EL BLOQUE DE AHORRO
-                // Se borra toda la línea donde esté la palabra "AHORRE" para no confundir 3000 con un precio unitario
-                let textWithoutAhorre = text.replace(/AHORRE[^\n\r]*/gi, '');
+                // 7. ELIMINAR EL BLOQUE COMPLETO DE "AHORRE" (INCLUYENDO SU NÚMERO) PARA NO CONFUNDIRLO CON UN PRECIO
+                let textWithoutAhorre = text.replace(/AHORRE\s*[\r\n\s]*[$8S]?\s*[0-9.,]+/gi, '');
 
                 let textForPrices = textWithoutAhorre.replace(/C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})/gi, 'C/U $ $1')
                                                     .replace(/\$\s*8\s*([1-9]\d{0,2}[.,]\d{3})/gi, '$ $1');
 
                 const foundPrices = [];
-                // Búsqueda específica de precios después de C/U o $ o formato monetario
-                const regexPrices = /(?:C\/U\s*[$]?|\$\s*|\b)([1-9]\d{0,2}[.,]\d{3})\b/gi;
+                const regexPrices = /(?:C\/U\s*[$8S]?|\$\s*|\b)([1-9]\d{0,2}[.,]\d{3})\b/gi;
                 let pm;
                 while ((pm = regexPrices.exec(textForPrices)) !== null) {
                     let val = parseInt(pm[1].replace(/[.,]/g, ''));
-                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && val !== discountAmount && !foundPrices.includes(val)) {
+                    // Descartar si coincide con el SAP o el código de barras
+                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !foundPrices.includes(val)) {
                         foundPrices.push(val);
                     }
                 }
@@ -725,29 +724,28 @@
                 let promoPrice = 0;
                 const hasMayoristaBox = /MAYORISTA/i.test(text) || discountAmount > 0;
 
-                // LÓGICA DE PRECIOS EXACTA
+                // LÓGICA DE PRECIOS EXACTA: EL MAYOR ES EL INICIAL (REGULAR), EL MENOR ES LA PROMOCIÓN
                 if (foundPrices.length >= 2) {
-                    // Si se captaron los dos precios (ej: 17990 y 14990)
                     regularPrice = Math.max(...foundPrices);
                     promoPrice = Math.min(...foundPrices);
+                    if (discountAmount > 0 && regularPrice - discountAmount > 0) {
+                        promoPrice = regularPrice - discountAmount;
+                    }
                 } else if (foundPrices.length === 1) {
-                    // Si solo se captó uno de los dos precios
-                    let singlePrice = foundPrices[0];
                     if (discountAmount > 0) {
-                        // En etiquetas con cuadro negro mayorista, el precio leído suele ser el menor (14990)
-                        if (hasMayoristaBox && singlePrice > discountAmount) {
-                            promoPrice = singlePrice;
+                        if (hasMayoristaBox) {
+                            promoPrice = foundPrices[0];
                             regularPrice = promoPrice + discountAmount; // 14990 + 3000 = 17990
                         } else {
-                            regularPrice = singlePrice;
+                            regularPrice = foundPrices[0];
                             promoPrice = regularPrice - discountAmount;
                         }
                     } else {
-                        regularPrice = singlePrice;
+                        regularPrice = foundPrices[0];
                     }
                 }
 
-                // 8. EXTRAER NOMBRE LIMPIO CON LÍNEAS DEL PRODUCTO
+                // 8. EXTRAER NOMBRE FRONTAL DE LA ETIQUETA (FILTRANDO LA BOLSA SUPERIOR)
                 let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -839,7 +837,7 @@
                 document.getElementById('prodCategory').value = suggestedCategory;
                 handleCategoryChange();
 
-                // PROMOCIÓN ACTIVA SI HAY PRECIO MENOR O DESCUENTO DETECTADO
+                // SIEMPRE QUE EL PRECIO PROMO SEA MENOR AL REGULAR O EXISTA MAYORISTA -> PROMO SÍ
                 if (promoPrice > 0 && promoPrice < regularPrice) {
                     document.getElementById('prodPromoSelect').value = "SÍ";
                     document.getElementById('prodPromoPrice').value = promoPrice;
@@ -959,16 +957,111 @@
                 alert(`⚠️ ¡PRODUCTO YA REGISTRADO EN EL INVENTARIO!\n\n` +
                       `📦 Nombre: ${prod.name}\n` +
                       `🔢 Código SAP: SAP-${prod.sap}\n` +
-                      `🏷️ EAN: ${prod.barcode}\n` + `📍 Ubicación: ${prod.location || 'Sin ubicación'}\n` +
-                      `📊 Stock Actual: ${prod.units} unds (CX-${prod.cx \vert{}\vert{} 0} \vert{} R1-${prod.r1 || 0})\n` +
-                      `📅 Vencimiento: ${prod.expiry}\n\n` + `No se creará un duplicado. Se abrirá directamente su pestaña para que revises o actualices.`); openProductModal(foundIndex); } }  function toggleTempNA() { const isNA = document.getElementById('tempNA').checked; document.getElementById('tempInputWrapper').classList.toggle('hidden', isNA); document.getElementById('tempNADisplay').classList.toggle('hidden', !isNA); if (isNA) document.getElementById('prodTemperature').value = ''; }  function toggleR1NA() { const isNA = document.getElementById('r1NA').checked; document.getElementById('r1InputWrapper').classList.toggle('hidden', isNA); document.getElementById('r1NADisplay').classList.toggle('hidden', !isNA); document.getElementById('priceR1Box').classList.toggle('hidden', isNA); if (isNA) document.getElementById('prodR1').value = ''; recalcPrices(); }  function toggleCXNA() { const isNA = document.getElementById('cxNA').checked; document.getElementById('cxInputWrapper').classList.toggle('hidden', isNA); document.getElementById('cxNADisplay').classList.toggle('hidden', !isNA); if (isNA) document.getElementById('prodCX').value = ''; recalcPrices(); }  function toggleExpiryNA() { const isNA = document.getElementById('expiryNA').checked; document.getElementById('prodExpiry').classList.toggle('hidden', isNA); document.getElementById('expiryNADisplay').classList.toggle('hidden', !isNA); if (isNA) document.getElementById('prodExpiry').value = ''; }  function handleUnitsChange() { const units = parseInt(document.getElementById('prodStock').value) \vert{}\vert{} 0; const r1NA = document.getElementById('r1NA').checked; const cxNA = document.getElementById('cxNA').checked; const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) \vert{}\vert{} 12;  if (!r1NA) document.getElementById('prodR1').value = Math.floor(units / 6); if (!cxNA && unitsPerBox > 0) document.getElementById('prodCX').value = Math.floor(units / unitsPerBox); recalcPrices(); }  function handleR1Change() { const r1 = parseInt(document.getElementById('prodR1').value) \vert{}\vert{} 0; const totalUnits = r1 * 6; document.getElementById('prodStock').value = totalUnits; const cxNA = document.getElementById('cxNA').checked; const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) \vert{}\vert{} 12; if (!cxNA && unitsPerBox > 0) document.getElementById('prodCX').value = Math.floor(totalUnits / unitsPerBox); recalcPrices(); }  function handleCXChange() { const cx = parseInt(document.getElementById('prodCX').value) \vert{}\vert{} 0; const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) \vert{}\vert{} 12; const totalUnits = cx * unitsPerBox; document.getElementById('prodStock').value = totalUnits;  const r1NA = document.getElementById('r1NA').checked; if (!r1NA) document.getElementById('prodR1').value = Math.floor(totalUnits / 6); recalcPrices(); }  function handleCXUnitsPerBoxChange() { const cx = parseInt(document.getElementById('prodCX').value) \vert{}\vert{} 0; const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) \vert{}\vert{} 1; const totalUnits = cx * unitsPerBox; document.getElementById('prodStock').value = totalUnits;  const r1NA = document.getElementById('r1NA').checked; if (!r1NA) document.getElementById('prodR1').value = Math.floor(totalUnits / 6); recalcPrices(); }  function togglePromoField() { const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ'; document.getElementById('promoPriceWrapper').classList.toggle('hidden', !isPromo); recalcPrices(); }  function recalcPrices() { const price = parseFloat(document.getElementById('prodPrice').value) \vert{}\vert{} 0; const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ'; const promoPrice = parseFloat(document.getElementById('prodPromoPrice').value) \vert{}\vert{} 0; const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) \vert{}\vert{} 12;  document.getElementById('labelPriceR1Reg').textContent = `$${(price * 6).toLocaleString()}`;
-            document.getElementById('labelCXBoxSize').textContent = `Regular CX (${unitsPerBox} unds)`; document.getElementById('labelPriceCXReg').textContent = `$${(price * unitsPerBox).toLocaleString()}`;
+                      `🏷️ EAN: ${prod.barcode}\n` +
+                      `📍 Ubicación: ${prod.location || 'Sin ubicación'}\n` +
+                      `📊 Stock Actual: ${prod.units} unds (CX-${prod.cx || 0} | R1-${prod.r1 || 0})\n` +
+                      `📅 Vencimiento: ${prod.expiry}\n\n` +
+                      `No se creará un duplicado. Se abrirá directamente su pestaña para que revises o actualices.`);
+                openProductModal(foundIndex);
+            }
+        }
+
+        function toggleTempNA() {
+            const isNA = document.getElementById('tempNA').checked;
+            document.getElementById('tempInputWrapper').classList.toggle('hidden', isNA);
+            document.getElementById('tempNADisplay').classList.toggle('hidden', !isNA);
+            if (isNA) document.getElementById('prodTemperature').value = '';
+        }
+
+        function toggleR1NA() {
+            const isNA = document.getElementById('r1NA').checked;
+            document.getElementById('r1InputWrapper').classList.toggle('hidden', isNA);
+            document.getElementById('r1NADisplay').classList.toggle('hidden', !isNA);
+            document.getElementById('priceR1Box').classList.toggle('hidden', isNA);
+            if (isNA) document.getElementById('prodR1').value = '';
+            recalcPrices();
+        }
+
+        function toggleCXNA() {
+            const isNA = document.getElementById('cxNA').checked;
+            document.getElementById('cxInputWrapper').classList.toggle('hidden', isNA);
+            document.getElementById('cxNADisplay').classList.toggle('hidden', !isNA);
+            if (isNA) document.getElementById('prodCX').value = '';
+            recalcPrices();
+        }
+
+        function toggleExpiryNA() {
+            const isNA = document.getElementById('expiryNA').checked;
+            document.getElementById('prodExpiry').classList.toggle('hidden', isNA);
+            document.getElementById('expiryNADisplay').classList.toggle('hidden', !isNA);
+            if (isNA) document.getElementById('prodExpiry').value = '';
+        }
+
+        function handleUnitsChange() {
+            const units = parseInt(document.getElementById('prodStock').value) || 0;
+            const r1NA = document.getElementById('r1NA').checked;
+            const cxNA = document.getElementById('cxNA').checked;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
+
+            if (!r1NA) document.getElementById('prodR1').value = Math.floor(units / 6);
+            if (!cxNA && unitsPerBox > 0) document.getElementById('prodCX').value = Math.floor(units / unitsPerBox);
+            recalcPrices();
+        }
+
+        function handleR1Change() {
+            const r1 = parseInt(document.getElementById('prodR1').value) || 0;
+            const totalUnits = r1 * 6;
+            document.getElementById('prodStock').value = totalUnits;
+            const cxNA = document.getElementById('cxNA').checked;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
+            if (!cxNA && unitsPerBox > 0) document.getElementById('prodCX').value = Math.floor(totalUnits / unitsPerBox);
+            recalcPrices();
+        }
+
+        function handleCXChange() {
+            const cx = parseInt(document.getElementById('prodCX').value) || 0;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
+            const totalUnits = cx * unitsPerBox;
+            document.getElementById('prodStock').value = totalUnits;
+
+            const r1NA = document.getElementById('r1NA').checked;
+            if (!r1NA) document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
+            recalcPrices();
+        }
+
+        function handleCXUnitsPerBoxChange() {
+            const cx = parseInt(document.getElementById('prodCX').value) || 0;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 1;
+            const totalUnits = cx * unitsPerBox;
+            document.getElementById('prodStock').value = totalUnits;
+
+            const r1NA = document.getElementById('r1NA').checked;
+            if (!r1NA) document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
+            recalcPrices();
+        }
+
+        function togglePromoField() {
+            const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
+            document.getElementById('promoPriceWrapper').classList.toggle('hidden', !isPromo);
+            recalcPrices();
+        }
+
+        function recalcPrices() {
+            const price = parseFloat(document.getElementById('prodPrice').value) || 0;
+            const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
+            const promoPrice = parseFloat(document.getElementById('prodPromoPrice').value) || 0;
+            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
+
+            document.getElementById('labelPriceR1Reg').textContent = `$${(price * 6).toLocaleString()}`;
+            document.getElementById('labelCXBoxSize').textContent = `Regular CX (${unitsPerBox} unds)`;
+            document.getElementById('labelPriceCXReg').textContent = `$${(price * unitsPerBox).toLocaleString()}`;
 
             const r1PromoContainer = document.getElementById('labelPriceR1PromoContainer');
             const cxPromoContainer = document.getElementById('labelPriceCXPromoContainer');
 
             if (isPromo && promoPrice > 0) {
-                document.getElementById('labelPriceR1Promo').textContent = `$${(promoPrice * 6).toLocaleString()}`; document.getElementById('labelPriceCXPromo').textContent = `$${(promoPrice * unitsPerBox).toLocaleString()}`;
+                document.getElementById('labelPriceR1Promo').textContent = `$${(promoPrice * 6).toLocaleString()}`;
+                document.getElementById('labelPriceCXPromo').textContent = `$${(promoPrice * unitsPerBox).toLocaleString()}`;
                 r1PromoContainer.classList.remove('hidden');
                 cxPromoContainer.classList.remove('hidden');
             } else {
@@ -1063,4 +1156,570 @@
                 if (duplicateIndex !== -1) {
                     const dup = inventory[duplicateIndex];
                     playWarningBeep();
-                    alert(`⚠️ EL PRODUCTO YA EXISTE EN EL INVENTARIO
+                    alert(`⚠️ EL PRODUCTO YA EXISTE EN EL INVENTARIO:\n\n` +
+                          `Código ${barcodeVal === dup.barcode ? 'de barras ' + barcodeVal : 'SAP ' + cleanSap} ya asignado a:\n` +
+                          `"${dup.name}" (SAP-${dup.sap})\n` +
+                          `📍 Ubicación: ${dup.location || 'Sin ubicación'}\n` +
+                          `📦 Stock: ${dup.units} unidades.\n\n` +
+                          `Se abrirá la ficha de este producto para consultar o modificar sus valores.`);
+                    openProductModal(duplicateIndex);
+                    return;
+                }
+            }
+
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ", " +
+                                  now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+            const item = {
+                barcode: barcodeVal,
+                sap: cleanSap || document.getElementById('prodSap').value.replace(/\s+/g, ''),
+                name: document.getElementById('prodName').value.trim().toUpperCase(),
+                location: document.getElementById('prodLocation').value.trim() || "Sin ubicación",
+                category: cat,
+                temperature: tempValue,
+                units: parseInt(document.getElementById('prodStock').value) || 0,
+                r1: r1Val,
+                cx: cxVal,
+                cxUnitsPerBox: parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12,
+                price: parseFloat(document.getElementById('prodPrice').value) || 0,
+                isPromo: document.getElementById('prodPromoSelect').value,
+                promoPrice: parseFloat(document.getElementById('prodPromoPrice').value) || 0,
+                expiry: expiryVal,
+                updatedAt: formattedDate
+            };
+
+            if (editingIndex !== null) {
+                inventory[editingIndex] = item;
+            } else {
+                inventory.unshift(item);
+            }
+
+            localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+            closeProductModal();
+            renderTable();
+            checkExpirationsAndAlert();
+        }
+
+        function deleteProduct(index) {
+            if (confirm(`¿Eliminar ${inventory[index].name} del inventario?`)) {
+                inventory.splice(index, 1);
+                localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+                renderTable();
+                checkExpirationsAndAlert();
+            }
+        }
+
+        function calculateDaysRemaining(expiryDate) {
+            if (!expiryDate || expiryDate === "No aplica") return null;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const exp = new Date(expiryDate);
+            exp.setHours(0,0,0,0);
+            return Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+        }
+
+        function checkExpirationsAndAlert() {
+            let criticalCount = 0;
+            inventory.forEach(item => {
+                const days = calculateDaysRemaining(item.expiry);
+                if (days !== null && days <= 15) criticalCount++;
+            });
+
+            const badge = document.getElementById('badgeCriticos');
+            const bubble = document.getElementById('floatingAlertBubble');
+            const bubbleText = document.getElementById('bubbleAlertText');
+
+            if (criticalCount > 0) {
+                badge.textContent = criticalCount;
+                badge.classList.remove('hidden');
+                bubble.classList.remove('hidden');
+                bubbleText.textContent = `${criticalCount} producto(s) crítico(s) o por vencer`;
+                playWarningBeep();
+            } else {
+                badge.classList.add('hidden');
+                bubble.classList.add('hidden');
+            }
+        }
+
+        function openAlertsModal() {
+            const list = document.getElementById('alertsList');
+            list.innerHTML = '';
+            const criticals = inventory.filter(item => {
+                const days = calculateDaysRemaining(item.expiry);
+                return days !== null && days <= 30;
+            });
+
+            if (criticals.length === 0) {
+                list.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 16px;">No hay productos próximos a vencer.</p>';
+            } else {
+                criticals.forEach(item => {
+                    const days = calculateDaysRemaining(item.expiry);
+                    const isVencido = days <= 0;
+                    list.innerHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+                            <div>
+                                <span style="font-weight: 800; color: #111827; display: block;">${item.name}</span>
+                                <span style="font-size: 11px; color: #6b7280;">SAP-${item.sap} • ${item.location || 'Sin ubicación'} • Stock: ${item.units} und</span>
+                            </div>
+                            <span class="badge ${isVencido ? 'badge-red' : 'badge-amber'}">${isVencido ? 'VENCIDO' : days + ' días rest.'}</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('alertsModal').classList.remove('hidden');
+        }
+
+        function closeAlertsModal() {
+            document.getElementById('alertsModal').classList.add('hidden');
+        }
+
+        // ORDENAMIENTO POR UBICACIÓN (PASILLOS ASC, BLOQUES DESC)
+        function parseLocationSort(locStr) {
+            if (!locStr) return { pasillo: 9999, bloque: -1 };
+            const pMatch = locStr.match(/pasillo\s*(\d+)/i);
+            const bMatch = locStr.match(/bloque\s*(\d+)/i);
+            const pasillo = pMatch ? parseInt(pMatch[1]) : 9999;
+            const bloque = bMatch ? parseInt(bMatch[1]) : -1;
+            return { pasillo, bloque };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cat = document.getElementById('categoryFilter').value;
+
+            let filtered = inventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search) ||
+                                      item.sap.toLowerCase().includes(search) ||
+                                      (item.location && item.location.toLowerCase().includes(search)) ||
+                                      item.barcode.includes(search);
+                const matchesCat = cat === "" || item.category === cat;
+                return matchesSearch && matchesCat;
+            });
+
+            filtered.sort((a, b) => {
+                const locA = parseLocationSort(a.location);
+                const locB = parseLocationSort(b.location);
+
+                if (locA.pasillo !== locB.pasillo) {
+                    return locA.pasillo - locB.pasillo;
+                }
+                if (locA.bloque !== locB.bloque) {
+                    return locB.bloque - locA.bloque;
+                }
+                return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+            });
+
+            document.getElementById('productCount').textContent = `${filtered.length} productos`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 24px; color: #9ca3af;">No se encontraron productos</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((item) => {
+                const realIndex = inventory.indexOf(item);
+                const days = calculateDaysRemaining(item.expiry);
+                
+                let badgeClass = "badge-green";
+                let statusText = days !== null ? `${days} d (OK)` : "No aplica";
+
+                if (days !== null) {
+                    if (days <= 0) { badgeClass = "badge-red"; statusText = "VENCIDO"; }
+                    else if (days <= 15) { badgeClass = "badge-red"; statusText = `${days} d (CRÍTICO)`; }
+                    else if (days <= 30) { badgeClass = "badge-amber"; statusText = `${days} d (PRÓXIMO)`; }
+                } else {
+                    badgeClass = "badge-gray";
+                }
+
+                const pReg = item.price || 0;
+                const isPromo = item.isPromo === 'SÍ';
+                const pPromo = isPromo ? (item.promoPrice || 0) : 0;
+                const unitsPerBox = item.cxUnitsPerBox || 12;
+
+                return `
+                    <tr>
+                        <td>
+                            <span style="font-weight: 800; font-family: monospace; display: block;">SAP-${item.sap}</span>
+                            <span style="font-size: 10px; color: #9ca3af; font-family: monospace;">${item.barcode}</span>
+                        </td>
+                        <td>
+                            <span style="font-weight: 800; text-transform: uppercase; display: block; max-width: 220px; white-space: normal;">${item.name}</span>
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px;">
+                                <span class="badge badge-gray">${item.category}</span>
+                                ${item.location ? `<span class="badge badge-purple"><i class="fa-solid fa-location-dot" style="margin-right: 3px;"></i>${item.location}</span>` : ''}
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            ${item.temperature !== 'No aplica' && item.temperature !== '' ? `<span class="badge badge-cyan">${item.temperature} °C</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        </td>
+                        <td style="text-align: center; background: #ecfdf5; font-weight: 900; color: #047857;">
+                            ${item.units} <span style="font-size: 10px; font-weight: 600;">und</span>
+                        </td>
+                        <td style="text-align: center; background: #eff6ff; font-weight: 800; color: #1e40af;">
+                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `R1-${item.r1}` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        </td>
+                        <td style="text-align: center; background: #fffbeb; font-weight: 800; color: #92400e;">
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `CX-${item.cx} <span style="font-size: 9px; color: #b45309; display: block;">(x${unitsPerBox})</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        </td>
+                        <td style="text-align: center;">
+                            <span style="font-weight: 700; display: block;">$${pReg.toLocaleString()}</span>
+                            ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${pPromo.toLocaleString()}</span>` : ''}
+                        </td>
+                        <td style="text-align: center;">
+                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `
+                                <span style="font-weight: 700; color: #1e40af; display: block;">$${(pReg * 6).toLocaleString()}</span>
+                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${(pPromo * 6).toLocaleString()}</span>` : ''}
+                            ` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        </td>
+                        <td style="text-align: center;">
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `
+                                <span style="font-weight: 700; color: #92400e; display: block;">$${(pReg * unitsPerBox).toLocaleString()}</span>
+                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${(pPromo * unitsPerBox).toLocaleString()}</span>` : ''}
+                            ` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge ${badgeClass}" style="display: block;">${statusText}</span>
+                            ${item.expiry !== 'No aplica' ? `<span style="font-size: 10px; color: #9ca3af; font-family: monospace; display: block; margin-top: 2px;">${item.expiry}</span>` : ''}
+                        </td>
+                        <td style="text-align: center; background: #f8fafc; font-size: 11px; color: #475569; font-weight: 600;">
+                            <i class="fa-regular fa-clock" style="margin-right: 4px; color: #059669;"></i>${item.updatedAt || 'Inicial'}
+                        </td>
+                        <td style="text-align: center;">
+                            <button type="button" onclick="openProductModal(${realIndex})" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; font-size: 14px;" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" onclick="deleteProduct(${realIndex})" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px; font-size: 14px;" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ESCÁNER Y FLASH
+        function openScannerModal(target) {
+            scannerTarget = target;
+            const titleEl = document.getElementById('scannerModalTitle');
+            const hintEl = document.getElementById('scannerHint');
+            const btnLiveOCR = document.getElementById('btnLiveOCR');
+            currentZoomLevel = 1;
+            document.getElementById('btnZoom').textContent = "1x";
+
+            if (target === 'barcode') {
+                titleEl.textContent = "Escanear Código de Barras (EAN)";
+                hintEl.textContent = "Apunta al código de barras o toma una foto nítida";
+                btnLiveOCR.classList.add('hidden');
+            } else if (target === 'sap') {
+                titleEl.textContent = "Leer Código SAP de Etiqueta";
+                hintEl.textContent = "Toma la foto y recorta el recuadro '...UN'";
+                btnLiveOCR.classList.remove('hidden');
+            } else {
+                titleEl.textContent = "Escaneo Rápido de Producto";
+                hintEl.textContent = "Apunta al código para buscar en inventario";
+                btnLiveOCR.classList.add('hidden');
+            }
+
+            document.getElementById('scannerModal').classList.remove('hidden');
+
+            try {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("reader", {
+                        formatsToSupport: [
+                            Html5QrcodeSupportedFormats.CODE_128,
+                            Html5QrcodeSupportedFormats.CODE_39,
+                            Html5QrcodeSupportedFormats.EAN_13,
+                            Html5QrcodeSupportedFormats.EAN_8,
+                            Html5QrcodeSupportedFormats.UPC_A
+                        ],
+                        verbose: false
+                    });
+                }
+
+                const config = { fps: 20, qrbox: { width: 250, height: 160 } };
+                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+                    .catch(err => {
+                        console.log("Cámara en vivo lista");
+                    });
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        function toggleTorch() {
+            if (html5QrCode) {
+                try {
+                    isTorchOn = !isTorchOn;
+                    html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
+                    const btn = document.getElementById('btnTorch');
+                    btn.style.background = isTorchOn ? "#facc15" : "#4b5563";
+                    btn.style.color = isTorchOn ? "#000" : "#fff";
+                } catch(e) {
+                    alert("Linterna no soportada en este modo.");
+                }
+            }
+        }
+
+        function cycleZoom() {
+            if (currentZoomLevel === 1) currentZoomLevel = 2;
+            else if (currentZoomLevel === 2) currentZoomLevel = 3;
+            else currentZoomLevel = 1;
+
+            document.getElementById('btnZoom').textContent = currentZoomLevel + "x";
+
+            try {
+                const video = document.querySelector("#reader video");
+                if (video) {
+                    video.style.transform = `scale(${currentZoomLevel})`;
+                    video.style.transformOrigin = "center center";
+                }
+            } catch(e) {}
+        }
+
+        // RECORTE MANUAL SAP
+        function handleNativePhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalLoadedImage = img;
+                    if (scannerTarget === 'sap') {
+                        openCropModal(img);
+                    } else {
+                        html5QrCode.scanFile(file, true)
+                            .then(decodedText => onScanSuccess(decodedText))
+                            .catch(err => alert("No se reconoció el código de barras en la foto."));
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = "";
+        }
+
+        function openCropModal(img) {
+            document.getElementById('cropModal').classList.remove('hidden');
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const maxWidth = 340;
+            const scale = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = img.height * scale;
+
+            cropBox.width = Math.min(220, canvas.width - 20);
+            cropBox.height = 70;
+            cropBox.x = 10;
+            cropBox.y = canvas.height - 90;
+
+            drawCropView();
+
+            canvas.ontouchstart = handleTouchStart;
+            canvas.ontouchmove = handleTouchMove;
+            canvas.ontouchend = () => isDraggingCrop = false;
+        }
+
+        function drawCropView() {
+            const canvas = document.getElementById('cropCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalLoadedImage, 0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.clearRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
+            ctx.drawImage(originalLoadedImage, 
+                (cropBox.x / canvas.width) * originalLoadedImage.width,
+                (cropBox.y / canvas.height) * originalLoadedImage.height,
+                (cropBox.width / canvas.width) * originalLoadedImage.width,
+                (cropBox.height / canvas.height) * originalLoadedImage.height,
+                cropBox.x, cropBox.y, cropBox.width, cropBox.height
+            );
+
+            ctx.strokeStyle = "#10b981";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
+        }
+
+        function handleTouchStart(e) {
+            const rect = e.target.getBoundingClientRect();
+            const touch = e.touches[0];
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+
+            if (touchX >= cropBox.x && touchX <= cropBox.x + cropBox.width &&
+                touchY >= cropBox.y && touchY <= cropBox.y + cropBox.height) {
+                isDraggingCrop = true;
+                dragStartX = touchX - cropBox.x;
+                dragStartY = touchY - cropBox.y;
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!isDraggingCrop) return;
+            e.preventDefault();
+            const canvas = document.getElementById('cropCanvas');
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+
+            cropBox.x = Math.max(0, Math.min(canvas.width - cropBox.width, touchX - dragStartX));
+            cropBox.y = Math.max(0, Math.min(canvas.height - cropBox.height, touchY - dragStartY));
+            drawCropView();
+        }
+
+        function closeCropModal() {
+            document.getElementById('cropModal').classList.add('hidden');
+        }
+
+        async function confirmCropAndProcess() {
+            const canvas = document.getElementById('cropCanvas');
+            closeCropModal();
+
+            const spinner = document.getElementById('ocrSpinner');
+            document.getElementById('ocrSpinnerText').textContent = "Analizando número SAP...";
+            spinner.classList.remove('hidden');
+
+            try {
+                const croppedCanvas = document.createElement('canvas');
+                const scaleX = originalLoadedImage.width / canvas.width;
+                const scaleY = originalLoadedImage.height / canvas.height;
+
+                const realX = cropBox.x * scaleX;
+                const realY = cropBox.y * scaleY;
+                const realW = cropBox.width * scaleX;
+                const realH = cropBox.height * scaleY;
+
+                croppedCanvas.width = realW;
+                croppedCanvas.height = realH;
+
+                const cropCtx = croppedCanvas.getContext('2d');
+                cropCtx.drawImage(originalLoadedImage, realX, realY, realW, realH, 0, 0, realW, realH);
+
+                const { data: { text } } = await Tesseract.recognize(croppedCanvas, 'eng', {
+                    tessedit_char_whitelist: '0123456789UNun '
+                });
+
+                spinner.classList.add('hidden');
+
+                const match = text.match(/0*([1-9]\d{2,7})\s*UN/i);
+                if (match && match[1]) {
+                    playWarningBeep();
+                    closeScannerModal();
+                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
+                    checkDuplicateOnInput('sap');
+                } else {
+                    const numMatch = text.match(/0*([1-9]\d{2,7})/);
+                    if (numMatch && numMatch[1]) {
+                        playWarningBeep();
+                        closeScannerModal();
+                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
+                        checkDuplicateOnInput('sap');
+                    } else {
+                        alert("No se leyó el número en el recuadro. Intenta ubicarlo justo sobre los dígitos.");
+                    }
+                }
+            } catch (err) {
+                spinner.classList.add('hidden');
+                alert("Error al procesar el recorte.");
+            }
+        }
+
+        async function captureAndReadSAP() {
+            const video = document.querySelector("#reader video");
+            if (!video) return;
+
+            const spinner = document.getElementById('ocrSpinner');
+            document.getElementById('ocrSpinnerText').textContent = "Analizando número SAP...";
+            spinner.classList.remove('hidden');
+
+            try {
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+                    tessedit_char_whitelist: '0123456789UNun '
+                });
+
+                spinner.classList.add('hidden');
+
+                const match = text.match(/0*([1-9]\d{2,7})\s*UN/i);
+                if (match && match[1]) {
+                    playWarningBeep();
+                    closeScannerModal();
+                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
+                    checkDuplicateOnInput('sap');
+                } else {
+                    const numMatch = text.match(/0*([1-9]\d{2,7})/);
+                    if (numMatch && numMatch[1]) {
+                        playWarningBeep();
+                        closeScannerModal();
+                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
+                        checkDuplicateOnInput('sap');
+                    } else {
+                        alert("No se detectó claramente. Usa 'Tomar Foto Nítida y Recortar' para seleccionar el número.");
+                    }
+                }
+            } catch(e) {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            playWarningBeep();
+            closeScannerModal();
+
+            if (scannerTarget === 'barcode') {
+                document.getElementById('prodBarcode').value = decodedText.trim().replace(/\s+/g, '');
+                checkDuplicateOnInput('barcode');
+            } else if (scannerTarget === 'sap') {
+                let cleanNumbers = decodedText.replace(/[^\d]/g, '');
+                let sapExtracted = cleanNumbers.replace(/^0+/, '');
+                document.getElementById('prodSap').value = (sapExtracted || cleanNumbers || decodedText.trim()).replace(/\s+/g, '');
+                checkDuplicateOnInput('sap');
+            } else if (scannerTarget === 'quickSearch') {
+                let cleanNumbers = decodedText.replace(/[^\d]/g, '');
+                let sapExtracted = cleanNumbers.replace(/^0+/, '');
+                let cleanText = decodedText.trim().replace(/\s+/g, '');
+
+                const found = inventory.find(p => p.barcode === cleanText || p.sap === cleanText || p.sap === sapExtracted);
+                if (found) {
+                    openProductModal(inventory.indexOf(found));
+                } else {
+                    if (confirm(`El código "${decodedText}" no está en inventario. ¿Registrar nuevo producto?`)) {
+                        openProductModal();
+                        document.getElementById('prodBarcode').value = cleanText;
+                        if (sapExtracted) document.getElementById('prodSap').value = sapExtracted;
+                    }
+                }
+            }
+        }
+
+        function closeScannerModal() {
+            document.getElementById('ocrSpinner').classList.add('hidden');
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                }).catch(() => {
+                    document.getElementById('scannerModal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scannerModal').classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
