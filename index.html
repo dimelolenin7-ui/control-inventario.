@@ -17,7 +17,7 @@
 
         header { background-color: #064e3b; color: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 30; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .header-logo { width: 40px; height: 40px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; border: 1.5px solid #059669; }
+        .header-logo { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000000; border: 1.5px solid #059669; box-shadow: 0 2px 5px rgba(0,0,0,0.4); flex-shrink: 0; }
         .header-logo img { width: 100%; height: 100%; object-fit: cover; }
         .header-btn { background-color: #065f46; border: none; color: white; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; position: relative; }
 
@@ -69,8 +69,8 @@
     <div id="authScreen" class="hidden" style="min-height: 100vh; background: linear-gradient(135deg, #022c22, #111827); display: flex; align-items: center; justify-content: center; padding: 16px;">
         <div style="background: white; border-radius: 20px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
             <div style="text-align: center; margin-bottom: 20px;">
-                <div style="width: 80px; height: 80px; border-radius: 20px; margin: 0 auto 12px; overflow: hidden; background: #000; box-shadow: 0 6px 14px rgba(0,0,0,0.35); border: 2px solid #059669;">
-                    <img src="1000254090.png" onerror="this.onerror=null; this.src='logo.png';" alt="DL COMPANY - TECNOLOGY" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 14px; overflow: hidden; background: #000000; box-shadow: 0 6px 16px rgba(0,0,0,0.4); border: 2px solid #059669; display: flex; align-items: center; justify-content: center;">
+                    <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <h1 style="font-size: 20px; font-weight: 900; color: #111827; letter-spacing: 0.5px;">DL COMPANY -TECNOLOGY-</h1>
                 <p style="font-size: 11px; font-weight: 700; color: #059669; text-transform: uppercase;">Control de Inventario & Alertas SAP</p>
@@ -105,7 +105,7 @@
             <div class="header-container">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div class="header-logo">
-                        <img src="1000254090.png" onerror="this.onerror=null; this.src='logo.png';" alt="DL COMPANY">
+                        <img id="headerLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY">
                     </div>
                     <div>
                         <h2 style="font-size: 13px; font-weight: 900; margin: 0; letter-spacing: 0.3px;">DL COMPANY -TECNOLOGY-</h2>
@@ -116,7 +116,6 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <!-- Botón de Respaldo Seguro de Datos -->
                     <button type="button" onclick="exportDataBackup()" class="header-btn" style="background: #047857;" title="Descargar Copia de Seguridad de Inventario">
                         <i class="fa-solid fa-download"></i>
                     </button>
@@ -312,7 +311,7 @@
                             <input type="checkbox" id="r1NA" onchange="toggleR1NA()"> No aplica
                         </label>
                     </div>
-                    <div id="r1InputWrapper" style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
+                    <div id="r1InputWrapper" style="display: border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                         <span style="background: #dbeafe; color: #1e40af; padding: 8px 12px; font-weight: 900; font-size: 12px;">R1-</span>
                         <input type="number" id="prodR1" oninput="handleR1Change()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
                     </div>
@@ -506,6 +505,19 @@
     </div>
 
     <script>
+        function handleLogoError(imgEl) {
+            imgEl.onerror = null;
+            imgEl.style.display = 'none';
+            const parent = imgEl.parentElement;
+            if (parent && !parent.querySelector('.logo-fallback')) {
+                const badge = document.createElement('div');
+                badge.className = 'logo-fallback';
+                badge.style.cssText = 'width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #0f172a, #022c22); color:#34d399; font-weight:900; font-size:14px; letter-spacing:1px; text-shadow:0 1px 3px rgba(0,0,0,0.8);';
+                badge.innerHTML = '<span>DL</span><span style="font-size:8px; color:#a7f3d0; margin-top:-2px;">COMPANY</span>';
+                parent.appendChild(badge);
+            }
+        }
+
         const DEFAULT_PRODUCTS = [
             { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
             { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 1 - Bloque 16", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
@@ -514,7 +526,6 @@
             { barcode: "7702425796096", sap: "20121", name: "PAPEL HIG SCOTT AHORRAMAX X 12R X30M", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 17990, isPromo: "SÍ", promoPrice: 14990, expiry: "No aplica", updatedAt: "29/10/2026, 9:30 a. m." }
         ];
 
-        // RECUPERACIÓN SEGURA DE INVENTARIO (PROTECCIÓN CONTRA BORRADO)
         let inventory = [];
         try {
             let saved = localStorage.getItem('canasto_inventory') || localStorage.getItem('canasto_inventory_backup');
@@ -528,7 +539,6 @@
             } else {
                 inventory = DEFAULT_PRODUCTS;
             }
-            // Asegurar mayúsculas y respaldo permanente
             inventory = inventory.map(item => {
                 if (item && item.name) {
                     item.name = String(item.name).toUpperCase();
@@ -1281,7 +1291,6 @@
             document.getElementById('alertsModal').classList.add('hidden');
         }
 
-        // ORDENAMIENTO BLINDADO POR UBICACIÓN
         function parseLocationSort(locStr) {
             let str = String(locStr || '');
             if (!str) return { pasillo: 9999, bloque: -1 };
@@ -1297,7 +1306,6 @@
             const search = String(document.getElementById('searchInput').value || '').toLowerCase().trim();
             const cat = document.getElementById('categoryFilter').value;
 
-            // Filtro con conversión a String para evitar bloqueos por tipo de dato
             let filtered = inventory.filter(item => {
                 if (!item) return false;
                 const nameStr = String(item.name || '').toLowerCase();
@@ -1313,7 +1321,6 @@
                 return matchesSearch && matchesCat;
             });
 
-            // Ordenamiento por ubicación sin riesgo de interrupción
             filtered.sort((a, b) => {
                 const locA = parseLocationSort(a ? a.location : '');
                 const locB = parseLocationSort(b ? b.location : '');
@@ -1707,7 +1714,7 @@
             } else if (scannerTarget === 'sap') {
                 let cleanNumbers = cleanCode.replace(/[^\d]/g, '');
                 let sapExtracted = cleanNumbers.replace(/^0+/, '');
-                document.getElementById('prodSap').value = sapExtracted || cleanNumbers || cleanCode;
+                document.getElementById('prodSap').value = (sapExtracted || cleanNumbers || cleanCode);
                 checkDuplicateOnInput('sap');
             } else if (scannerTarget === 'quickSearch') {
                 let cleanNumbers = cleanCode.replace(/[^\d]/g, '');
