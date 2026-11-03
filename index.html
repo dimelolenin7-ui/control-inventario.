@@ -87,6 +87,24 @@
             background: rgba(30, 41, 59, 0.95);
         }
 
+        /* Selector interactivo de planes */
+        .plan-card-btn {
+            background: rgba(31, 41, 55, 0.6);
+            border: 1.5px solid rgba(75, 85, 99, 0.5);
+            border-radius: 12px;
+            padding: 8px 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.25s ease;
+            color: #ffffff;
+        }
+        .plan-card-btn.selected {
+            background: rgba(6, 95, 70, 0.5);
+            border-color: #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
         header { background-color: #064e3b; color: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 30; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .header-logo { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000000; border: 1.5px solid #059669; box-shadow: 0 2px 5px rgba(0,0,0,0.4); flex-shrink: 0; }
@@ -142,7 +160,7 @@
 </head>
 <body>
 
-    <!-- NUEVA PANTALLA DE BIENVENIDA PROFESIONAL DL COMPANY -->
+    <!-- PANTALLA DE ACCESO CON SELECCIÓN DE PLANES Y ASIGNACIÓN DE CUENTAS -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
             <div style="text-align: center; margin-bottom: 18px;">
@@ -205,29 +223,29 @@
                     <span id="planBadgeDisplay" class="badge badge-green" style="font-size: 9px;">PREMIUM</span>
                 </div>
 
-                <button type="submit" id="btnAuthSubmit" class="btn-green" style="width: 100%; padding: 12px; margin-top: 6px; font-size: 13px; font-weight: 800; letter-spacing: 0.3px;">
+                <!-- SELECCIÓN INTERACTIVA DE PLANES (BOTONES CLICABLES) -->
+                <div style="margin-top: 8px;">
+                    <label style="display: block; font-size: 10px; font-weight: 800; color: #9ca3af; text-transform: uppercase; margin-bottom: 6px; text-align: center;">Selecciona tu Plan:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                        <button type="button" id="btnPlanGratis" onclick="selectPlan('gratis')" class="plan-card-btn">
+                            <span style="font-weight: 900; color: #34d399; display: block; font-size: 11px;">GRATIS</span>
+                            <span style="color: #9ca3af; font-size: 9px; display: block;">Hasta 100 prods</span>
+                        </button>
+                        <button type="button" id="btnPlanPro" onclick="selectPlan('pro')" class="plan-card-btn">
+                            <span style="font-weight: 900; color: #60a5fa; display: block; font-size: 11px;">PRO</span>
+                            <span style="color: #9ca3af; font-size: 9px; display: block;">Ilimitado Local</span>
+                        </button>
+                        <button type="button" id="btnPlanPremium" onclick="selectPlan('premium')" class="plan-card-btn selected">
+                            <span style="font-weight: 900; color: #a7f3d0; display: block; font-size: 11px;">PREMIUM</span>
+                            <span style="color: #6ee7b7; font-size: 9px; display: block;">Nube & Sync</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="btnAuthSubmit" class="btn-green" style="width: 100%; padding: 12px; margin-top: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.3px;">
                     Ingresar al inventario &gt;
                 </button>
             </form>
-
-            <!-- Resumen de Planes Disponibles -->
-            <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(75, 85, 99, 0.4); text-align: center;">
-                <p style="font-size: 10px; font-weight: 800; color: #9ca3af; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Planes Disponibles</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 10px;">
-                    <div style="background: rgba(31, 41, 55, 0.6); border: 1px solid rgba(75,85,99,0.4); border-radius: 10px; padding: 6px 4px;">
-                        <span style="font-weight: 900; color: #34d399; display: block;">GRATIS</span>
-                        <span style="color: #9ca3af; font-size: 9px;">Hasta 100 prods</span>
-                    </div>
-                    <div style="background: rgba(31, 41, 55, 0.6); border: 1px solid rgba(59,130,246,0.4); border-radius: 10px; padding: 6px 4px;">
-                        <span style="font-weight: 900; color: #60a5fa; display: block;">PRO</span>
-                        <span style="color: #9ca3af; font-size: 9px;">Ilimitado Local</span>
-                    </div>
-                    <div style="background: rgba(6, 95, 70, 0.4); border: 1px solid rgba(16,185,129,0.5); border-radius: 10px; padding: 6px 4px;">
-                        <span style="font-weight: 900; color: #a7f3d0; display: block;">PREMIUM</span>
-                        <span style="color: #6ee7b7; font-size: 9px;">Nube Multi-dispositivo</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -464,7 +482,7 @@
                             <span style="background: #fef3c7; color: #92400e; padding: 8px 12px; font-weight: 900; font-size: 12px;">CX-</span>
                             <input type="number" id="prodCX" oninput="handleCXChange()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
                         </div>
-                        <div style="display: justify-content: space-between; align-items: center; background: #fffbeb; border: 1px solid #fde68a; padding: 6px 10px; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #fffbeb; border: 1px solid #fde68a; padding: 6px 10px; border-radius: 10px;">
                             <span style="font-size: 11px; font-weight: 700; color: #78350f;">¿Cuántas unds trae la caja?</span>
                             <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" style="width: 70px; padding: 4px; border: 1px solid #f59e0b; border-radius: 6px; font-weight: 900; text-align: center; font-size: 12px;">
                         </div>
@@ -652,7 +670,8 @@
             }
         }
 
-        const DEFAULT_PRODUCTS = [
+        // BASE DE DATOS MAESTRA DE TU BODEGA (BLINDADA PARA LENIN ALEXANDER)
+        const DEFAULT_BODEGA_PRODUCTS = [
             { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
             { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 1 - Bloque 16", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
             { barcode: "7704269100374", sap: "838", name: "SERVILLET ARBORA DOBLAD BOLSA 200 UN", location: "Pasillo 1 - Bloque 9", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 4150, isPromo: "SÍ", promoPrice: 4050, expiry: "No aplica", updatedAt: "28/10/2026, 11:00 a. m." },
@@ -682,49 +701,49 @@
             console.log("Firebase local fallback:", e);
         }
 
-        // CARGA LOCAL DE SEGURIDAD
-        let inventory = [];
-        try {
-            let saved = localStorage.getItem('canasto_inventory') || localStorage.getItem('canasto_inventory_backup');
-            if (saved) {
-                let parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    inventory = parsed;
-                } else {
-                    inventory = DEFAULT_PRODUCTS;
-                }
-            } else {
-                inventory = DEFAULT_PRODUCTS;
-            }
-            inventory = inventory.map(item => {
-                if (item && item.name) {
-                    item.name = String(item.name).toUpperCase();
-                }
-                return item;
-            });
-            localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
-            localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
-        } catch(e) {
-            inventory = DEFAULT_PRODUCTS;
-        }
-
-        // CONTROL DE USUARIOS Y PLANES
-        const defaultUser = { name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes", plan: "premium" };
+        const adminMasterUser = { name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes", plan: "premium", isMaster: true };
         let rememberedUser = null;
         try {
-            rememberedUser = JSON.parse(localStorage.getItem('canasto_remembered_credentials')) || defaultUser;
+            rememberedUser = JSON.parse(localStorage.getItem('canasto_remembered_credentials')) || adminMasterUser;
         } catch(e) {
-            rememberedUser = defaultUser;
+            rememberedUser = adminMasterUser;
         }
 
         let currentUser = null;
         try {
-            currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || defaultUser;
+            currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || adminMasterUser;
         } catch(e) {
-            currentUser = defaultUser;
+            currentUser = adminMasterUser;
         }
 
+        let selectedPlan = 'premium';
         let activeAuthTab = 'login';
+        let inventory = [];
+
+        // SELECCIONAR PLAN INTERACTIVAMENTE
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            const btnGratis = document.getElementById('btnPlanGratis');
+            const btnPro = document.getElementById('btnPlanPro');
+            const btnPremium = document.getElementById('btnPlanPremium');
+            const badge = document.getElementById('planBadgeDisplay');
+
+            [btnGratis, btnPro, btnPremium].forEach(btn => btn && btn.classList.remove('selected'));
+
+            if (plan === 'gratis') {
+                if (btnGratis) btnGratis.classList.add('selected');
+                badge.className = 'badge badge-green';
+                badge.textContent = 'GRATIS (100 PRODS)';
+            } else if (plan === 'pro') {
+                if (btnPro) btnPro.classList.add('selected');
+                badge.className = 'badge badge-cyan';
+                badge.textContent = 'PRO (ILIMITADO LOCAL)';
+            } else {
+                if (btnPremium) btnPremium.classList.add('selected');
+                badge.className = 'badge badge-green';
+                badge.textContent = 'PREMIUM (NUBE & SYNC)';
+            }
+        }
 
         function switchAuthTab(tab) {
             activeAuthTab = tab;
@@ -746,13 +765,72 @@
             }
         }
 
+        function isMasterAccount(uName) {
+            const low = String(uName || '').toLowerCase().trim();
+            return low === 'lenin' || low.includes('d.l.company.2026@gmail.com') || low.includes('dimelolenin');
+        }
+
+        function getUserStorageKey(uName) {
+            if (isMasterAccount(uName)) {
+                return 'canasto_inventory'; // Base de datos original de tu bodega
+            }
+            const clean = String(uName || 'anon').replace(/[^a-zA-Z0-9]/g, '_');
+            return `dl_inventory_user_${clean}`;
+        }
+
+        function loadUserInventory() {
+            const storageKey = getUserStorageKey(currentUser ? currentUser.username : 'lenin');
+
+            if (currentUser && currentUser.isMaster) {
+                // Cuenta maestra: carga los 201 productos
+                try {
+                    let saved = localStorage.getItem(storageKey) || localStorage.getItem('canasto_inventory_backup');
+                    if (saved) {
+                        let parsed = JSON.parse(saved);
+                        inventory = Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_BODEGA_PRODUCTS;
+                    } else {
+                        inventory = DEFAULT_BODEGA_PRODUCTS;
+                    }
+                } catch(e) {
+                    inventory = DEFAULT_BODEGA_PRODUCTS;
+                }
+            } else {
+                // CUENTA NUEVA DE CLIENTE: INICIA EN CEROS (0 PRODUCTOS)
+                try {
+                    let saved = localStorage.getItem(storageKey);
+                    if (saved) {
+                        let parsed = JSON.parse(saved);
+                        inventory = Array.isArray(parsed) ? parsed : [];
+                    } else {
+                        inventory = []; // Totalmente vacío para nuevos clientes
+                    }
+                } catch(e) {
+                    inventory = [];
+                }
+            }
+
+            inventory = inventory.map(item => {
+                if (item && item.name) item.name = String(item.name).toUpperCase();
+                return item;
+            });
+            saveUserInventoryToLocal();
+        }
+
+        function saveUserInventoryToLocal() {
+            const storageKey = getUserStorageKey(currentUser ? currentUser.username : 'lenin');
+            localStorage.setItem(storageKey, JSON.stringify(inventory));
+            if (currentUser && currentUser.isMaster) {
+                localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+            }
+        }
+
         function quickLogin() {
-            currentUser = rememberedUser || defaultUser;
+            currentUser = adminMasterUser;
+            currentUser.plan = 'premium';
             localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
             initApp();
         }
 
-        // REGISTRO O INICIO CON GOOGLE
         function loginWithGoogle() {
             if (!auth) {
                 alert("Servicio de autenticación en modo local.");
@@ -763,12 +841,14 @@
             auth.signInWithPopup(provider)
                 .then(result => {
                     const u = result.user;
+                    const isM = isMasterAccount(u.email);
                     currentUser = {
                         name: u.displayName || "Usuario Google",
                         username: u.email || "google_user",
                         email: u.email,
-                        zone: "General",
-                        plan: (u.email && u.email.toLowerCase().includes("lenin")) ? "premium" : "gratis"
+                        zone: isM ? "Abarrotes" : "General",
+                        plan: isM ? "premium" : selectedPlan,
+                        isMaster: isM
                     };
                     localStorage.setItem('canasto_remembered_credentials', JSON.stringify(currentUser));
                     localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
@@ -785,24 +865,27 @@
             const emailUser = document.getElementById('authEmailUser').value.trim();
             const pass = document.getElementById('authPassword').value.trim();
             const remember = document.getElementById('chkRememberMe').checked;
+            const isM = isMasterAccount(emailUser);
 
             if (activeAuthTab === 'register') {
-                const fullName = document.getElementById('authFullName').value.trim() || "Usuario DL";
+                const fullName = document.getElementById('authFullName').value.trim() || "Cliente DL";
                 currentUser = {
                     name: fullName,
                     username: emailUser,
                     password: pass,
                     zone: "General",
-                    plan: "gratis"
+                    plan: isM ? "premium" : selectedPlan,
+                    isMaster: isM
                 };
-                alert(`¡Bienvenido a DL COMPANY, ${fullName}!\nTu cuenta ha sido creada con el Plan GRATIS (Hasta 100 productos).`);
+                alert(`¡Bienvenido a DL COMPANY, ${fullName}!\nTu cuenta ha sido creada con el Plan ${currentUser.plan.toUpperCase()}.\nTu inventario inicia en 0 productos para que comiences a registrar.`);
             } else {
                 currentUser = {
-                    name: (rememberedUser && rememberedUser.name) ? rememberedUser.name : "Lenin Alexander",
+                    name: isM ? "Lenin Alexander Benjumea niño" : (emailUser.split('@')[0]),
                     username: emailUser,
                     password: pass,
-                    zone: (rememberedUser && rememberedUser.zone) ? rememberedUser.zone : "Abarrotes",
-                    plan: (emailUser.toLowerCase() === "lenin" || emailUser.toLowerCase().includes("lenin")) ? "premium" : (rememberedUser ? rememberedUser.plan : "gratis")
+                    zone: isM ? "Abarrotes" : "General",
+                    plan: isM ? "premium" : selectedPlan,
+                    isMaster: isM
                 };
             }
 
@@ -819,16 +902,28 @@
             if (rememberedUser) {
                 document.getElementById('authEmailUser').value = rememberedUser.username || "lenin";
                 document.getElementById('authPassword').value = rememberedUser.password || "123";
+                selectPlan(rememberedUser.plan || 'premium');
             }
 
             if (currentUser) {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('mainAppScreen').classList.remove('hidden');
                 document.getElementById('headerUserName').textContent = currentUser.name || "Lenin Alexander";
-                document.getElementById('headerUserZone').textContent = (currentUser.zone || "Abarrotes") + " (" + (currentUser.plan ? currentUser.plan.toUpperCase() : "PREMIUM") + ")";
+                document.getElementById('headerUserZone').textContent = (currentUser.zone || "Bodega") + " • " + (currentUser.plan ? currentUser.plan.toUpperCase() : "PREMIUM");
+
+                loadUserInventory();
                 renderTable();
                 checkExpirationsAndAlert();
-                initFirebaseSync();
+
+                if (currentUser.plan === 'premium') {
+                    initFirebaseSync();
+                } else {
+                    const badge = document.getElementById('syncStatusBadge');
+                    if (badge) {
+                        badge.className = "badge badge-gray";
+                        badge.innerHTML = '<i class="fa-solid fa-hard-drive"></i> Local (' + currentUser.plan.toUpperCase() + ')';
+                    }
+                }
             } else {
                 document.getElementById('authScreen').classList.remove('hidden');
                 document.getElementById('mainAppScreen').classList.add('hidden');
@@ -844,13 +939,14 @@
             }
         }
 
-        // SINCRONIZACIÓN EN TIEMPO REAL CON FIRESTORE
+        // SINCRONIZACIÓN EN TIEMPO REAL CON FIRESTORE SEGMENTADA POR USUARIO
         function initFirebaseSync() {
-            if (!db) return;
+            if (!db || !currentUser || currentUser.plan !== 'premium') return;
 
             const badge = document.getElementById('syncStatusBadge');
+            const collectionName = currentUser.isMaster ? "inventario_bodega" : `inventario_user_${currentUser.username.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
-            db.collection("inventario_bodega").onSnapshot(snapshot => {
+            db.collection(collectionName).onSnapshot(snapshot => {
                 if (!snapshot.empty) {
                     const cloudList = [];
                     snapshot.forEach(doc => {
@@ -858,8 +954,7 @@
                     });
 
                     inventory = cloudList;
-                    localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
-                    localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+                    saveUserInventoryToLocal();
                     renderTable();
                     checkExpirationsAndAlert();
 
@@ -872,7 +967,7 @@
                         const batch = db.batch();
                         inventory.forEach(prod => {
                             const docId = String(prod.barcode || prod.sap || Math.random());
-                            const ref = db.collection("inventario_bodega").doc(docId);
+                            const ref = db.collection(collectionName).doc(docId);
                             batch.set(ref, prod);
                         });
                         batch.commit().then(() => {
@@ -908,7 +1003,7 @@
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventory, null, 2));
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", `Inventario_DL_Company_${new Date().toISOString().slice(0,10)}.json`);
+                dlAnchorElem.setAttribute("download", `Inventario_${currentUser ? currentUser.name.replace(/\s+/g, '_') : 'DL'}_${new Date().toISOString().slice(0,10)}.json`);
                 dlAnchorElem.click();
             } catch(e) {
                 alert("Copia guardada en el dispositivo.");
@@ -966,10 +1061,7 @@
                 playWarningBeep();
 
                 const normalizedText = String(text || '').replace(/[Oo](?=\d)/g, '0');
-
-                const lines = normalizedText.split('\n')
-                    .map(l => l.trim())
-                    .filter(l => l.length > 1);
+                const lines = normalizedText.split('\n').map(l => l.trim()).filter(l => l.length > 1);
 
                 let extractedSap = "";
                 const sapWithZeros = normalizedText.match(/[0Oo]{2,}([1-9]\d{2,7})(?:\s*UN)?/i);
@@ -990,9 +1082,7 @@
                 const ahorreMatch = normalizedText.match(/AHORRE\s*[\r\n\s]*[$8S]?\s*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
                 if (ahorreMatch && ahorreMatch[1]) {
                     let cleanD = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
-                    if (cleanD >= 50 && cleanD <= 50000) {
-                        discountAmount = cleanD;
-                    }
+                    if (cleanD >= 50 && cleanD <= 50000) discountAmount = cleanD;
                 }
 
                 const cuPrices = [];
@@ -1028,23 +1118,12 @@
                 let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
-                    if (upper.includes("PARTIR") || 
-                        upper.includes("UNIDAD A") || 
-                        upper.includes("METRO A") || 
-                        upper.includes("PRECIO") || 
-                        upper.includes("AHORRE") || 
-                        upper.includes("MAYOR") || 
-                        upper.includes("VOLUMEN") || 
-                        upper.includes("JEFE") || 
-                        upper.includes("TIENDA") || 
-                        upper.includes("C/U") || 
-                        upper.includes("RENDIMIENTO") || 
-                        upper.includes("ALCANCE") || 
-                        upper.includes("FIBRAS") || 
-                        upper.includes("ENJUAG") || 
-                        upper.includes("CON ALCOHOL") || 
-                        /^\d+$/.test(upper.replace(/\s/g, '')) || 
-                        upper.length < 3) {
+                    if (upper.includes("PARTIR") || upper.includes("UNIDAD A") || upper.includes("METRO A") || 
+                        upper.includes("PRECIO") || upper.includes("AHORRE") || upper.includes("MAYOR") || 
+                        upper.includes("VOLUMEN") || upper.includes("JEFE") || upper.includes("TIENDA") || 
+                        upper.includes("C/U") || upper.includes("RENDIMIENTO") || upper.includes("ALCANCE") || 
+                        upper.includes("FIBRAS") || upper.includes("ENJUAG") || upper.includes("CON ALCOHOL") || 
+                        /^\d+$/.test(upper.replace(/\s/g, '')) || upper.length < 3) {
                         continue;
                     }
 
@@ -1055,12 +1134,9 @@
                     });
 
                     let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ')
-                                        .replace(/\s+/g, ' ')
-                                        .trim()
-                                        .toUpperCase();
+                                        .replace(/\s+/g, ' ').trim().toUpperCase();
 
                     cleanLine = cleanLine.replace(/^AHORRAMA\s+/i, '').replace(/\s+MED$/i, '').trim();
-
                     if (cleanLine.length >= 3 && !cleanLine.startsWith("METRO") && !cleanLine.startsWith("UNIDAD")) {
                         validHeaderLines.push(cleanLine);
                     }
@@ -1069,7 +1145,6 @@
                 let extractedName = "";
                 if (validHeaderLines.length > 0) {
                     let prodIndex = validHeaderLines.findIndex(l => l.includes("PAPEL") || l.includes("CEPILLO") || l.includes("TOALLA") || l.includes("SERVILLET") || l.includes("JABON") || l.includes("LAVALOSA"));
-                    
                     if (prodIndex !== -1) {
                         extractedName = validHeaderLines.slice(prodIndex, prodIndex + 2).join(' ').trim().toUpperCase();
                     } else {
@@ -1413,6 +1488,7 @@
             document.getElementById('productModal').classList.add('hidden');
         }
 
+        // GUARDADO CON REGLAS DE PLANES Y SINCRONIZACIÓN FIRESTORE SEGREGADA
         function saveProduct(e) {
             e.preventDefault();
             const cat = document.getElementById('prodCategory').value;
@@ -1483,13 +1559,13 @@
                 inventory.unshift(item);
             }
 
-            localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
-            localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+            saveUserInventoryToLocal();
 
             const currentPlan = (currentUser && currentUser.plan) ? currentUser.plan : "premium";
             if (db && currentPlan === "premium") {
+                const collectionName = currentUser.isMaster ? "inventario_bodega" : `inventario_user_${currentUser.username.replace(/[^a-zA-Z0-9]/g, '_')}`;
                 const docId = String(item.barcode || item.sap || ('prod_' + Date.now()));
-                db.collection("inventario_bodega").doc(docId).set(item).catch(err => {
+                db.collection(collectionName).doc(docId).set(item).catch(err => {
                     console.log("Error sincronizando en nube:", err);
                 });
             }
@@ -1505,12 +1581,12 @@
                 const docId = String(item.barcode || item.sap || '');
 
                 inventory.splice(index, 1);
-                localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
-                localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+                saveUserInventoryToLocal();
 
                 const currentPlan = (currentUser && currentUser.plan) ? currentUser.plan : "premium";
                 if (db && docId && currentPlan === "premium") {
-                    db.collection("inventario_bodega").doc(docId).delete().catch(err => {
+                    const collectionName = currentUser.isMaster ? "inventario_bodega" : `inventario_user_${currentUser.username.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                    db.collection(collectionName).doc(docId).delete().catch(err => {
                         console.log("Error borrando en nube:", err);
                     });
                 }
@@ -1635,7 +1711,7 @@
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 24px; color: #9ca3af; font-weight: 700;">No se encontraron productos</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 24px; color: #9ca3af; font-weight: 700;">No se encontraron productos en el inventario</td></tr>`;
                 return;
             }
 
