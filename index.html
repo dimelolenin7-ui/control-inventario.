@@ -62,6 +62,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <!-- SDK COMPATIBLE DE FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -109,8 +113,11 @@
                     </div>
                     <div>
                         <h2 style="font-size: 13px; font-weight: 900; margin: 0; letter-spacing: 0.3px;">DL COMPANY -TECNOLOGY-</h2>
-                        <div style="font-size: 11px; color: #a7f3d0;">
+                        <div style="font-size: 11px; color: #a7f3d0; display: flex; align-items: center; gap: 6px;">
                             <span id="headerUserName" style="font-weight: 700; color: #ffffff;">Lenin Alexander</span> • <span id="headerUserZone">Abarrotes</span>
+                            <span id="syncStatusBadge" class="badge badge-green" style="font-size: 9px; padding: 2px 6px;">
+                                <i class="fa-solid fa-cloud"></i> Nube OK
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -150,7 +157,6 @@
                     </div>
                 </div>
 
-                <!-- Botones de Acción: Cámara, Galería y Manual -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <label class="btn-gold" style="text-align: center; cursor: pointer;">
                         <i class="fa-solid fa-camera"></i> 📸 Tomar Foto
@@ -172,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- Tabla de Inventario Desglosada (Orden por Pasillo y Bloque) -->
+            <!-- Tabla de Inventario -->
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 900; font-size: 12px; text-transform: uppercase; color: #374151;">
@@ -311,7 +317,7 @@
                             <input type="checkbox" id="r1NA" onchange="toggleR1NA()"> No aplica
                         </label>
                     </div>
-                    <div id="r1InputWrapper" style="display: border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
+                    <div id="r1InputWrapper" style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
                         <span style="background: #dbeafe; color: #1e40af; padding: 8px 12px; font-weight: 900; font-size: 12px;">R1-</span>
                         <input type="number" id="prodR1" oninput="handleR1Change()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
                     </div>
@@ -526,6 +532,29 @@
             { barcode: "7702425796096", sap: "20121", name: "PAPEL HIG SCOTT AHORRAMAX X 12R X30M", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 17990, isPromo: "SÍ", promoPrice: 14990, expiry: "No aplica", updatedAt: "29/10/2026, 9:30 a. m." }
         ];
 
+        // CONFIGURACIÓN DE FIREBASE DIRECTA
+        const firebaseConfig = {
+            apiKey: "AIzaSyArcnw59E9kaGFbIykU-sKBQgZAUOLQcMo",
+            authDomain: "dl-company-inventario.firebaseapp.com",
+            projectId: "dl-company-inventario",
+            storageBucket: "dl-company-inventario.firebasestorage.app",
+            messagingSenderId: "1044720149639",
+            appId: "1:1044720149639:web:890cdd389dc26f616a0422"
+        };
+
+        let db = null;
+        let isFirebaseOnline = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+            isFirebaseOnline = true;
+        } catch(e) {
+            console.log("Firebase local mode fallback:", e);
+        }
+
+        // CARGA LOCAL INICIAL DE PROTECCIÓN
         let inventory = [];
         try {
             let saved = localStorage.getItem('canasto_inventory') || localStorage.getItem('canasto_inventory_backup');
@@ -549,6 +578,55 @@
             localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
         } catch(e) {
             inventory = DEFAULT_PRODUCTS;
+        }
+
+        // SINCRONIZACIÓN EN TIEMPO REAL CON CLOUD FIRESTORE
+        function initFirebaseSync() {
+            if (!db) return;
+
+            const badge = document.getElementById('syncStatusBadge');
+
+            db.collection("inventario_bodega").onSnapshot(snapshot => {
+                if (!snapshot.empty) {
+                    const cloudList = [];
+                    snapshot.forEach(doc => {
+                        cloudList.push(doc.data());
+                    });
+
+                    inventory = cloudList;
+                    localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
+                    localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+                    renderTable();
+                    checkExpirationsAndAlert();
+
+                    if (badge) {
+                        badge.className = "badge badge-green";
+                        badge.innerHTML = '<i class="fa-solid fa-cloud"></i> Nube OK';
+                    }
+                } else {
+                    // Si la nube está vacía, migrar automáticamente los 202 productos locales
+                    if (inventory.length > 0) {
+                        const batch = db.batch();
+                        inventory.forEach(prod => {
+                            const docId = String(prod.barcode || prod.sap || Math.random());
+                            const ref = db.collection("inventario_bodega").doc(docId);
+                            batch.set(ref, prod);
+                        });
+                        batch.commit().then(() => {
+                            if (badge) {
+                                badge.className = "badge badge-green";
+                                badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Sincronizado';
+                            }
+                        });
+                    }
+                }
+            }, err => {
+                console.log("Modo sin conexión activo:", err);
+                if (badge) {
+                    badge.className = "badge badge-amber";
+                    badge.innerHTML = '<i class="fa-solid fa-database"></i> Local';
+                }
+            });
         }
 
         const defaultUser = { name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes" };
@@ -633,6 +711,7 @@
                 document.getElementById('headerUserZone').textContent = currentUser.zone || "Abarrotes";
                 renderTable();
                 checkExpirationsAndAlert();
+                initFirebaseSync();
             } else {
                 document.getElementById('authScreen').classList.remove('hidden');
                 document.getElementById('mainAppScreen').classList.add('hidden');
@@ -702,7 +781,6 @@
                     .map(l => l.trim())
                     .filter(l => l.length > 1);
 
-                // 4. EXTRAER CÓDIGO SAP (Exige mínimo 3 dígitos y ceros previos)
                 let extractedSap = "";
                 const sapWithZeros = normalizedText.match(/[0Oo]{2,}([1-9]\d{2,7})(?:\s*UN)?/i);
                 if (sapWithZeros && sapWithZeros[1]) {
@@ -712,14 +790,12 @@
                     if (unMatch && unMatch[1]) extractedSap = unMatch[1];
                 }
 
-                // 5. EXTRAER CÓDIGO DE BARRAS (EAN)
                 let extractedBarcode = barcodeDetected;
                 if (!extractedBarcode) {
                     const eanMatch = normalizedText.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
                     if (eanMatch) extractedBarcode = eanMatch[1];
                 }
 
-                // 6. EXTRAER DESCUENTO AHORRE
                 let discountAmount = 0;
                 const ahorreMatch = normalizedText.match(/AHORRE\s*[\r\n\s]*[$8S]?\s*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
                 if (ahorreMatch && ahorreMatch[1]) {
@@ -729,7 +805,6 @@
                     }
                 }
 
-                // 7. EXTRAER PRECIOS DE VENTA (ESTRICTAMENTE LOS QUE LLEVAN 'C/U')
                 const cuPrices = [];
                 const regexCU = /C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})\b/gi;
                 let cum;
@@ -760,7 +835,6 @@
                     }
                 }
 
-                // 8. EXTRAER NOMBRE LIMPIO DE LA ETIQUETA
                 let validHeaderLines = [];
                 for (let line of lines) {
                     const upper = line.toUpperCase();
@@ -1143,6 +1217,7 @@
             document.getElementById('productModal').classList.add('hidden');
         }
 
+        // GUARDADO CON SINCRONIZACIÓN AUTOMÁTICA EN CLOUD FIRESTORE
         function saveProduct(e) {
             e.preventDefault();
             const cat = document.getElementById('prodCategory').value;
@@ -1207,18 +1282,39 @@
                 inventory.unshift(item);
             }
 
+            // Respaldo local
             localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
             localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+
+            // Sincronización en la nube con Firestore
+            if (db) {
+                const docId = String(item.barcode || item.sap || ('prod_' + Date.now()));
+                db.collection("inventario_bodega").doc(docId).set(item).catch(err => {
+                    console.log("Error sincronizando en nube:", err);
+                });
+            }
+
             closeProductModal();
             renderTable();
             checkExpirationsAndAlert();
         }
 
+        // ELIMINACIÓN CON SINCRONIZACIÓN EN CLOUD FIRESTORE
         function deleteProduct(index) {
-            if (confirm(`¿Eliminar ${inventory[index].name} del inventario?`)) {
+            const item = inventory[index];
+            if (confirm(`¿Eliminar ${item.name} del inventario?`)) {
+                const docId = String(item.barcode || item.sap || '');
+
                 inventory.splice(index, 1);
                 localStorage.setItem('canasto_inventory', JSON.stringify(inventory));
                 localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
+
+                if (db && docId) {
+                    db.collection("inventario_bodega").doc(docId).delete().catch(err => {
+                        console.log("Error borrando en nube:", err);
+                    });
+                }
+
                 renderTable();
                 checkExpirationsAndAlert();
             }
