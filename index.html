@@ -34,6 +34,16 @@
             --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
             --badge-gray-bg: rgba(148, 163, 184, 0.12);
             --badge-gray-text: #94a3b8;
+
+            /* BOTONES CON IDENTIDAD PROPIA */
+            --btn-cam-bg: #d97706;
+            --btn-cam-text: #ffffff;
+            --btn-gal-bg: #b45309;
+            --btn-gal-text: #ffffff;
+            --btn-reg-bg: #059669;
+            --btn-reg-text: #ffffff;
+            --btn-find-bg: #1f2937;
+            --btn-find-text: #f3f4f6;
         }
 
         /* TEMA CLARO EMPRESARIAL */
@@ -53,10 +63,20 @@
             --card-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
             --badge-gray-bg: #f1f5f9;
             --badge-gray-text: #475569;
+
+            /* BOTONES MODO CLARO */
+            --btn-cam-bg: #d97706;
+            --btn-cam-text: #ffffff;
+            --btn-gal-bg: #b45309;
+            --btn-gal-text: #ffffff;
+            --btn-reg-bg: #059669;
+            --btn-reg-text: #ffffff;
+            --btn-find-bg: #111827;
+            --btn-find-text: #ffffff;
         }
 
         .hidden { display: none !important; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
         body { background-color: var(--bg-body); color: var(--text-high); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
 
         /* Pantalla de Acceso */
@@ -199,6 +219,74 @@
             box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); 
         }
         
+        /* BOTONES CON DIFERENCIACIÓN VISUAL DEFINIDA */
+        .btn-gold-action { 
+            background-color: var(--btn-cam-bg); 
+            color: var(--btn-cam-text); 
+            border: none; 
+            border-radius: 14px; 
+            padding: 11px 14px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 7px; 
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+        }
+        .btn-gold-action:active { transform: scale(0.98); }
+
+        .btn-amber-dark-action { 
+            background-color: var(--btn-gal-bg); 
+            color: var(--btn-gal-text); 
+            border: none; 
+            border-radius: 14px; 
+            padding: 11px 14px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 7px; 
+            box-shadow: 0 4px 10px rgba(180, 83, 9, 0.3);
+        }
+        .btn-amber-dark-action:active { transform: scale(0.98); }
+
+        .btn-green-action { 
+            background-color: var(--btn-reg-bg); 
+            color: var(--btn-reg-text); 
+            border: none; 
+            border-radius: 14px; 
+            padding: 11px 18px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 7px; 
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        .btn-green-action:active { transform: scale(0.98); }
+
+        .btn-dark-action { 
+            background-color: var(--btn-find-bg); 
+            color: var(--btn-find-text); 
+            border: 1px solid var(--border-subtle); 
+            border-radius: 14px; 
+            padding: 11px 16px; 
+            font-weight: 700; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 7px; 
+        }
+        .btn-dark-action:active { transform: scale(0.98); }
+
         .btn-blue-primary { 
             background: linear-gradient(135deg, #1d4ed8, #0284c7); 
             color: #ffffff; 
@@ -213,49 +301,6 @@
             justify-content: center; 
             gap: 7px; 
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35); 
-        }
-
-        .btn-action-camera { 
-            background: var(--bg-card); 
-            color: var(--cyan-tech); 
-            border: 1.5px solid var(--cyan-tech); 
-            border-radius: 14px; 
-            padding: 11px 14px; 
-            font-weight: 800; 
-            font-size: 13px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px; 
-        }
-        .btn-action-gallery { 
-            background: var(--bg-card); 
-            color: var(--text-mid); 
-            border: 1px solid var(--border-subtle); 
-            border-radius: 14px; 
-            padding: 11px 14px; 
-            font-weight: 800; 
-            font-size: 13px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px; 
-        }
-        .btn-dark { 
-            background-color: var(--bg-input); 
-            color: var(--text-mid); 
-            border: 1px solid var(--border-subtle); 
-            border-radius: 14px; 
-            padding: 11px 16px; 
-            font-weight: 700; 
-            font-size: 13px; 
-            cursor: pointer; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 6px; 
         }
 
         /* TABLA */
@@ -326,7 +371,7 @@
             <!-- Acceso Rápido Administrador -->
             <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 12px; margin-bottom: 16px; text-align: center;">
                 <p style="font-size: 11px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px;">Acceso en 1 toque:</p>
-                <button type="button" onclick="quickLogin()" class="btn-blue-primary" style="width: 100%; padding: 10px; font-size: 13px;">
+                <button type="button" onclick="quickLogin()" class="btn-green-action" style="width: 100%; padding: 10px; font-size: 13px;">
                     <i class="fa-solid fa-user-check"></i> Entrar como Lenin Alexander
                 </button>
             </div>
@@ -394,7 +439,7 @@
                     </div>
                 </div>
 
-                <button type="submit" id="btnAuthSubmit" class="btn-blue-primary" style="width: 100%; padding: 12px; margin-top: 8px; font-size: 13px;">
+                <button type="submit" id="btnAuthSubmit" class="btn-green-action" style="width: 100%; padding: 12px; margin-top: 8px; font-size: 13px;">
                     Ingresar al inventario &gt;
                 </button>
             </form>
@@ -441,7 +486,7 @@
         </header>
 
         <main>
-            <!-- TARJETA SUPERIOR DE FILTROS Y ACCIONES RÁPIDAS -->
+            <!-- TARJETA SUPERIOR DE FILTROS Y BOTONES CON COLORES DIFERENCIADOS -->
             <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
@@ -461,23 +506,24 @@
                     </div>
                 </div>
 
-                <!-- Botones de Acción -->
+                <!-- Botones de Acción: Cámara Dorado, Galería Ámbar Oscuro -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <label class="btn-action-camera" style="text-align: center; cursor: pointer;">
+                    <label class="btn-gold-action" style="text-align: center; cursor: pointer;">
                         <i class="fa-solid fa-camera"></i> 📸 Tomar Foto
                         <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
-                    <label class="btn-action-gallery" style="text-align: center; cursor: pointer;">
+                    <label class="btn-amber-dark-action" style="text-align: center; cursor: pointer;">
                         <i class="fa-solid fa-image"></i> 🖼️ De Galería
                         <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
                 </div>
 
+                <!-- Registro Manual Verde y Buscar Código Carbón -->
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="openProductModal()" class="btn-blue-primary" style="flex: 1;">
+                    <button type="button" onclick="openProductModal()" class="btn-green-action" style="flex: 1;">
                         <i class="fa-solid fa-plus"></i> Registro Manual
                     </button>
-                    <button type="button" onclick="openScannerModal('quickSearch')" class="btn-dark">
+                    <button type="button" onclick="openScannerModal('quickSearch')" class="btn-dark-action">
                         <i class="fa-solid fa-magnifying-glass"></i> Buscar Código
                     </button>
                 </div>
@@ -529,11 +575,11 @@
             </div>
 
             <div style="padding: 12px 18px 0 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <label class="btn-action-camera" style="text-align: center; cursor: pointer; padding: 9px 10px; font-size: 11px;">
+                <label class="btn-gold-action" style="text-align: center; cursor: pointer; padding: 9px 10px; font-size: 11px;">
                     <i class="fa-solid fa-camera"></i> 📸 Foto Etiqueta
                     <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
                 </label>
-                <label class="btn-action-gallery" style="text-align: center; cursor: pointer; padding: 9px 10px; font-size: 11px;">
+                <label class="btn-amber-dark-action" style="text-align: center; cursor: pointer; padding: 9px 10px; font-size: 11px;">
                     <i class="fa-solid fa-image"></i> 🖼️ De Galería
                     <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
                 </label>
@@ -546,7 +592,7 @@
                         <input type="text" id="prodBarcode" required placeholder="770123456001" 
                                oninput="cleanBarcodeSpaces(this)" 
                                onchange="checkDuplicateOnInput('barcode')" class="input-text">
-                        <button type="button" onclick="openScannerModal('barcode')" class="btn-blue-primary" style="padding: 0 16px;" title="Escanear Código de Barras">
+                        <button type="button" onclick="openScannerModal('barcode')" class="btn-green-action" style="padding: 0 16px;" title="Escanear Código de Barras">
                             <i class="fa-solid fa-camera"></i>
                         </button>
                     </div>
@@ -562,7 +608,7 @@
                                    onchange="checkDuplicateOnInput('sap')" 
                                    style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; color: var(--text-high); outline: none;">
                         </div>
-                        <button type="button" onclick="openScannerModal('sap')" class="btn-dark" style="color: var(--cyan-tech); border-color: var(--cyan-tech);" title="Escanear o Tomar Foto">
+                        <button type="button" onclick="openScannerModal('sap')" class="btn-blue-primary" style="padding: 0 14px; font-size: 12px;" title="Escanear o Tomar Foto">
                             <i class="fa-solid fa-camera"></i> Leer SAP
                         </button>
                     </div>
@@ -704,7 +750,7 @@
                     <button type="button" onclick="closeProductModal()" style="padding: 10px 16px; border: 1px solid var(--border-subtle); background: var(--bg-input); border-radius: 12px; font-weight: 700; font-size: 12px; color: var(--text-low); cursor: pointer;">
                         Cancelar
                     </button>
-                    <button type="submit" class="btn-blue-primary">
+                    <button type="submit" class="btn-green-action">
                         <i class="fa-solid fa-save"></i> Guardar Producto
                     </button>
                 </div>
@@ -777,7 +823,7 @@
                 <button type="button" onclick="closeCropModal()" style="flex: 1; padding: 10px; background: var(--bg-input); color: var(--text-high); border: none; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
                     Cancelar
                 </button>
-                <button type="button" onclick="confirmCropAndProcess()" class="btn-blue-primary" style="flex: 2; padding: 10px;">
+                <button type="button" onclick="confirmCropAndProcess()" class="btn-green-action" style="flex: 2; padding: 10px;">
                     <i class="fa-solid fa-check"></i> Procesar este Número
                 </button>
             </div>
@@ -785,7 +831,7 @@
     </div>
 
     <!-- PANTALLA DE CARGA PROCESANDO ETIQUETA COMPLETA -->
-    <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(0, 0, 0, 0.9);">
+    <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(0, 0, 0, 0.95);">
         <div style="text-align: center; color: white; padding: 24px;">
             <i class="fa-solid fa-wand-magic-sparkles fa-spin" style="font-size: 42px; color: var(--cyan-tech); margin-bottom: 16px;"></i>
             <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Escaneando Etiqueta por Zonas...</h3>
