@@ -8,40 +8,63 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#064e3b">
+    <meta name="theme-color" content="#0b1329">
+
+    <!-- TIPOGRAFÍA MODERNA INTER -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --bg-main: #0a0e1a;
+            --bg-card: #111827;
+            --bg-card-light: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: #38bdf8;
+            --primary-blue: #2563eb;
+            --primary-hover: #1d4ed8;
+            --cyan-accent: #0284c7;
+            --cyan-glow: rgba(56, 189, 248, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --green-badge: #10b981;
+            --amber-accent: #f59e0b;
+            --red-alert: #ef4444;
+        }
+
         .hidden { display: none !important; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #f3f4f6; color: #111827; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
 
         /* Estilo moderno oficial DL Company */
         .auth-wrapper {
             min-height: 100vh;
-            background: radial-gradient(circle at 50% 20%, #032b1e 0%, #06191d 60%, #020b0e 100%);
+            background: radial-gradient(circle at 50% 15%, #0f2744 0%, #081426 50%, #030712 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 16px;
         }
         .auth-card {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 24px;
-            padding: 26px 20px;
+            background: rgba(17, 24, 39, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 26px;
+            padding: 28px 22px;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.7), 0 0 25px rgba(5, 150, 105, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(14, 165, 233, 0.15);
             color: #ffffff;
         }
         .btn-google {
             width: 100%;
             background: #ffffff;
-            color: #1f2937;
-            border: 1px solid #d1d5db;
-            border-radius: 12px;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
             padding: 11px 14px;
             font-weight: 800;
             font-size: 13px;
@@ -50,106 +73,230 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
             transition: all 0.2s ease;
         }
-        .btn-google:active { transform: scale(0.98); background: #f3f4f6; }
+        .btn-google:active { transform: scale(0.98); background: #f1f5f9; }
         .auth-tab-btn {
             flex: 1;
             padding: 10px;
             background: transparent;
             border: none;
-            color: #9ca3af;
+            color: #64748b;
             font-weight: 800;
             font-size: 13px;
             cursor: pointer;
             border-bottom: 2px solid transparent;
             text-align: center;
+            transition: all 0.2s;
         }
         .auth-tab-btn.active {
-            color: #34d399;
-            border-bottom: 2px solid #10b981;
+            color: #38bdf8;
+            border-bottom: 2px solid #38bdf8;
         }
         .auth-input {
             width: 100%;
-            padding: 11px 14px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(75, 85, 99, 0.5);
-            border-radius: 12px;
+            padding: 12px 14px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
             font-size: 13px;
             font-weight: 600;
             color: #ffffff;
             outline: none;
+            transition: all 0.2s ease;
         }
         .auth-input:focus {
-            border-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
-            background: rgba(30, 41, 59, 0.95);
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px var(--cyan-glow);
+            background: rgba(15, 23, 42, 0.98);
         }
 
         /* Selector interactivo de planes */
         .plan-card-btn {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1.5px solid rgba(75, 85, 99, 0.5);
-            border-radius: 12px;
-            padding: 8px 4px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1.5px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            padding: 10px 4px;
             cursor: pointer;
             text-align: center;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             color: #ffffff;
         }
         .plan-card-btn.selected {
-            background: rgba(6, 95, 70, 0.5);
-            border-color: #10b981;
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            background: rgba(14, 165, 233, 0.15);
+            border-color: #38bdf8;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
             transform: translateY(-2px);
         }
 
-        header { background-color: #064e3b; color: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 30; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .header-logo { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000000; border: 1.5px solid #059669; box-shadow: 0 2px 5px rgba(0,0,0,0.4); flex-shrink: 0; }
+        /* HEADER AZUL CORPORATIVO DL */
+        header { 
+            background: rgba(11, 19, 43, 0.92); 
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: #ffffff; 
+            padding: 12px 16px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 30; 
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+        }
+        .header-container { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { width: 44px; height: 44px; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000000; border: 1.5px solid #0284c7; box-shadow: 0 2px 8px rgba(0,0,0,0.5); flex-shrink: 0; }
         .header-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .header-btn { background-color: #065f46; border: none; color: white; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; position: relative; }
+        .header-btn { 
+            background: rgba(30, 41, 59, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: #f1f5f9; 
+            padding: 8px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 13px; 
+            position: relative; 
+            transition: all 0.2s;
+        }
+        .header-btn:hover { background: rgba(51, 65, 85, 0.9); }
 
-        main { max-width: 1200px; margin: 0 auto; width: 100%; padding: 16px; flex: 1; }
-        .card { background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 16px; padding: 16px; }
+        main { max-width: 1240px; margin: 0 auto; width: 100%; padding: 16px; flex: 1; }
+        
+        .card { 
+            background: #111827; 
+            border-radius: 20px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5); 
+            margin-bottom: 16px; 
+            padding: 16px; 
+        }
 
-        .input-text, select { width: 100%; padding: 10px 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; font-size: 13px; font-weight: 500; outline: none; }
-        .input-text:focus, select:focus { border-color: #059669; background-color: #ffffff; box-shadow: 0 0 0 2px rgba(5,150,105,0.2); }
-        .btn-green { background-color: #059669; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-gold { background-color: #d97706; color: white; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(217,119,6,0.3); }
-        .btn-amber-dark { background-color: #b45309; color: white; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-dark { background-color: #1f2937; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-blue { background-color: #2563eb; color: white; border: none; border-radius: 12px; padding: 8px 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
+        .input-text, select { 
+            width: 100%; 
+            padding: 11px 14px; 
+            background-color: #0f172a; 
+            border: 1px solid rgba(148, 163, 184, 0.2); 
+            border-radius: 14px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            color: #ffffff; 
+            outline: none; 
+            transition: all 0.2s ease;
+        }
+        .input-text:focus, select:focus { 
+            border-color: #38bdf8; 
+            background-color: #0b1120; 
+            box-shadow: 0 0 0 3px var(--cyan-glow); 
+        }
+        
+        /* BOTONERÍA EJECUTIVA */
+        .btn-blue-primary { 
+            background: linear-gradient(135deg, #2563eb, #0284c7); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            padding: 11px 18px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 7px; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35); 
+            transition: all 0.2s ease;
+        }
+        .btn-blue-primary:active { transform: scale(0.98); }
 
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 14px; border: 1px solid #e5e7eb; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; white-space: nowrap; background: #ffffff; }
-        th { background-color: #f9fafb; color: #4b5563; font-weight: 800; font-size: 11px; text-transform: uppercase; padding: 12px 14px; border-bottom: 1px solid #e5e7eb; }
-        td { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; color: #1f2937; vertical-align: middle; }
-        tr:hover { background-color: #f9fafb; }
+        .btn-action-camera { 
+            background: linear-gradient(135deg, #0284c7, #0369a1); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            padding: 11px 14px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); 
+            transition: all 0.2s;
+        }
+        .btn-action-gallery { 
+            background: #1e293b; 
+            color: #38bdf8; 
+            border: 1px solid rgba(56, 189, 248, 0.3); 
+            border-radius: 14px; 
+            padding: 11px 14px; 
+            font-weight: 800; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            transition: all 0.2s;
+        }
+        .btn-dark { 
+            background-color: #1e293b; 
+            color: #e2e8f0; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 14px; 
+            padding: 11px 16px; 
+            font-weight: 700; 
+            font-size: 13px; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+        }
 
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 9999px; font-weight: 800; font-size: 10px; text-transform: uppercase; }
-        .badge-green { background-color: #d1fae5; color: #065f46; }
-        .badge-red { background-color: #fee2e2; color: #991b1b; }
-        .badge-amber { background-color: #fef3c7; color: #92400e; }
-        .badge-gray { background-color: #f3f4f6; color: #4b5563; }
-        .badge-cyan { background-color: #cffafe; color: #155e75; }
-        .badge-purple { background-color: #f3e8ff; color: #6b21a8; }
+        /* TABLA MODERNA PROFESIONAL */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 18px; border: 1px solid var(--border-color); background: #0f172a; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; white-space: nowrap; }
+        th { 
+            background-color: #172136; 
+            color: #94a3b8; 
+            font-weight: 800; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            padding: 14px 16px; 
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        td { 
+            padding: 13px 16px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            color: #f1f5f9; 
+            vertical-align: middle; 
+        }
+        tr:hover { background-color: rgba(30, 41, 59, 0.4); }
 
-        .modal-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 12px; }
-        .modal-box { background: #ffffff; border-radius: 20px; width: 100%; max-width: 500px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-        .modal-header { background: #064e3b; color: white; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 14px; }
-        .modal-body { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        /* BADGES TECNOLÓGICOS */
+        .badge { display: inline-block; padding: 4px 9px; border-radius: 9999px; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-green { background-color: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+        .badge-red { background-color: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
+        .badge-amber { background-color: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+        .badge-gray { background-color: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.25); }
+        .badge-cyan { background-color: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+        .badge-purple { background-color: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+
+        /* MODALES MODERNOS */
+        .modal-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .modal-box { background: #0f172a; border-radius: 24px; width: 100%; max-width: 520px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); border: 1px solid rgba(56, 189, 248, 0.2); }
+        .modal-header { background: #172136; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .modal-body { padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 13px; color: #f1f5f9; }
 
         @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
         .animate-bubble-alert { animation: pulse-ring 2s infinite ease-in-out; }
     </style>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -164,17 +311,17 @@
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
             <div style="text-align: center; margin-bottom: 18px;">
-                <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 14px rgba(16,185,129,0.3); border: 2px solid #059669; display: flex; align-items: center; justify-content: center;">
+                <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 16px rgba(56, 189, 248, 0.3); border: 2px solid #0284c7; display: flex; align-items: center; justify-content: center;">
                     <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <h1 style="font-size: 21px; font-weight: 900; color: #ffffff; letter-spacing: 0.6px; text-transform: uppercase;">DL COMPANY -TECNOLOGY-</h1>
-                <p style="font-size: 11px; font-weight: 700; color: #34d399; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px;">Soluciones Inteligentes de Inventario</p>
+                <p style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px;">Soluciones Inteligentes de Inventario</p>
             </div>
 
             <!-- Acceso Rápido Administrador -->
-            <div style="background: rgba(6, 95, 70, 0.35); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; padding: 12px; margin-bottom: 16px; text-align: center;">
-                <p style="font-size: 11px; font-weight: 700; color: #a7f3d0; margin-bottom: 6px;">Acceso en 1 toque:</p>
-                <button type="button" onclick="quickLogin()" class="btn-green" style="width: 100%; padding: 10px; font-size: 13px; box-shadow: 0 4px 10px rgba(5,150,105,0.3);">
+            <div style="background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; padding: 12px; margin-bottom: 16px; text-align: center;">
+                <p style="font-size: 11px; font-weight: 700; color: #7dd3fc; margin-bottom: 6px;">Acceso en 1 toque:</p>
+                <button type="button" onclick="quickLogin()" class="btn-blue-primary" style="width: 100%; padding: 10px; font-size: 13px;">
                     <i class="fa-solid fa-user-check"></i> Entrar como Lenin Alexander
                 </button>
             </div>
@@ -190,78 +337,78 @@
                 Continuar con Google
             </button>
 
-            <div style="display: flex; align-items: center; margin: 16px 0; color: #6b7280; font-size: 11px;">
-                <div style="flex: 1; height: 1px; background: rgba(75, 85, 99, 0.4);"></div>
-                <span style="padding: 0 10px; font-weight: 700; color: #9ca3af;">O usa tu cuenta</span>
-                <div style="flex: 1; height: 1px; background: rgba(75, 85, 99, 0.4);"></div>
+            <div style="display: flex; align-items: center; margin: 16px 0; color: #64748b; font-size: 11px;">
+                <div style="flex: 1; height: 1px; background: rgba(148, 163, 184, 0.2);"></div>
+                <span style="padding: 0 10px; font-weight: 700; color: #94a3b8;">O usa tu cuenta</span>
+                <div style="flex: 1; height: 1px; background: rgba(148, 163, 184, 0.2);"></div>
             </div>
 
             <!-- Pestañas Iniciar Sesión / Registrarse -->
-            <div style="display: flex; margin-bottom: 14px; border-bottom: 1px solid rgba(75, 85, 99, 0.4);">
+            <div style="display: flex; margin-bottom: 14px; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
                 <button type="button" id="tabLogin" onclick="switchAuthTab('login')" class="auth-tab-btn active">Iniciar Sesión</button>
                 <button type="button" id="tabRegister" onclick="switchAuthTab('register')" class="auth-tab-btn">Crear Cuenta</button>
             </div>
 
             <form id="formAuthEmail" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
                 <div id="wrapperFullName" class="hidden">
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;">Nombre Completo</label>
+                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Nombre Completo</label>
                     <input type="text" id="authFullName" placeholder="Tu nombre y apellido" class="auth-input">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;">Usuario o Correo</label>
+                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Usuario o Correo</label>
                     <input type="text" id="authEmailUser" required placeholder="correo@ejemplo.com o usuario" class="auth-input">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;">Contraseña</label>
+                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Contraseña</label>
                     <input type="password" id="authPassword" required placeholder="••••••••" class="auth-input">
                 </div>
 
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #d1d5db; cursor: pointer;">
-                        <input type="checkbox" id="chkRememberMe" checked style="accent-color: #10b981; width: 14px; height: 14px;"> Recordar mis datos
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="chkRememberMe" checked style="accent-color: #0284c7; width: 14px; height: 14px;"> Recordar mis datos
                     </label>
-                    <span id="planBadgeDisplay" class="badge badge-green" style="font-size: 9px;">PREMIUM</span>
+                    <span id="planBadgeDisplay" class="badge badge-cyan" style="font-size: 9px;">PREMIUM</span>
                 </div>
 
-                <!-- SELECCIÓN INTERACTIVA DE PLANES (BOTONES CLICABLES) -->
-                <div style="margin-top: 8px;">
-                    <label style="display: block; font-size: 10px; font-weight: 800; color: #9ca3af; text-transform: uppercase; margin-bottom: 6px; text-align: center;">Selecciona tu Plan:</label>
+                <!-- SELECCIÓN INTERACTIVA DE PLANES -->
+                <div style="margin-top: 6px;">
+                    <label style="display: block; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; text-align: center;">Membresía / Plan:</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
                         <button type="button" id="btnPlanGratis" onclick="selectPlan('gratis')" class="plan-card-btn">
                             <span style="font-weight: 900; color: #34d399; display: block; font-size: 11px;">GRATIS</span>
-                            <span style="color: #9ca3af; font-size: 9px; display: block;">Hasta 100 prods</span>
+                            <span style="color: #94a3b8; font-size: 9px; display: block;">Hasta 100 prods</span>
                         </button>
                         <button type="button" id="btnPlanPro" onclick="selectPlan('pro')" class="plan-card-btn">
                             <span style="font-weight: 900; color: #60a5fa; display: block; font-size: 11px;">PRO</span>
-                            <span style="color: #9ca3af; font-size: 9px; display: block;">Ilimitado Local</span>
+                            <span style="color: #94a3b8; font-size: 9px; display: block;">Ilimitado Local</span>
                         </button>
                         <button type="button" id="btnPlanPremium" onclick="selectPlan('premium')" class="plan-card-btn selected">
-                            <span style="font-weight: 900; color: #a7f3d0; display: block; font-size: 11px;">PREMIUM</span>
-                            <span style="color: #6ee7b7; font-size: 9px; display: block;">Nube & Sync</span>
+                            <span style="font-weight: 900; color: #38bdf8; display: block; font-size: 11px;">PREMIUM</span>
+                            <span style="color: #7dd3fc; font-size: 9px; display: block;">Nube & Sync</span>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" id="btnAuthSubmit" class="btn-green" style="width: 100%; padding: 12px; margin-top: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.3px;">
+                <button type="submit" id="btnAuthSubmit" class="btn-blue-primary" style="width: 100%; padding: 12px; margin-top: 8px; font-size: 13px;">
                     Ingresar al inventario &gt;
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- PANTALLA PRINCIPAL DE LA BODEGA -->
+    <!-- PANTALLA PRINCIPAL DE LA BODEGA CON ESTILO AZUL TECH -->
     <div id="mainAppScreen" style="display: flex; flex-direction: column; flex: 1;">
         <header>
             <div class="header-container">
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
                     <div class="header-logo">
                         <img id="headerLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY">
                     </div>
                     <div>
-                        <h2 style="font-size: 13px; font-weight: 900; margin: 0; letter-spacing: 0.3px;">DL COMPANY -TECNOLOGY-</h2>
-                        <div style="font-size: 11px; color: #a7f3d0; display: flex; align-items: center; gap: 6px;">
+                        <h2 style="font-size: 13px; font-weight: 900; margin: 0; letter-spacing: 0.4px;">DL COMPANY -TECNOLOGY-</h2>
+                        <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 6px; margin-top: 2px;">
                             <span id="headerUserName" style="font-weight: 700; color: #ffffff;">Lenin Alexander</span> • <span id="headerUserZone">Abarrotes</span>
-                            <span id="syncStatusBadge" class="badge badge-green" style="font-size: 9px; padding: 2px 6px;">
+                            <span id="syncStatusBadge" class="badge badge-cyan" style="font-size: 9px; padding: 2px 7px;">
                                 <i class="fa-solid fa-cloud"></i> Nube OK
                             </span>
                         </div>
@@ -269,14 +416,14 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <button type="button" onclick="exportDataBackup()" class="header-btn" style="background: #047857;" title="Descargar Copia de Seguridad de Inventario">
+                    <button type="button" onclick="exportDataBackup()" class="header-btn" style="background: rgba(2, 132, 199, 0.2); border-color: rgba(56, 189, 248, 0.3); color: #38bdf8;" title="Descargar Copia de Seguridad de Inventario">
                         <i class="fa-solid fa-download"></i>
                     </button>
                     <button type="button" onclick="openAlertsModal()" class="header-btn" title="Alertas de Vencimiento">
                         <i class="fa-solid fa-bell"></i>
-                        <span id="badgeCriticos" class="hidden" style="position: absolute; top: -4px; right: -4px; background: #dc2626; color: white; font-size: 10px; font-weight: 900; width: 18px; height: 18px; border-radius: 9999px; display: flex; align-items: center; justify-content: center;">0</span>
+                        <span id="badgeCriticos" class="hidden" style="position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 10px; font-weight: 900; width: 18px; height: 18px; border-radius: 9999px; display: flex; align-items: center; justify-content: center;">0</span>
                     </button>
-                    <button type="button" onclick="handleLogout()" class="header-btn" style="background: #991b1b;" title="Cerrar Sesión">
+                    <button type="button" onclick="handleLogout()" class="header-btn" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #f87171;" title="Cerrar Sesión">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
                 </div>
@@ -284,7 +431,8 @@
         </header>
 
         <main>
-            <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- TARJETA SUPERIOR DE FILTROS Y ACCIONES RÁPIDAS -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
                         <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 Buscar por Nombre, Ubicación, Código SAP o EAN..." class="input-text">
@@ -303,19 +451,20 @@
                     </div>
                 </div>
 
+                <!-- Botones de Acción: Cámara, Galería y Manual -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <label class="btn-gold" style="text-align: center; cursor: pointer;">
+                    <label class="btn-action-camera" style="text-align: center; cursor: pointer;">
                         <i class="fa-solid fa-camera"></i> 📸 Tomar Foto
                         <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
-                    <label class="btn-amber-dark" style="text-align: center; cursor: pointer;">
+                    <label class="btn-action-gallery" style="text-align: center; cursor: pointer;">
                         <i class="fa-solid fa-image"></i> 🖼️ De Galería
                         <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
                     </label>
                 </div>
 
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="openProductModal()" class="btn-green" style="flex: 1;">
+                    <button type="button" onclick="openProductModal()" class="btn-blue-primary" style="flex: 1;">
                         <i class="fa-solid fa-plus"></i> Registro Manual
                     </button>
                     <button type="button" onclick="openScannerModal('quickSearch')" class="btn-dark">
@@ -324,13 +473,13 @@
                 </div>
             </div>
 
-            <!-- Tabla de Inventario -->
+            <!-- TABLA DE INVENTARIO PROFESIONAL -->
             <div class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 900; font-size: 12px; text-transform: uppercase; color: #374151;">
-                        <i class="fa-solid fa-layer-group" style="color: #059669; margin-right: 6px;"></i> Stock en Bodega (Pasillos 1... / Bloques 17, 16...9)
+                <div style="padding: 14px 18px; background: #172136; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 800; font-size: 12px; text-transform: uppercase; color: #cbd5e1; letter-spacing: 0.4px;">
+                        <i class="fa-solid fa-boxes-stacked" style="color: #38bdf8; margin-right: 8px;"></i> Control de Stock (Pasillos 1... / Bloques 17, 16...9)
                     </span>
-                    <span id="productCount" class="badge badge-green">0 productos</span>
+                    <span id="productCount" class="badge badge-cyan">0 productos</span>
                 </div>
 
                 <div class="table-responsive">
@@ -340,14 +489,14 @@
                                 <th>EAN / SAP</th>
                                 <th>Producto / Categoría / Ubicación</th>
                                 <th style="text-align: center;">Temperatura</th>
-                                <th style="text-align: center; background: #ecfdf5;">Stock (Und)</th>
-                                <th style="text-align: center; background: #eff6ff;">Stock (R1)</th>
-                                <th style="text-align: center; background: #fffbeb;">Stock (CX)</th>
+                                <th style="text-align: center; background: rgba(16, 185, 129, 0.1);">Stock (Und)</th>
+                                <th style="text-align: center; background: rgba(56, 189, 248, 0.1);">Stock (R1)</th>
+                                <th style="text-align: center; background: rgba(245, 158, 11, 0.1);">Stock (CX)</th>
                                 <th style="text-align: center;">Precio Unitario</th>
                                 <th style="text-align: center;">Precio R1</th>
                                 <th style="text-align: center;">Precio CX</th>
                                 <th style="text-align: center;">Vencimiento</th>
-                                <th style="text-align: center; background: #f8fafc;">Última Actualización</th>
+                                <th style="text-align: center; background: rgba(255, 255, 255, 0.03);">Última Actualización</th>
                                 <th style="text-align: center;">Acciones</th>
                             </tr>
                         </thead>
@@ -364,17 +513,17 @@
         <div class="modal-box">
             <div class="modal-header">
                 <span id="modalTitle">Nuevo Registro en Inventario</span>
-                <button type="button" onclick="closeProductModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
+                <button type="button" onclick="closeProductModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div style="padding: 10px 16px 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <label class="btn-gold" style="text-align: center; cursor: pointer; padding: 8px 10px; font-size: 11px;">
+            <div style="padding: 12px 18px 0 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <label class="btn-action-camera" style="text-align: center; cursor: pointer; padding: 9px 10px; font-size: 11px;">
                     <i class="fa-solid fa-camera"></i> 📸 Foto Etiqueta
                     <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
                 </label>
-                <label class="btn-amber-dark" style="text-align: center; cursor: pointer; padding: 8px 10px; font-size: 11px;">
+                <label class="btn-action-gallery" style="text-align: center; cursor: pointer; padding: 9px 10px; font-size: 11px;">
                     <i class="fa-solid fa-image"></i> 🖼️ De Galería
                     <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
                 </label>
@@ -382,47 +531,47 @@
 
             <form id="productForm" onsubmit="saveProduct(event)" class="modal-body">
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">1. CÓDIGO DE BARRAS (EAN)</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">1. CÓDIGO DE BARRAS (EAN)</label>
                     <div style="display: flex; gap: 6px;">
                         <input type="text" id="prodBarcode" required placeholder="770123456001" 
                                oninput="cleanBarcodeSpaces(this)" 
                                onchange="checkDuplicateOnInput('barcode')" class="input-text">
-                        <button type="button" onclick="openScannerModal('barcode')" class="btn-green" style="padding: 0 14px;" title="Escanear Código de Barras">
+                        <button type="button" onclick="openScannerModal('barcode')" class="btn-blue-primary" style="padding: 0 16px;" title="Escanear Código de Barras">
                             <i class="fa-solid fa-camera"></i>
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">2. CÓDIGO SAP INTERNO</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">2. CÓDIGO SAP INTERNO</label>
                     <div style="display: flex; gap: 6px;">
-                        <div style="display: flex; flex: 1; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                            <span style="background: #e5e7eb; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #4b5563; display: flex; align-items: center;">SAP -</span>
+                        <div style="display: flex; flex: 1; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 14px; overflow: hidden; background: #0f172a;">
+                            <span style="background: #1e293b; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #38bdf8; display: flex; align-items: center;">SAP -</span>
                             <input type="text" id="prodSap" required placeholder="20121" 
                                    oninput="cleanSapSpaces(this)" 
                                    onchange="checkDuplicateOnInput('sap')" 
-                                   style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
+                                   style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #ffffff; outline: none;">
                         </div>
-                        <button type="button" onclick="openScannerModal('sap')" class="btn-blue" style="display: flex; align-items: center; gap: 4px;" title="Escanear o Tomar Foto">
+                        <button type="button" onclick="openScannerModal('sap')" class="btn-dark" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);" title="Escanear o Tomar Foto">
                             <i class="fa-solid fa-camera"></i> Leer SAP
                         </button>
                     </div>
-                    <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 2px;">* Lee la etiqueta amarilla y guarda el número quitando los ceros (ej: 0000020121UN → 20121)</span>
+                    <span style="font-size: 10px; color: #64748b; display: block; margin-top: 3px;">* Lee la etiqueta y almacena el número sin ceros iniciales</span>
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO (EN MAYÚSCULAS)</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">3. DESCRIPCIÓN DEL PRODUCTO (EN MAYÚSCULAS)</label>
                     <input type="text" id="prodName" required placeholder="EJ: PAPEL HIG SCOTT AHORRAMAX X 12R X30M" oninput="this.value = this.value.toUpperCase()" style="text-transform: uppercase;" class="input-text">
                     <div id="nameSuggestionsBox" class="hidden" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;"></div>
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">4. UBICACIÓN EN BODEGA</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">4. UBICACIÓN EN BODEGA</label>
                     <input type="text" id="prodLocation" placeholder="Ej: Pasillo 1 - Bloque 17" class="input-text">
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">5. CATEGORÍA</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">5. CATEGORÍA</label>
                     <select id="prodCategory" onchange="handleCategoryChange()" required>
                         <option value="Abarrotes">Abarrotes</option>
                         <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
@@ -436,67 +585,67 @@
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">6. TEMPERATURA</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
+                        <label style="font-weight: 800; font-size: 11px; color: #94a3b8;">6. TEMPERATURA</label>
+                        <label style="font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer;">
                             <input type="checkbox" id="tempNA" onchange="toggleTempNA()"> No aplica
                         </label>
                     </div>
-                    <div id="tempInputWrapper" style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                        <input type="number" step="0.1" id="prodTemperature" placeholder="Ej: 4 ó -18" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
-                        <span style="background: #cffafe; color: #155e75; padding: 8px 12px; font-weight: 900; font-size: 12px;">°C</span>
+                    <div id="tempInputWrapper" style="display: flex; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 14px; overflow: hidden; background: #0f172a;">
+                        <input type="number" step="0.1" id="prodTemperature" placeholder="Ej: 4 ó -18" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #ffffff; outline: none;">
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 8px 12px; font-weight: 900; font-size: 12px;">°C</span>
                     </div>
-                    <div id="tempNADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
+                    <div id="tempNADisplay" class="hidden" style="background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #64748b; font-style: italic;">No aplica</div>
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">7. STOCK (UNIDADES)</label>
-                    <div style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                        <input type="number" id="prodStock" oninput="handleUnitsChange()" required min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 800; color: #047857; outline: none;">
-                        <span style="background: #e5e7eb; color: #374151; padding: 8px 12px; font-weight: 800; font-size: 12px;">und</span>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">7. STOCK (UNIDADES)</label>
+                    <div style="display: flex; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 14px; overflow: hidden; background: #0f172a;">
+                        <input type="number" id="prodStock" oninput="handleUnitsChange()" required min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 900; color: #34d399; outline: none;">
+                        <span style="background: #1e293b; color: #94a3b8; padding: 8px 12px; font-weight: 800; font-size: 12px;">und</span>
                     </div>
                 </div>
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">8. STOCK R1 (SIXPACK - 6 UNDS)</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
+                        <label style="font-weight: 800; font-size: 11px; color: #94a3b8;">8. STOCK R1 (SIXPACK - 6 UNDS)</label>
+                        <label style="font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer;">
                             <input type="checkbox" id="r1NA" onchange="toggleR1NA()"> No aplica
                         </label>
                     </div>
-                    <div id="r1InputWrapper" style="display: border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                        <span style="background: #dbeafe; color: #1e40af; padding: 8px 12px; font-weight: 900; font-size: 12px;">R1-</span>
-                        <input type="number" id="prodR1" oninput="handleR1Change()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
+                    <div id="r1InputWrapper" style="display: flex; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 14px; overflow: hidden; background: #0f172a;">
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 8px 12px; font-weight: 900; font-size: 12px;">R1-</span>
+                        <input type="number" id="prodR1" oninput="handleR1Change()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #ffffff; outline: none;">
                     </div>
-                    <div id="r1NADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
+                    <div id="r1NADisplay" class="hidden" style="background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #64748b; font-style: italic;">No aplica</div>
                 </div>
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">9. STOCK CX (CAJAS - PAQUETES)</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
+                        <label style="font-weight: 800; font-size: 11px; color: #94a3b8;">9. STOCK CX (CAJAS - PAQUETES)</label>
+                        <label style="font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer;">
                             <input type="checkbox" id="cxNA" onchange="toggleCXNA()"> No aplica
                         </label>
                     </div>
                     <div id="cxInputWrapper" style="display: flex; flex-direction: column; gap: 6px;">
-                        <div style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                            <span style="background: #fef3c7; color: #92400e; padding: 8px 12px; font-weight: 900; font-size: 12px;">CX-</span>
-                            <input type="number" id="prodCX" oninput="handleCXChange()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
+                        <div style="display: flex; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 14px; overflow: hidden; background: #0f172a;">
+                            <span style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; padding: 8px 12px; font-weight: 900; font-size: 12px;">CX-</span>
+                            <input type="number" id="prodCX" oninput="handleCXChange()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #ffffff; outline: none;">
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #fffbeb; border: 1px solid #fde68a; padding: 6px 10px; border-radius: 10px;">
-                            <span style="font-size: 11px; font-weight: 700; color: #78350f;">¿Cuántas unds trae la caja?</span>
-                            <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" style="width: 70px; padding: 4px; border: 1px solid #f59e0b; border-radius: 6px; font-weight: 900; text-align: center; font-size: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); padding: 6px 10px; border-radius: 10px;">
+                            <span style="font-size: 11px; font-weight: 700; color: #fbbf24;">¿Cuántas unds trae la caja?</span>
+                            <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" style="width: 70px; padding: 4px; border: 1px solid #f59e0b; border-radius: 6px; font-weight: 900; text-align: center; font-size: 12px; background: #0f172a; color: #ffffff;">
                         </div>
                     </div>
-                    <div id="cxNADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
+                    <div id="cxNADisplay" class="hidden" style="background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #64748b; font-style: italic;">No aplica</div>
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">10. PRECIO REGULAR ($)</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">10. PRECIO REGULAR ($)</label>
                     <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="17990" class="input-text">
                 </div>
 
                 <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">11. ¿EN PROMOCIÓN?</label>
+                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: #94a3b8;">11. ¿EN PROMOCIÓN?</label>
                     <select id="prodPromoSelect" onchange="togglePromoField()">
                         <option value="NO">NO</option>
                         <option value="SÍ">SÍ</option>
@@ -504,48 +653,48 @@
                 </div>
 
                 <div id="promoPriceWrapper" class="hidden">
-                    <label style="display: block; font-weight: 800; font-size: 11px; color: #dc2626; margin-bottom: 4px;">12. PRECIO PROMO CON DESCUENTO ($)</label>
-                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="14990" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
+                    <label style="display: block; font-weight: 800; font-size: 11px; color: #f87171; margin-bottom: 4px;">12. PRECIO PROMO CON DESCUENTO ($)</label>
+                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="14990" class="input-text" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.4);">
                 </div>
 
-                <div id="priceR1Box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between;">
+                <div id="priceR1Box" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 10px; display: flex; justify-content: space-between;">
                     <div>
-                        <span style="font-size: 10px; color: #6b7280; display: block;">Regular R1 (6 und)</span>
-                        <span id="labelPriceR1Reg" style="font-weight: 900; font-size: 13px; color: #1e40af;">$0</span>
+                        <span style="font-size: 10px; color: #94a3b8; display: block;">Regular R1 (6 und)</span>
+                        <span id="labelPriceR1Reg" style="font-weight: 900; font-size: 13px; color: #38bdf8;">$0</span>
                     </div>
                     <div id="labelPriceR1PromoContainer" class="hidden" style="text-align: right;">
-                        <span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo R1</span>
-                        <span id="labelPriceR1Promo" style="font-weight: 900; font-size: 13px; color: #b91c1c;">$0</span>
+                        <span style="font-size: 10px; color: #f87171; font-weight: 700; display: block;">Promo R1</span>
+                        <span id="labelPriceR1Promo" style="font-weight: 900; font-size: 13px; color: #f87171;">$0</span>
                     </div>
                 </div>
 
-                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between;">
+                <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 14px; padding: 10px; display: flex; justify-content: space-between;">
                     <div>
-                        <span id="labelCXBoxSize" style="font-size: 10px; color: #78350f; font-weight: 700; display: block;">Regular CX</span>
-                        <span id="labelPriceCXReg" style="font-weight: 900; font-size: 13px; color: #92400e;">$0</span>
+                        <span id="labelCXBoxSize" style="font-size: 10px; color: #fbbf24; font-weight: 700; display: block;">Regular CX</span>
+                        <span id="labelPriceCXReg" style="font-weight: 900; font-size: 13px; color: #f59e0b;">$0</span>
                     </div>
                     <div id="labelPriceCXPromoContainer" class="hidden" style="text-align: right;">
-                        <span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo CX</span>
-                        <span id="labelPriceCXPromo" style="font-weight: 900; font-size: 13px; color: #b91c1c;">$0</span>
+                        <span style="font-size: 10px; color: #f87171; font-weight: 700; display: block;">Promo CX</span>
+                        <span id="labelPriceCXPromo" style="font-weight: 900; font-size: 13px; color: #f87171;">$0</span>
                     </div>
                 </div>
 
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">13. FECHA DE VENCIMIENTO</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
+                        <label style="font-weight: 800; font-size: 11px; color: #94a3b8;">13. FECHA DE VENCIMIENTO</label>
+                        <label style="font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer;">
                             <input type="checkbox" id="expiryNA" onchange="toggleExpiryNA()"> No aplica
                         </label>
                     </div>
                     <input type="date" id="prodExpiry" class="input-text">
-                    <div id="expiryNADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
+                    <div id="expiryNADisplay" class="hidden" style="background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #64748b; font-style: italic;">No aplica</div>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
-                    <button type="button" onclick="closeProductModal()" style="padding: 10px 16px; border: 1px solid #d1d5db; background: #e5e7eb; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06);">
+                    <button type="button" onclick="closeProductModal()" style="padding: 10px 16px; border: 1px solid rgba(255,255,255,0.1); background: #1e293b; border-radius: 12px; font-weight: 700; font-size: 12px; color: #94a3b8; cursor: pointer;">
                         Cancelar
                     </button>
-                    <button type="submit" class="btn-green">
+                    <button type="submit" class="btn-blue-primary">
                         <i class="fa-solid fa-save"></i> Guardar Producto
                     </button>
                 </div>
@@ -555,14 +704,14 @@
 
     <!-- MODAL ESCÁNER CON ZOOM, FLASH Y FOTO EN ALTA DEFINICIÓN -->
     <div id="scannerModal" class="modal-overlay hidden">
-        <div class="modal-box" style="background: #111827; max-width: 360px;">
-            <div class="modal-header" style="background: #1f2937;">
-                <span id="scannerModalTitle" style="color: #34d399; font-size: 12px;">Escaneando...</span>
+        <div class="modal-box" style="background: #0f172a; max-width: 360px;">
+            <div class="modal-header" style="background: #172136;">
+                <span id="scannerModalTitle" style="color: #38bdf8; font-size: 12px;">Escaneando...</span>
                 <div style="display: flex; align-items: center; gap: 6px;">
-                    <button type="button" id="btnTorch" onclick="toggleTorch()" style="background: #eab308; color: black; border: none; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;" title="Activar Flash">
+                    <button type="button" id="btnTorch" onclick="toggleTorch()" style="background: #f59e0b; color: black; border: none; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;" title="Activar Flash">
                         <i class="fa-solid fa-bolt"></i> Flash
                     </button>
-                    <button type="button" id="btnZoom" onclick="cycleZoom()" style="background: #374151; color: #34d399; border: 1px solid #4b5563; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;">
+                    <button type="button" id="btnZoom" onclick="cycleZoom()" style="background: #1e293b; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;">
                         1x
                     </button>
                     <button type="button" onclick="closeScannerModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
@@ -572,18 +721,18 @@
             </div>
 
             <div style="padding: 16px; display: flex; flex-direction: column; align-items: center; position: relative;">
-                <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #000;"></div>
+                <div id="reader" style="width: 100%; border-radius: 14px; overflow: hidden; background: #000;"></div>
                 
-                <div id="ocrSpinner" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                <div id="ocrSpinner" class="hidden" style="position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
                     <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #38bdf8; margin-bottom: 8px;"></i>
                     <span id="ocrSpinnerText" style="font-size: 12px; font-weight: 800;">Analizando etiqueta...</span>
                 </div>
 
-                <p id="scannerHint" style="color: #9ca3af; font-size: 11px; margin-top: 10px; text-align: center;">Mantén a 15-20 cm o toma una foto para recortar el número</p>
+                <p id="scannerHint" style="color: #94a3b8; font-size: 11px; margin-top: 10px; text-align: center;">Mantén a 15-20 cm o toma una foto para recortar el número</p>
             </div>
 
-            <div style="padding: 12px; background: #1f2937; display: flex; flex-direction: column; gap: 8px;">
-                <label style="width: 100%; padding: 10px; background: #059669; color: white; border-radius: 12px; font-weight: 800; font-size: 12px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <div style="padding: 12px; background: #172136; display: flex; flex-direction: column; gap: 8px;">
+                <label style="width: 100%; padding: 10px; background: #0284c7; color: white; border-radius: 12px; font-weight: 800; font-size: 12px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                     <i class="fa-solid fa-camera"></i> 📸 Tomar Foto Nítida y Recortar
                     <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" onchange="handleNativePhoto(event)" style="display: none;">
                 </label>
@@ -592,7 +741,7 @@
                     <i class="fa-solid fa-eye"></i> Reconocer Número SAP en Vivo
                 </button>
 
-                <button type="button" onclick="closeScannerModal()" style="width: 100%; padding: 8px; background: #374151; color: #d1d5db; border: none; border-radius: 10px; font-weight: 700; font-size: 11px; cursor: pointer;">
+                <button type="button" onclick="closeScannerModal()" style="width: 100%; padding: 8px; background: #1e293b; color: #94a3b8; border: none; border-radius: 10px; font-weight: 700; font-size: 11px; cursor: pointer;">
                     Cerrar
                 </button>
             </div>
@@ -601,24 +750,24 @@
 
     <!-- MODAL DE RECORTE RÁPIDO PARA ENFOCAR SOLO EL NÚMERO SAP -->
     <div id="cropModal" class="modal-overlay hidden" style="z-index: 60;">
-        <div class="modal-box" style="background: #111827; max-width: 420px;">
-            <div class="modal-header" style="background: #1f2937;">
+        <div class="modal-box" style="background: #0f172a; max-width: 420px;">
+            <div class="modal-header" style="background: #172136;">
                 <span style="color: #38bdf8; font-size: 12px;">Encuadra el Número SAP (Desliza con el dedo)</span>
                 <button type="button" onclick="closeCropModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div style="padding: 12px; display: flex; flex-direction: column; align-items: center; background: #030712;">
-                <div style="position: relative; max-height: 380px; overflow: auto; border: 1px solid #374151; border-radius: 12px;">
+                <div style="position: relative; max-height: 380px; overflow: auto; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px;">
                     <canvas id="cropCanvas" style="max-width: 100%; display: block;"></canvas>
                 </div>
-                <p style="color: #9ca3af; font-size: 11px; margin-top: 8px; text-align: center;">Mueve el recuadro para que encierre solo el número <strong>...UN</strong></p>
+                <p style="color: #94a3b8; font-size: 11px; margin-top: 8px; text-align: center;">Mueve el recuadro para que encierre solo el número <strong>...UN</strong></p>
             </div>
-            <div style="padding: 12px; background: #1f2937; display: flex; gap: 8px;">
-                <button type="button" onclick="closeCropModal()" style="flex: 1; padding: 10px; background: #374151; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer;">
+            <div style="padding: 12px; background: #172136; display: flex; gap: 8px;">
+                <button type="button" onclick="closeCropModal()" style="flex: 1; padding: 10px; background: #1e293b; color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
                     Cancelar
                 </button>
-                <button type="button" onclick="confirmCropAndProcess()" class="btn-green" style="flex: 2; padding: 10px;">
+                <button type="button" onclick="confirmCropAndProcess()" class="btn-blue-primary" style="flex: 2; padding: 10px;">
                     <i class="fa-solid fa-check"></i> Procesar este Número
                 </button>
             </div>
@@ -626,16 +775,16 @@
     </div>
 
     <!-- PANTALLA DE CARGA PROCESANDO ETIQUETA COMPLETA -->
-    <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(0,0,0,0.85);">
+    <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(3, 7, 18, 0.9);">
         <div style="text-align: center; color: white; padding: 24px;">
-            <i class="fa-solid fa-wand-magic-sparkles fa-spin" style="font-size: 42px; color: #fbbf24; margin-bottom: 16px;"></i>
+            <i class="fa-solid fa-wand-magic-sparkles fa-spin" style="font-size: 42px; color: #38bdf8; margin-bottom: 16px;"></i>
             <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Escaneando Etiqueta por Zonas...</h3>
-            <p style="font-size: 12px; color: #9ca3af;">Extrayendo Nombre Frontal, SAP Inferior, Precio y Promoción</p>
+            <p style="font-size: 12px; color: #94a3b8;">Extrayendo Nombre Frontal, SAP Inferior, Precio y Promoción</p>
         </div>
     </div>
 
     <!-- BURBUJA DE ALERTA -->
-    <div id="floatingAlertBubble" onclick="openAlertsModal()" class="hidden animate-bubble-alert" style="position: fixed; bottom: 20px; right: 20px; z-index: 40; background: #dc2626; color: white; padding: 12px 16px; border-radius: 16px; border: 2px solid white; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+    <div id="floatingAlertBubble" onclick="openAlertsModal()" class="hidden animate-bubble-alert" style="position: fixed; bottom: 20px; right: 20px; z-index: 40; background: #ef4444; color: white; padding: 12px 16px; border-radius: 18px; border: 2px solid white; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);">
         <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px;"></i>
         <div>
             <h4 style="font-size: 11px; font-weight: 900; text-transform: uppercase;">Alerta de Vencimiento</h4>
@@ -646,7 +795,7 @@
     <!-- MODAL LISTA DE ALERTAS -->
     <div id="alertsModal" class="modal-overlay hidden">
         <div class="modal-box">
-            <div class="modal-header" style="background: #dc2626;">
+            <div class="modal-header" style="background: #b91c1c;">
                 <span>Productos Próximos a Vencer</span>
                 <button type="button" onclick="closeAlertsModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
@@ -664,8 +813,8 @@
             if (parent && !parent.querySelector('.logo-fallback')) {
                 const badge = document.createElement('div');
                 badge.className = 'logo-fallback';
-                badge.style.cssText = 'width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #0f172a, #022c22); color:#34d399; font-weight:900; font-size:14px; letter-spacing:1px; text-shadow:0 1px 3px rgba(0,0,0,0.8);';
-                badge.innerHTML = '<span>DL</span><span style="font-size:8px; color:#a7f3d0; margin-top:-2px;">COMPANY</span>';
+                badge.style.cssText = 'width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #0f172a, #0369a1); color:#38bdf8; font-weight:900; font-size:14px; letter-spacing:1px; text-shadow:0 1px 3px rgba(0,0,0,0.8);';
+                badge.innerHTML = '<span>DL</span><span style="font-size:8px; color:#7dd3fc; margin-top:-2px;">COMPANY</span>';
                 parent.appendChild(badge);
             }
         }
@@ -740,7 +889,7 @@
                 badge.textContent = 'PRO (ILIMITADO LOCAL)';
             } else {
                 if (btnPremium) btnPremium.classList.add('selected');
-                badge.className = 'badge badge-green';
+                badge.className = 'badge badge-cyan';
                 badge.textContent = 'PREMIUM (NUBE & SYNC)';
             }
         }
@@ -959,7 +1108,7 @@
                     checkExpirationsAndAlert();
 
                     if (badge) {
-                        badge.className = "badge badge-green";
+                        badge.className = "badge badge-cyan";
                         badge.innerHTML = '<i class="fa-solid fa-cloud"></i> Nube OK';
                     }
                 } else {
@@ -972,7 +1121,7 @@
                         });
                         batch.commit().then(() => {
                             if (badge) {
-                                badge.className = "badge badge-green";
+                                badge.className = "badge badge-cyan";
                                 badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Sincronizado';
                             }
                         });
@@ -1178,7 +1327,7 @@
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.textContent = cand;
-                        btn.style.cssText = 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer;';
+                        btn.style.cssText = 'background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); border-radius:8px; padding:4px 9px; font-size:10px; font-weight:700; cursor:pointer;';
                         btn.onclick = () => { document.getElementById('prodName').value = cand.toUpperCase(); };
                         suggBox.appendChild(btn);
                     });
@@ -1640,16 +1789,16 @@
             });
 
             if (criticals.length === 0) {
-                list.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 16px;">No hay productos próximos a vencer.</p>';
+                list.innerHTML = '<p style="color: #64748b; text-align: center; padding: 16px;">No hay productos próximos a vencer.</p>';
             } else {
                 criticals.forEach(item => {
                     const days = calculateDaysRemaining(item.expiry);
                     const isVencido = days <= 0;
                     list.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
                             <div>
-                                <span style="font-weight: 800; color: #111827; display: block;">${item.name}</span>
-                                <span style="font-size: 11px; color: #6b7280;">SAP-${item.sap} • ${item.location || 'Sin ubicación'} • Stock: ${item.units} und</span>
+                                <span style="font-weight: 800; color: #f1f5f9; display: block;">${item.name}</span>
+                                <span style="font-size: 11px; color: #94a3b8;">SAP-${item.sap} • ${item.location || 'Sin ubicación'} • Stock: ${item.units} und</span>
                             </div>
                             <span class="badge ${isVencido ? 'badge-red' : 'badge-amber'}">${isVencido ? 'VENCIDO' : days + ' días rest.'}</span>
                         </div>
@@ -1711,7 +1860,7 @@
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 24px; color: #9ca3af; font-weight: 700;">No se encontraron productos en el inventario</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 28px; color: #64748b; font-weight: 700;">No se encontraron productos en el inventario</td></tr>`;
                 return;
             }
 
@@ -1738,56 +1887,56 @@
                 return `
                     <tr>
                         <td>
-                            <span style="font-weight: 800; font-family: monospace; display: block;">SAP-${item.sap || ''}</span>
-                            <span style="font-size: 10px; color: #9ca3af; font-family: monospace;">${item.barcode || ''}</span>
+                            <span style="font-weight: 800; font-family: monospace; display: block; color: #38bdf8;">SAP-${item.sap || ''}</span>
+                            <span style="font-size: 10px; color: #64748b; font-family: monospace;">${item.barcode || ''}</span>
                         </td>
                         <td>
-                            <span style="font-weight: 800; text-transform: uppercase; display: block; max-width: 220px; white-space: normal;">${item.name || ''}</span>
-                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px;">
+                            <span style="font-weight: 800; text-transform: uppercase; display: block; max-width: 220px; white-space: normal; color: #ffffff;">${item.name || ''}</span>
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
                                 <span class="badge badge-gray">${item.category || ''}</span>
                                 ${item.location ? `<span class="badge badge-purple"><i class="fa-solid fa-location-dot" style="margin-right: 3px;"></i>${item.location}</span>` : ''}
                             </div>
                         </td>
                         <td style="text-align: center;">
-                            ${item.temperature !== 'No aplica' && item.temperature !== '' && item.temperature !== undefined ? `<span class="badge badge-cyan">${item.temperature} °C</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                            ${item.temperature !== 'No aplica' && item.temperature !== '' && item.temperature !== undefined ? `<span class="badge badge-cyan">${item.temperature} °C</span>` : '<span style="color: #64748b; font-size: 10px;">No aplica</span>'}
                         </td>
-                        <td style="text-align: center; background: #ecfdf5; font-weight: 900; color: #047857;">
-                            ${item.units || 0} <span style="font-size: 10px; font-weight: 600;">und</span>
+                        <td style="text-align: center; background: rgba(16, 185, 129, 0.08); font-weight: 900; color: #34d399;">
+                            ${item.units || 0} <span style="font-size: 10px; font-weight: 600; color: #94a3b8;">und</span>
                         </td>
-                        <td style="text-align: center; background: #eff6ff; font-weight: 800; color: #1e40af;">
-                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `R1-${item.r1}` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        <td style="text-align: center; background: rgba(56, 189, 248, 0.08); font-weight: 800; color: #38bdf8;">
+                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `R1-${item.r1}` : '<span style="color: #64748b; font-size: 10px;">No aplica</span>'}
                         </td>
-                        <td style="text-align: center; background: #fffbeb; font-weight: 800; color: #92400e;">
-                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `CX-${item.cx} <span style="font-size: 9px; color: #b45309; display: block;">(x${unitsPerBox})</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                        <td style="text-align: center; background: rgba(245, 158, 11, 0.08); font-weight: 800; color: #fbbf24;">
+                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `CX-${item.cx} <span style="font-size: 9px; color: #d97706; display: block;">(x${unitsPerBox})</span>` : '<span style="color: #64748b; font-size: 10px;">No aplica</span>'}
                         </td>
                         <td style="text-align: center;">
-                            <span style="font-weight: 700; display: block;">$${pReg.toLocaleString()}</span>
-                            ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${pPromo.toLocaleString()}</span>` : ''}
+                            <span style="font-weight: 700; display: block; color: #f1f5f9;">$${pReg.toLocaleString()}</span>
+                            ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #f87171; font-weight: 700; display: block;">Promo: $${pPromo.toLocaleString()}</span>` : ''}
                         </td>
                         <td style="text-align: center;">
                             ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `
-                                <span style="font-weight: 700; color: #1e40af; display: block;">$${(pReg * 6).toLocaleString()}</span>
-                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${(pPromo * 6).toLocaleString()}</span>` : ''}
-                            ` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                                <span style="font-weight: 700; color: #38bdf8; display: block;">$${(pReg * 6).toLocaleString()}</span>
+                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #f87171; font-weight: 700; display: block;">Promo: $${(pPromo * 6).toLocaleString()}</span>` : ''}
+                            ` : '<span style="color: #64748b; font-size: 10px;">No aplica</span>'}
                         </td>
                         <td style="text-align: center;">
                             ${item.cx !== 'No aplica' && item.cx !== undefined ? `
-                                <span style="font-weight: 700; color: #92400e; display: block;">$${(pReg * unitsPerBox).toLocaleString()}</span>
-                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${(pPromo * unitsPerBox).toLocaleString()}</span>` : ''}
-                            ` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
+                                <span style="font-weight: 700; color: #fbbf24; display: block;">$${(pReg * unitsPerBox).toLocaleString()}</span>
+                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #f87171; font-weight: 700; display: block;">Promo: $${(pPromo * unitsPerBox).toLocaleString()}</span>` : ''}
+                            ` : '<span style="color: #64748b; font-size: 10px;">No aplica</span>'}
                         </td>
                         <td style="text-align: center;">
                             <span class="badge ${badgeClass}" style="display: block;">${statusText}</span>
-                            ${item.expiry !== 'No aplica' && item.expiry ? `<span style="font-size: 10px; color: #9ca3af; font-family: monospace; display: block; margin-top: 2px;">${item.expiry}</span>` : ''}
+                            ${item.expiry !== 'No aplica' && item.expiry ? `<span style="font-size: 10px; color: #64748b; font-family: monospace; display: block; margin-top: 2px;">${item.expiry}</span>` : ''}
                         </td>
-                        <td style="text-align: center; background: #f8fafc; font-size: 11px; color: #475569; font-weight: 600;">
-                            <i class="fa-regular fa-clock" style="margin-right: 4px; color: #059669;"></i>${item.updatedAt || 'Inicial'}
+                        <td style="text-align: center; background: rgba(255, 255, 255, 0.02); font-size: 11px; color: #94a3b8; font-weight: 600;">
+                            <i class="fa-regular fa-clock" style="margin-right: 4px; color: #38bdf8;"></i>${item.updatedAt || 'Inicial'}
                         </td>
                         <td style="text-align: center;">
-                            <button type="button" onclick="openProductModal(${realIndex})" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; font-size: 14px;" title="Editar">
+                            <button type="button" onclick="openProductModal(${realIndex})" style="background: none; border: none; color: #38bdf8; cursor: pointer; padding: 4px; font-size: 14px;" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
-                            <button type="button" onclick="deleteProduct(${realIndex})" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px; font-size: 14px;" title="Eliminar">
+                            <button type="button" onclick="deleteProduct(${realIndex})" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; font-size: 14px;" title="Eliminar">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
@@ -1851,7 +2000,7 @@
                     isTorchOn = !isTorchOn;
                     html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
                     const btn = document.getElementById('btnTorch');
-                    btn.style.background = isTorchOn ? "#facc15" : "#4b5563";
+                    btn.style.background = isTorchOn ? "#f59e0b" : "#1e293b";
                     btn.style.color = isTorchOn ? "#000" : "#fff";
                 } catch(e) {
                     alert("Linterna no soportada en este modo.");
@@ -1927,7 +2076,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(originalLoadedImage, 0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.clearRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
@@ -1939,7 +2088,7 @@
                 cropBox.x, cropBox.y, cropBox.width, cropBox.height
             );
 
-            ctx.strokeStyle = "#10b981";
+            ctx.strokeStyle = "#38bdf8";
             ctx.lineWidth = 3;
             ctx.strokeRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
         }
