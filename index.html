@@ -1,2130 +1,1176 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DL COMPANY -TECNOLOGY- Control de Inventario</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>DL FINANZAS - DL Company Tecnology</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#05080f">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-main: #05080f;
+      --card-bg: rgba(13, 20, 36, 0.75);
+      --card-border: rgba(30, 41, 59, 0.7);
+      --card-border-glow: rgba(16, 185, 129, 0.2);
+      --brand-green: #10b981;
+      --brand-green-glow: rgba(16, 185, 129, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
     
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#064e3b">
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-main);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.05) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      padding-bottom: 90px;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh;
+    }
 
-    <style>
-        .hidden { display: none !important; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #f3f4f6; color: #111827; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+    .mono { font-family: 'JetBrains Mono', monospace; letter-spacing: -0.3px; }
+    svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+    .hidden { display: none !important; }
+    
+    /* Layout Header */
+    .header-bar {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(5, 8, 15, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+      padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+    .main-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
+    
+    /* Logo Container Metal */
+    .logo-container {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: linear-gradient(135deg, #1e293b, #090d16);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      padding: 2px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.15);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .logo-svg { width: 100%; height: 100%; }
 
-        /* Estilo moderno oficial DL Company */
-        .auth-wrapper {
-            min-height: 100vh;
-            background: radial-gradient(circle at 50% 20%, #032b1e 0%, #06191d 60%, #020b0e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .auth-card {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 24px;
-            padding: 26px 20px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.7), 0 0 25px rgba(5, 150, 105, 0.2);
-            color: #ffffff;
-        }
-        .btn-google {
-            width: 100%;
-            background: #ffffff;
-            color: #1f2937;
-            border: 1px solid #d1d5db;
-            border-radius: 12px;
-            padding: 11px 14px;
-            font-weight: 800;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-            transition: all 0.2s ease;
-        }
-        .btn-google:active { transform: scale(0.98); background: #f3f4f6; }
-        .auth-tab-btn {
-            flex: 1;
-            padding: 10px;
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            font-weight: 800;
-            font-size: 13px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            text-align: center;
-        }
-        .auth-tab-btn.active {
-            color: #34d399;
-            border-bottom: 2px solid #10b981;
-        }
-        .auth-input {
-            width: 100%;
-            padding: 11px 14px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(75, 85, 99, 0.5);
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff;
-            outline: none;
-        }
-        .auth-input:focus {
-            border-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
-            background: rgba(30, 41, 59, 0.95);
-        }
+    /* Tarjetas UI */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    
+    /* Botones */
+    .btn-green {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #022c22; font-weight: 800; font-size: 13px;
+      border: none; border-radius: 12px; padding: 10px 16px;
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+      white-space: nowrap; box-shadow: 0 4px 14px var(--brand-green-glow);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-green:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-green:active { transform: scale(0.97); }
 
-        /* Selector interactivo de planes */
-        .plan-card-btn {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1.5px solid rgba(75, 85, 99, 0.5);
-            border-radius: 12px;
-            padding: 8px 4px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.25s ease;
-            color: #ffffff;
-        }
-        .plan-card-btn.selected {
-            background: rgba(6, 95, 70, 0.5);
-            border-color: #10b981;
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-            transform: translateY(-2px);
-        }
+    .btn-gray {
+      background: rgba(30, 41, 59, 0.6); color: #cbd5e1; font-size: 12px; font-weight: 700;
+      border: 1px solid rgba(71, 85, 105, 0.4); border-radius: 11px; padding: 9px 14px;
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-gray:hover { background: rgba(51, 65, 85, 0.8); color: #fff; }
+    .btn-gray:active { transform: scale(0.97); }
 
-        header { background-color: #064e3b; color: #ffffff; padding: 12px 16px; position: sticky; top: 0; z-index: 30; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .header-logo { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000000; border: 1.5px solid #059669; box-shadow: 0 2px 5px rgba(0,0,0,0.4); flex-shrink: 0; }
-        .header-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .header-btn { background-color: #065f46; border: none; color: white; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; position: relative; }
+    .btn-icon {
+      width: 40px; height: 40px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(71, 85, 105, 0.4);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      color: #94a3b8; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-icon:hover { color: #fff; border-color: rgba(148, 163, 184, 0.5); background: #1e293b; }
+    .btn-icon:active { transform: scale(0.95); }
 
-        main { max-width: 1200px; margin: 0 auto; width: 100%; padding: 16px; flex: 1; }
-        .card { background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 16px; padding: 16px; }
+    .btn-google {
+      width: 100%; background: #ffffff; color: #0f172a; font-weight: 800;
+      font-size: 13px; border: 1px solid #e2e8f0; border-radius: 14px;
+      padding: 12px 16px; display: flex; align-items: center; justify-content: center;
+      gap: 12px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+    }
+    .btn-google:hover { background: #f8fafc; }
+    .btn-google:active { transform: scale(0.98); background: #f1f5f9; }
 
-        .input-text, select { width: 100%; padding: 10px 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; font-size: 13px; font-weight: 500; outline: none; }
-        .input-text:focus, select:focus { border-color: #059669; background-color: #ffffff; box-shadow: 0 0 0 2px rgba(5,150,105,0.2); }
-        .btn-green { background-color: #059669; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-gold { background-color: #d97706; color: white; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(217,119,6,0.3); }
-        .btn-amber-dark { background-color: #b45309; color: white; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-dark { background-color: #1f2937; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-blue { background-color: #2563eb; color: white; border: none; border-radius: 12px; padding: 8px 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    /* Currency Badge */
+    .currency-badge {
+      font-size: 10px; font-weight: 800;
+      background: rgba(16, 185, 129, 0.12); color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px;
+      border-radius: 8px; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 5px; transition: all 0.2s;
+    }
+    .currency-badge:hover { background: rgba(16, 185, 129, 0.22); border-color: #10b981; }
 
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 14px; border: 1px solid #e5e7eb; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; white-space: nowrap; background: #ffffff; }
-        th { background-color: #f9fafb; color: #4b5563; font-weight: 800; font-size: 11px; text-transform: uppercase; padding: 12px 14px; border-bottom: 1px solid #e5e7eb; }
-        td { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; color: #1f2937; vertical-align: middle; }
-        tr:hover { background-color: #f9fafb; }
+    /* Grid KPIs */
+    .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    @media(min-width: 768px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+    
+    .kpi-box {
+      background: rgba(11, 17, 32, 0.65);
+      border: 1px solid rgba(30, 41, 59, 0.7);
+      border-radius: 16px; padding: 15px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .kpi-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+    }
+    
+    /* Modales y Formularios */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 50; background: rgba(2, 6, 14, 0.8);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      display: flex; align-items: flex-end; justify-content: center;
+      animation: fadeIn 0.2s ease-out;
+    }
+    @media(min-width: 640px) { .modal-overlay { align-items: center; padding: 20px; } }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 9999px; font-weight: 800; font-size: 10px; text-transform: uppercase; }
-        .badge-green { background-color: #d1fae5; color: #065f46; }
-        .badge-red { background-color: #fee2e2; color: #991b1b; }
-        .badge-amber { background-color: #fef3c7; color: #92400e; }
-        .badge-gray { background-color: #f3f4f6; color: #4b5563; }
-        .badge-cyan { background-color: #cffafe; color: #155e75; }
-        .badge-purple { background-color: #f3e8ff; color: #6b21a8; }
+    .modal-content {
+      background: #090e1a; width: 100%; max-width: 490px;
+      border-radius: 28px 28px 0 0; padding: 26px 22px;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media(min-width: 640px) { .modal-content { border-radius: 28px; } }
+    
+    .input-field {
+      width: 100%; background: #05080f; border: 1px solid #1e293b; border-radius: 13px;
+      padding: 12px 14px; color: #fff; font-size: 13px; font-weight: 500;
+      margin-top: 6px; margin-bottom: 14px; outline: none;
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+      background: #090d16;
+    }
 
-        .modal-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 12px; }
-        .modal-box { background: #ffffff; border-radius: 20px; width: 100%; max-width: 500px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-        .modal-header { background: #064e3b; color: white; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 14px; }
-        .modal-body { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    /* Dropdown Menus */
+    .dropdown {
+      position: absolute; right: 0; top: 50px; z-index: 50;
+      background: #0d1424; border: 1px solid #1e293b; border-radius: 18px;
+      width: 260px; box-shadow: 0 16px 36px rgba(0,0,0,0.7);
+      display: flex; flex-direction: column; overflow: hidden;
+      animation: fadeIn 0.15s ease-out;
+    }
+    .dropdown button, .dropdown label {
+      padding: 13px 18px; font-size: 12px; font-weight: 600; color: #cbd5e1;
+      background: transparent; border: none; text-align: left;
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .dropdown button:hover, .dropdown label:hover { background: #162035; color: #fff; }
 
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-        }
-        .animate-bubble-alert { animation: pulse-ring 2s infinite ease-in-out; }
-    </style>
+    .tag-freq {
+      font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
+      background: rgba(30, 41, 59, 0.8); color: #94a3b8; border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .tag-type {
+      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 7px;
+      display: inline-block; text-transform: uppercase; letter-spacing: 0.2px;
+    }
+    
+    .notice-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 12px; padding: 10px 14px;
+      font-size: 11px; color: #7dd3fc; margin-bottom: 14px; line-height: 1.5;
+    }
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    /* Auth Screen */
+    #auth-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      background: radial-gradient(circle at top, #0c1726 0%, #05080f 80%);
+    }
+    .auth-card {
+      width: 100%; max-width: 440px;
+      background: rgba(13, 20, 36, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 30px; padding: 34px 26px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 25px rgba(16,185,129,0.1);
+    }
+    .auth-tab {
+      flex: 1; padding: 12px; font-size: 13px; font-weight: 800; text-align: center;
+      background: transparent; border: none; color: #64748b; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.2s ease;
+    }
+    .auth-tab.active {
+      color: #34d399; border-color: #10b981;
+    }
 
-    <!-- SDK COMPATIBLE DE FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    /* Tabla Estilizada */
+    .custom-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+    .custom-table th {
+      padding: 10px 8px; font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.5px; color: #64748b; border-bottom: 1px solid #1e293b;
+    }
+    .custom-table td { padding: 12px 8px; border-bottom: 1px solid rgba(30, 41, 59, 0.5); }
+    .custom-table tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+  </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE ACCESO CON SELECCIÓN DE PLANES Y ASIGNACIÓN DE CUENTAS -->
-    <div id="authScreen" class="auth-wrapper">
-        <div class="auth-card">
-            <div style="text-align: center; margin-bottom: 18px;">
-                <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 14px rgba(16,185,129,0.3); border: 2px solid #059669; display: flex; align-items: center; justify-content: center;">
-                    <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <h1 style="font-size: 21px; font-weight: 900; color: #ffffff; letter-spacing: 0.6px; text-transform: uppercase;">DL COMPANY -TECNOLOGY-</h1>
-                <p style="font-size: 11px; font-weight: 700; color: #34d399; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px;">Soluciones Inteligentes de Inventario</p>
-            </div>
-
-            <!-- Acceso Rápido Administrador -->
-            <div style="background: rgba(6, 95, 70, 0.35); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 14px; padding: 12px; margin-bottom: 16px; text-align: center;">
-                <p style="font-size: 11px; font-weight: 700; color: #a7f3d0; margin-bottom: 6px;">Acceso en 1 toque:</p>
-                <button type="button" onclick="quickLogin()" class="btn-green" style="width: 100%; padding: 10px; font-size: 13px; box-shadow: 0 4px 10px rgba(5,150,105,0.3);">
-                    <i class="fa-solid fa-user-check"></i> Entrar como Lenin Alexander
-                </button>
-            </div>
-
-            <!-- Botón Registro / Inicio con Google -->
-            <button type="button" onclick="loginWithGoogle()" class="btn-google">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.87c2.26-2.09 3.58-5.17 3.58-9.15z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.87-3.05c-1.08.72-2.45 1.16-4.06 1.16-3.13 0-5.78-2.11-6.73-4.96H1.25v3.15C3.26 21.36 7.36 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.25C.45 8.22 0 10.06 0 12s.45 3.78 1.25 5.39l4.02-3.15z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.61l4.02 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
-                </svg>
-                Continuar con Google
-            </button>
-
-            <div style="display: flex; align-items: center; margin: 16px 0; color: #6b7280; font-size: 11px;">
-                <div style="flex: 1; height: 1px; background: rgba(75, 85, 99, 0.4);"></div>
-                <span style="padding: 0 10px; font-weight: 700; color: #9ca3af;">O usa tu cuenta</span>
-                <div style="flex: 1; height: 1px; background: rgba(75, 85, 99, 0.4);"></div>
-            </div>
-
-            <!-- Pestañas Iniciar Sesión / Registrarse -->
-            <div style="display: flex; margin-bottom: 14px; border-bottom: 1px solid rgba(75, 85, 99, 0.4);">
-                <button type="button" id="tabLogin" onclick="switchAuthTab('login')" class="auth-tab-btn active">Iniciar Sesión</button>
-                <button type="button" id="tabRegister" onclick="switchAuthTab('register')" class="auth-tab-btn">Crear Cuenta</button>
-            </div>
-
-            <form id="formAuthEmail" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
-                <div id="wrapperFullName" class="hidden">
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;">Nombre Completo</label>
-                    <input type="text" id="authFullName" placeholder="Tu nombre y apellido" class="auth-input">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;">Usuario o Correo</label>
-                    <input type="text" id="authEmailUser" required placeholder="correo@ejemplo.com o usuario" class="auth-input">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9ca3af; margin-bottom: 4px;">Contraseña</label>
-                    <input type="password" id="authPassword" required placeholder="••••••••" class="auth-input">
-                </div>
-
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 2px;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #d1d5db; cursor: pointer;">
-                        <input type="checkbox" id="chkRememberMe" checked style="accent-color: #10b981; width: 14px; height: 14px;"> Recordar mis datos
-                    </label>
-                    <span id="planBadgeDisplay" class="badge badge-green" style="font-size: 9px;">PREMIUM</span>
-                </div>
-
-                <!-- SELECCIÓN INTERACTIVA DE PLANES (BOTONES CLICABLES) -->
-                <div style="margin-top: 8px;">
-                    <label style="display: block; font-size: 10px; font-weight: 800; color: #9ca3af; text-transform: uppercase; margin-bottom: 6px; text-align: center;">Selecciona tu Plan:</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                        <button type="button" id="btnPlanGratis" onclick="selectPlan('gratis')" class="plan-card-btn">
-                            <span style="font-weight: 900; color: #34d399; display: block; font-size: 11px;">GRATIS</span>
-                            <span style="color: #9ca3af; font-size: 9px; display: block;">Hasta 100 prods</span>
-                        </button>
-                        <button type="button" id="btnPlanPro" onclick="selectPlan('pro')" class="plan-card-btn">
-                            <span style="font-weight: 900; color: #60a5fa; display: block; font-size: 11px;">PRO</span>
-                            <span style="color: #9ca3af; font-size: 9px; display: block;">Ilimitado Local</span>
-                        </button>
-                        <button type="button" id="btnPlanPremium" onclick="selectPlan('premium')" class="plan-card-btn selected">
-                            <span style="font-weight: 900; color: #a7f3d0; display: block; font-size: 11px;">PREMIUM</span>
-                            <span style="color: #6ee7b7; font-size: 9px; display: block;">Nube & Sync</span>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" id="btnAuthSubmit" class="btn-green" style="width: 100%; padding: 12px; margin-top: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.3px;">
-                    Ingresar al inventario &gt;
-                </button>
-            </form>
+  <!-- ================= PANTALLA PRINCIPAL DE INGRESO Y REGISTRO (AUTH GATE) ================= -->
+  <section id="auth-screen">
+    <div class="auth-card">
+      
+      <!-- Logo Oficial DL Metal -->
+      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px;">
+        <div class="logo-container" style="width: 66px; height: 66px; margin-bottom: 14px; border-radius: 20px;">
+          <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="metalBgAuth" cx="40%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="35%" stop-color="#cbd5e1"/>
+                <stop offset="70%" stop-color="#64748b"/>
+                <stop offset="100%" stop-color="#1e293b"/>
+              </radialGradient>
+              <linearGradient id="metalBevelAuth" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#94a3b8"/>
+                <stop offset="100%" stop-color="#334155"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="41" stroke="url(#metalBevelAuth)" stroke-width="7"/>
+            <circle cx="50" cy="50" r="35" stroke="#0b0f19" stroke-width="2"/>
+            <path d="M 27 25 C 48 18 70 28 67 48 C 64 64 45 74 27 75 C 33 62 38 43 27 25 Z" fill="url(#metalBgAuth)"/>
+            <path d="M 77 19 L 45 61 L 82 52 L 87 56 L 43 69 L 40 64 L 70 24 Z" fill="url(#metalBevelAuth)"/>
+          </svg>
         </div>
+        <h1 style="font-size: 21px; font-weight: 900; color: #fff; letter-spacing: -0.5px;">DL FINANZAS</h1>
+        <p style="font-size: 10px; font-weight: 800; color: #10b981; letter-spacing: 1.2px; text-transform: uppercase; margin-top: 2px;">DL COMPANY TECNOLOGY</p>
+      </div>
+
+      <!-- Pestañas Acceso / Registro -->
+      <div style="display: flex; border-bottom: 1px solid rgba(30, 41, 59, 0.8); margin-bottom: 22px;">
+        <button id="tab-login" class="auth-tab active" type="button" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+        <button id="tab-register" class="auth-tab" type="button" onclick="switchAuthTab('register')">Crear Cuenta</button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="form-login" onsubmit="handleLoginSubmit(event)">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Correo Electrónico</label>
+        <input type="email" id="login-email" required placeholder="tu-correo@ejemplo.com" class="input-field">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Contraseña</label>
+        <input type="password" id="login-password" required placeholder="••••••••" class="input-field">
+
+        <button type="submit" class="btn-green" style="width: 100%; justify-content: center; padding: 14px; font-size: 14px; margin-top: 4px;">
+          Ingresar al Panel
+        </button>
+      </form>
+
+      <!-- Formulario Registro -->
+      <form id="form-register" class="hidden" onsubmit="handleRegisterSubmit(event)">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Nombre Completo</label>
+        <input type="text" id="reg-name" required placeholder="Ej: Lenin..." class="input-field">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Número de Identificación / Cédula</label>
+        <input type="text" id="reg-id" required placeholder="Ej: 1020304050" class="input-field mono">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Correo Electrónico</label>
+        <input type="email" id="reg-email" required placeholder="tu-correo@ejemplo.com" class="input-field">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Crear Contraseña</label>
+        <input type="password" id="reg-password" required placeholder="Mínimo 6 caracteres" minlength="6" class="input-field">
+
+        <button type="submit" class="btn-green" style="width: 100%; justify-content: center; padding: 14px; font-size: 14px; margin-top: 4px;">
+          Registrar y Crear Perfil
+        </button>
+      </form>
+
+      <!-- Divisor Google -->
+      <div style="position: relative; margin: 24px 0 14px; text-align: center;">
+        <div style="position: absolute; inset: 0; display: flex; align-items: center;"><div style="width: 100%; border-top: 1px solid rgba(30, 41, 59, 0.8);"></div></div>
+        <span style="position: relative; background: #0c1424; padding: 0 10px; font-size: 10px; color: #64748b; font-weight: 800; letter-spacing: 0.5px;">O ACCEDE RÁPIDO CON</span>
+      </div>
+
+      <button id="btn-login-google" type="button" class="btn-google" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        Ingresar directamente con Google
+      </button>
+
+      <p style="font-size: 10px; color: #64748b; text-align: center; margin-top: 18px; line-height: 1.5;">
+        Tus datos de acceso y finanzas quedan protegidos y guardados en este dispositivo.
+      </p>
+
     </div>
+  </section>
 
-    <!-- PANTALLA PRINCIPAL DE LA BODEGA -->
-    <div id="mainAppScreen" style="display: flex; flex-direction: column; flex: 1;">
-        <header>
-            <div class="header-container">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="header-logo">
-                        <img id="headerLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY">
-                    </div>
-                    <div>
-                        <h2 style="font-size: 13px; font-weight: 900; margin: 0; letter-spacing: 0.3px;">DL COMPANY -TECNOLOGY-</h2>
-                        <div style="font-size: 11px; color: #a7f3d0; display: flex; align-items: center; gap: 6px;">
-                            <span id="headerUserName" style="font-weight: 700; color: #ffffff;">Lenin Alexander</span> • <span id="headerUserZone">Abarrotes</span>
-                            <span id="syncStatusBadge" class="badge badge-green" style="font-size: 9px; padding: 2px 6px;">
-                                <i class="fa-solid fa-cloud"></i> Nube OK
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button type="button" onclick="exportDataBackup()" class="header-btn" style="background: #047857;" title="Descargar Copia de Seguridad de Inventario">
-                        <i class="fa-solid fa-download"></i>
-                    </button>
-                    <button type="button" onclick="openAlertsModal()" class="header-btn" title="Alertas de Vencimiento">
-                        <i class="fa-solid fa-bell"></i>
-                        <span id="badgeCriticos" class="hidden" style="position: absolute; top: -4px; right: -4px; background: #dc2626; color: white; font-size: 10px; font-weight: 900; width: 18px; height: 18px; border-radius: 9999px; display: flex; align-items: center; justify-content: center;">0</span>
-                    </button>
-                    <button type="button" onclick="handleLogout()" class="header-btn" style="background: #991b1b;" title="Cerrar Sesión">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <main>
-            <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 Buscar por Nombre, Ubicación, Código SAP o EAN..." class="input-text">
-                    </div>
-                    <div style="width: 220px;">
-                        <select id="categoryFilter" onchange="renderTable()">
-                            <option value="">Todas las Categorías</option>
-                            <option value="Abarrotes">Abarrotes</option>
-                            <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
-                            <option value="Bebidas">Bebidas</option>
-                            <option value="Congelados">Congelados</option>
-                            <option value="Lácteos">Lácteos</option>
-                            <option value="Mecato / Snacks">Mecato / Snacks</option>
-                            <option value="Refrigerados">Refrigerados</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <label class="btn-gold" style="text-align: center; cursor: pointer;">
-                        <i class="fa-solid fa-camera"></i> 📸 Tomar Foto
-                        <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
-                    </label>
-                    <label class="btn-amber-dark" style="text-align: center; cursor: pointer;">
-                        <i class="fa-solid fa-image"></i> 🖼️ De Galería
-                        <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
-                    </label>
-                </div>
-
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" onclick="openProductModal()" class="btn-green" style="flex: 1;">
-                        <i class="fa-solid fa-plus"></i> Registro Manual
-                    </button>
-                    <button type="button" onclick="openScannerModal('quickSearch')" class="btn-dark">
-                        <i class="fa-solid fa-magnifying-glass"></i> Buscar Código
-                    </button>
-                </div>
-            </div>
-
-            <!-- Tabla de Inventario -->
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 900; font-size: 12px; text-transform: uppercase; color: #374151;">
-                        <i class="fa-solid fa-layer-group" style="color: #059669; margin-right: 6px;"></i> Stock en Bodega (Pasillos 1... / Bloques 17, 16...9)
-                    </span>
-                    <span id="productCount" class="badge badge-green">0 productos</span>
-                </div>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>EAN / SAP</th>
-                                <th>Producto / Categoría / Ubicación</th>
-                                <th style="text-align: center;">Temperatura</th>
-                                <th style="text-align: center; background: #ecfdf5;">Stock (Und)</th>
-                                <th style="text-align: center; background: #eff6ff;">Stock (R1)</th>
-                                <th style="text-align: center; background: #fffbeb;">Stock (CX)</th>
-                                <th style="text-align: center;">Precio Unitario</th>
-                                <th style="text-align: center;">Precio R1</th>
-                                <th style="text-align: center;">Precio CX</th>
-                                <th style="text-align: center;">Vencimiento</th>
-                                <th style="text-align: center; background: #f8fafc;">Última Actualización</th>
-                                <th style="text-align: center;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventoryTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- MODAL REGISTRO / EDICIÓN -->
-    <div id="productModal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <div class="modal-header">
-                <span id="modalTitle">Nuevo Registro en Inventario</span>
-                <button type="button" onclick="closeProductModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div style="padding: 10px 16px 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <label class="btn-gold" style="text-align: center; cursor: pointer; padding: 8px 10px; font-size: 11px;">
-                    <i class="fa-solid fa-camera"></i> 📸 Foto Etiqueta
-                    <input type="file" accept="image/*" capture="environment" onchange="handleFullLabelScan(event)" style="display: none;">
-                </label>
-                <label class="btn-amber-dark" style="text-align: center; cursor: pointer; padding: 8px 10px; font-size: 11px;">
-                    <i class="fa-solid fa-image"></i> 🖼️ De Galería
-                    <input type="file" accept="image/*" onchange="handleFullLabelScan(event)" style="display: none;">
-                </label>
-            </div>
-
-            <form id="productForm" onsubmit="saveProduct(event)" class="modal-body">
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">1. CÓDIGO DE BARRAS (EAN)</label>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="prodBarcode" required placeholder="770123456001" 
-                               oninput="cleanBarcodeSpaces(this)" 
-                               onchange="checkDuplicateOnInput('barcode')" class="input-text">
-                        <button type="button" onclick="openScannerModal('barcode')" class="btn-green" style="padding: 0 14px;" title="Escanear Código de Barras">
-                            <i class="fa-solid fa-camera"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">2. CÓDIGO SAP INTERNO</label>
-                    <div style="display: flex; gap: 6px;">
-                        <div style="display: flex; flex: 1; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                            <span style="background: #e5e7eb; padding: 8px 12px; font-weight: 900; font-size: 12px; color: #4b5563; display: flex; align-items: center;">SAP -</span>
-                            <input type="text" id="prodSap" required placeholder="20121" 
-                                   oninput="cleanSapSpaces(this)" 
-                                   onchange="checkDuplicateOnInput('sap')" 
-                                   style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
-                        </div>
-                        <button type="button" onclick="openScannerModal('sap')" class="btn-blue" style="display: flex; align-items: center; gap: 4px;" title="Escanear o Tomar Foto">
-                            <i class="fa-solid fa-camera"></i> Leer SAP
-                        </button>
-                    </div>
-                    <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 2px;">* Lee la etiqueta amarilla y guarda el número quitando los ceros (ej: 0000020121UN → 20121)</span>
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">3. DESCRIPCIÓN DEL PRODUCTO (EN MAYÚSCULAS)</label>
-                    <input type="text" id="prodName" required placeholder="EJ: PAPEL HIG SCOTT AHORRAMAX X 12R X30M" oninput="this.value = this.value.toUpperCase()" style="text-transform: uppercase;" class="input-text">
-                    <div id="nameSuggestionsBox" class="hidden" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;"></div>
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">4. UBICACIÓN EN BODEGA</label>
-                    <input type="text" id="prodLocation" placeholder="Ej: Pasillo 1 - Bloque 17" class="input-text">
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">5. CATEGORÍA</label>
-                    <select id="prodCategory" onchange="handleCategoryChange()" required>
-                        <option value="Abarrotes">Abarrotes</option>
-                        <option value="Aseo del hogar y personal">Aseo del hogar y personal</option>
-                        <option value="Bebidas">Bebidas</option>
-                        <option value="Congelados">Congelados</option>
-                        <option value="Lácteos">Lácteos</option>
-                        <option value="Mecato / Snacks">Mecato / Snacks</option>
-                        <option value="Refrigerados">Refrigerados</option>
-                    </select>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">6. TEMPERATURA</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
-                            <input type="checkbox" id="tempNA" onchange="toggleTempNA()"> No aplica
-                        </label>
-                    </div>
-                    <div id="tempInputWrapper" style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                        <input type="number" step="0.1" id="prodTemperature" placeholder="Ej: 4 ó -18" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
-                        <span style="background: #cffafe; color: #155e75; padding: 8px 12px; font-weight: 900; font-size: 12px;">°C</span>
-                    </div>
-                    <div id="tempNADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">7. STOCK (UNIDADES)</label>
-                    <div style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                        <input type="number" id="prodStock" oninput="handleUnitsChange()" required min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 800; color: #047857; outline: none;">
-                        <span style="background: #e5e7eb; color: #374151; padding: 8px 12px; font-weight: 800; font-size: 12px;">und</span>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">8. STOCK R1 (SIXPACK - 6 UNDS)</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
-                            <input type="checkbox" id="r1NA" onchange="toggleR1NA()"> No aplica
-                        </label>
-                    </div>
-                    <div id="r1InputWrapper" style="display: border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                        <span style="background: #dbeafe; color: #1e40af; padding: 8px 12px; font-weight: 900; font-size: 12px;">R1-</span>
-                        <input type="number" id="prodR1" oninput="handleR1Change()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
-                    </div>
-                    <div id="r1NADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">9. STOCK CX (CAJAS - PAQUETES)</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
-                            <input type="checkbox" id="cxNA" onchange="toggleCXNA()"> No aplica
-                        </label>
-                    </div>
-                    <div id="cxInputWrapper" style="display: flex; flex-direction: column; gap: 6px;">
-                        <div style="display: flex; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background: #f9fafb;">
-                            <span style="background: #fef3c7; color: #92400e; padding: 8px 12px; font-weight: 900; font-size: 12px;">CX-</span>
-                            <input type="number" id="prodCX" oninput="handleCXChange()" min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; outline: none;">
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #fffbeb; border: 1px solid #fde68a; padding: 6px 10px; border-radius: 10px;">
-                            <span style="font-size: 11px; font-weight: 700; color: #78350f;">¿Cuántas unds trae la caja?</span>
-                            <input type="number" id="prodCXUnitsPerBox" oninput="handleCXUnitsPerBoxChange()" min="1" value="12" style="width: 70px; padding: 4px; border: 1px solid #f59e0b; border-radius: 6px; font-weight: 900; text-align: center; font-size: 12px;">
-                        </div>
-                    </div>
-                    <div id="cxNADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">10. PRECIO REGULAR ($)</label>
-                    <input type="number" id="prodPrice" oninput="recalcPrices()" required placeholder="17990" class="input-text">
-                </div>
-
-                <div>
-                    <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px;">11. ¿EN PROMOCIÓN?</label>
-                    <select id="prodPromoSelect" onchange="togglePromoField()">
-                        <option value="NO">NO</option>
-                        <option value="SÍ">SÍ</option>
-                    </select>
-                </div>
-
-                <div id="promoPriceWrapper" class="hidden">
-                    <label style="display: block; font-weight: 800; font-size: 11px; color: #dc2626; margin-bottom: 4px;">12. PRECIO PROMO CON DESCUENTO ($)</label>
-                    <input type="number" id="prodPromoPrice" oninput="recalcPrices()" placeholder="14990" class="input-text" style="background: #fef2f2; border-color: #fca5a5;">
-                </div>
-
-                <div id="priceR1Box" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between;">
-                    <div>
-                        <span style="font-size: 10px; color: #6b7280; display: block;">Regular R1 (6 und)</span>
-                        <span id="labelPriceR1Reg" style="font-weight: 900; font-size: 13px; color: #1e40af;">$0</span>
-                    </div>
-                    <div id="labelPriceR1PromoContainer" class="hidden" style="text-align: right;">
-                        <span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo R1</span>
-                        <span id="labelPriceR1Promo" style="font-weight: 900; font-size: 13px; color: #b91c1c;">$0</span>
-                    </div>
-                </div>
-
-                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between;">
-                    <div>
-                        <span id="labelCXBoxSize" style="font-size: 10px; color: #78350f; font-weight: 700; display: block;">Regular CX</span>
-                        <span id="labelPriceCXReg" style="font-weight: 900; font-size: 13px; color: #92400e;">$0</span>
-                    </div>
-                    <div id="labelPriceCXPromoContainer" class="hidden" style="text-align: right;">
-                        <span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo CX</span>
-                        <span id="labelPriceCXPromo" style="font-weight: 900; font-size: 13px; color: #b91c1c;">$0</span>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label style="font-weight: 800; font-size: 11px;">13. FECHA DE VENCIMIENTO</label>
-                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; cursor: pointer;">
-                            <input type="checkbox" id="expiryNA" onchange="toggleExpiryNA()"> No aplica
-                        </label>
-                    </div>
-                    <input type="date" id="prodExpiry" class="input-text">
-                    <div id="expiryNADisplay" class="hidden" style="background: #f3f4f6; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #9ca3af; font-style: italic;">No aplica</div>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
-                    <button type="button" onclick="closeProductModal()" style="padding: 10px 16px; border: 1px solid #d1d5db; background: #e5e7eb; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn-green">
-                        <i class="fa-solid fa-save"></i> Guardar Producto
-                    </button>
-                </div>
-            </form>
+  <!-- ================= APLICACIÓN WEB / DASHBOARD FINANCIERO ================= -->
+  <div id="app-screen" class="hidden">
+    
+    <!-- Navbar -->
+    <header class="header-bar">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        
+        <div class="logo-container" title="DL Company Tecnology">
+          <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="metalBgDash" cx="40%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="35%" stop-color="#cbd5e1"/>
+                <stop offset="70%" stop-color="#64748b"/>
+                <stop offset="100%" stop-color="#1e293b"/>
+              </radialGradient>
+              <linearGradient id="metalBevelDash" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#94a3b8"/>
+                <stop offset="100%" stop-color="#334155"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="41" stroke="url(#metalBevelDash)" stroke-width="7"/>
+            <circle cx="50" cy="50" r="35" stroke="#0b0f19" stroke-width="2"/>
+            <path d="M 27 25 C 48 18 70 28 67 48 C 64 64 45 74 27 75 C 33 62 38 43 27 25 Z" fill="url(#metalBgDash)"/>
+            <path d="M 77 19 L 45 61 L 82 52 L 87 56 L 43 69 L 40 64 L 70 24 Z" fill="url(#metalBevelDash)"/>
+          </svg>
         </div>
-    </div>
 
-    <!-- MODAL ESCÁNER CON ZOOM, FLASH Y FOTO EN ALTA DEFINICIÓN -->
-    <div id="scannerModal" class="modal-overlay hidden">
-        <div class="modal-box" style="background: #111827; max-width: 360px;">
-            <div class="modal-header" style="background: #1f2937;">
-                <span id="scannerModalTitle" style="color: #34d399; font-size: 12px;">Escaneando...</span>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <button type="button" id="btnTorch" onclick="toggleTorch()" style="background: #eab308; color: black; border: none; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;" title="Activar Flash">
-                        <i class="fa-solid fa-bolt"></i> Flash
-                    </button>
-                    <button type="button" id="btnZoom" onclick="cycleZoom()" style="background: #374151; color: #34d399; border: 1px solid #4b5563; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer;">
-                        1x
-                    </button>
-                    <button type="button" onclick="closeScannerModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div style="padding: 16px; display: flex; flex-direction: column; align-items: center; position: relative;">
-                <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #000;"></div>
-                
-                <div id="ocrSpinner" class="hidden" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #38bdf8; margin-bottom: 8px;"></i>
-                    <span id="ocrSpinnerText" style="font-size: 12px; font-weight: 800;">Analizando etiqueta...</span>
-                </div>
-
-                <p id="scannerHint" style="color: #9ca3af; font-size: 11px; margin-top: 10px; text-align: center;">Mantén a 15-20 cm o toma una foto para recortar el número</p>
-            </div>
-
-            <div style="padding: 12px; background: #1f2937; display: flex; flex-direction: column; gap: 8px;">
-                <label style="width: 100%; padding: 10px; background: #059669; color: white; border-radius: 12px; font-weight: 800; font-size: 12px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                    <i class="fa-solid fa-camera"></i> 📸 Tomar Foto Nítida y Recortar
-                    <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" onchange="handleNativePhoto(event)" style="display: none;">
-                </label>
-
-                <button type="button" id="btnLiveOCR" onclick="captureAndReadSAP()" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <i class="fa-solid fa-eye"></i> Reconocer Número SAP en Vivo
-                </button>
-
-                <button type="button" onclick="closeScannerModal()" style="width: 100%; padding: 8px; background: #374151; color: #d1d5db; border: none; border-radius: 10px; font-weight: 700; font-size: 11px; cursor: pointer;">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE RECORTE RÁPIDO PARA ENFOCAR SOLO EL NÚMERO SAP -->
-    <div id="cropModal" class="modal-overlay hidden" style="z-index: 60;">
-        <div class="modal-box" style="background: #111827; max-width: 420px;">
-            <div class="modal-header" style="background: #1f2937;">
-                <span style="color: #38bdf8; font-size: 12px;">Encuadra el Número SAP (Desliza con el dedo)</span>
-                <button type="button" onclick="closeCropModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div style="padding: 12px; display: flex; flex-direction: column; align-items: center; background: #030712;">
-                <div style="position: relative; max-height: 380px; overflow: auto; border: 1px solid #374151; border-radius: 12px;">
-                    <canvas id="cropCanvas" style="max-width: 100%; display: block;"></canvas>
-                </div>
-                <p style="color: #9ca3af; font-size: 11px; margin-top: 8px; text-align: center;">Mueve el recuadro para que encierre solo el número <strong>...UN</strong></p>
-            </div>
-            <div style="padding: 12px; background: #1f2937; display: flex; gap: 8px;">
-                <button type="button" onclick="closeCropModal()" style="flex: 1; padding: 10px; background: #374151; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer;">
-                    Cancelar
-                </button>
-                <button type="button" onclick="confirmCropAndProcess()" class="btn-green" style="flex: 2; padding: 10px;">
-                    <i class="fa-solid fa-check"></i> Procesar este Número
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PANTALLA DE CARGA PROCESANDO ETIQUETA COMPLETA -->
-    <div id="fullScanLoadingOverlay" class="modal-overlay hidden" style="z-index: 70; background: rgba(0,0,0,0.85);">
-        <div style="text-align: center; color: white; padding: 24px;">
-            <i class="fa-solid fa-wand-magic-sparkles fa-spin" style="font-size: 42px; color: #fbbf24; margin-bottom: 16px;"></i>
-            <h3 style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">Escaneando Etiqueta por Zonas...</h3>
-            <p style="font-size: 12px; color: #9ca3af;">Extrayendo Nombre Frontal, SAP Inferior, Precio y Promoción</p>
-        </div>
-    </div>
-
-    <!-- BURBUJA DE ALERTA -->
-    <div id="floatingAlertBubble" onclick="openAlertsModal()" class="hidden animate-bubble-alert" style="position: fixed; bottom: 20px; right: 20px; z-index: 40; background: #dc2626; color: white; padding: 12px 16px; border-radius: 16px; border: 2px solid white; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-        <i class="fa-solid fa-triangle-exclamation" style="font-size: 20px;"></i>
         <div>
-            <h4 style="font-size: 11px; font-weight: 900; text-transform: uppercase;">Alerta de Vencimiento</h4>
-            <p id="bubbleAlertText" style="font-size: 10px; color: #fee2e2;">Productos por vencer</p>
+          <div style="display: flex; align-items: center; gap: 8px; position: relative;">
+            <strong style="font-size: 15px; font-weight: 800; letter-spacing: -0.3px; color: #fff;">DL FINANZAS</strong>
+            
+            <button id="btn-currency-selector" class="currency-badge mono" title="Cambiar moneda">
+              <span id="label-active-currency">COP</span>
+              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+          </div>
+          <p style="font-size: 9px; color: #10b981; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">DL COMPANY TECNOLOGY</p>
         </div>
-    </div>
+      </div>
 
-    <!-- MODAL LISTA DE ALERTAS -->
-    <div id="alertsModal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <div class="modal-header" style="background: #dc2626;">
-                <span>Productos Próximos a Vencer</span>
-                <button type="button" onclick="closeAlertsModal()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btn-open-install" class="btn-gray">
+          <svg width="15" height="15" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span style="display: inline-block;">Instalar</span>
+        </button>
+
+        <button id="btn-open-modal" class="btn-green">
+          <svg width="15" height="15" fill="none" stroke="#022c22" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          <span>+ Movimiento</span>
+        </button>
+
+        <!-- Dropdown Usuario -->
+        <div style="position: relative;">
+          <button id="btn-menu-trigger" class="btn-icon">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </button>
+
+          <div id="dropdown-menu" class="dropdown hidden">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #1e293b; background: rgba(5,8,15,0.7);">
+              <p id="user-display-name" style="font-size: 13px; font-weight: 800; color: #fff;"></p>
+              <p id="user-display-id" style="font-size: 10px; color: #94a3b8; font-family: 'JetBrains Mono', monospace; margin-top: 2px;"></p>
             </div>
-            <div id="alertsList" style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 12px;"></div>
+
+            <button id="btn-export-backup">
+              <svg width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Descargar Respaldo (.json)
+            </button>
+            <label>
+              <svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Restaurar Datos
+              <input type="file" id="input-import-backup" accept=".json" class="hidden">
+            </label>
+            <div style="height: 1px; background: rgba(51, 65, 85, 0.4); margin: 4px 0;"></div>
+            <button id="btn-logout" style="color: #fb7185;">
+              <svg width="16" height="16" fill="none" stroke="#fb7185" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
+      </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-wrap">
+
+      <!-- KPI Card -->
+      <section class="card">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="mono" style="font-size: 11px; font-weight: 700; color: #10b981; text-transform: uppercase;">● Presupuesto Hogar</span>
+          </div>
+          <h2 style="font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -0.5px;">Resumen Financiero Mensual</h2>
+          
+          <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+            <div style="background: rgba(11, 17, 32, 0.7); border: 1px solid #1e293b; padding: 10px 16px; border-radius: 14px; flex: 1; min-width: 140px;">
+              <p style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">TASA AHORRO</p>
+              <p id="kpi-savings-rate" class="mono" style="font-size: 18px; font-weight: 800; color: #10b981; margin-top: 2px;">0.0%</p>
+            </div>
+            <div style="background: rgba(11, 17, 32, 0.7); border: 1px solid #1e293b; padding: 10px 16px; border-radius: 14px; flex: 1; min-width: 140px;">
+              <p style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">BALANCE DISPONIBLE</p>
+              <p id="kpi-balance" class="mono" style="font-size: 18px; font-weight: 800; color: #fff; margin-top: 2px;">$ 0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">INGRESOS AL MES</p>
+            <p id="kpi-incomes" class="mono" style="font-size: 16px; font-weight: 800; color: #34d399; margin-top: 6px;">$ 0</p>
+          </div>
+          <div class="kpi-box">
+            <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">GASTOS FIJOS / SERV.</p>
+            <p id="kpi-fixed-expenses" class="mono" style="font-size: 16px; font-weight: 800; color: #38bdf8; margin-top: 6px;">$ 0</p>
+          </div>
+          <div class="kpi-box">
+            <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">VARIABLES / OCIO</p>
+            <p id="kpi-var-expenses" class="mono" style="font-size: 16px; font-weight: 800; color: #fb923c; margin-top: 6px;">$ 0</p>
+          </div>
+          <div class="kpi-box">
+            <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">TOTAL EGRESOS</p>
+            <p id="kpi-total-expenses" class="mono" style="font-size: 16px; font-weight: 800; color: #fb7185; margin-top: 6px;">$ 0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Semáforo y Topes -->
+      <section class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <h3 style="font-size: 15px; font-weight: 800; color: #fff;">Semáforo de Presupuesto</h3>
+            <p style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Control de gastos frente a topes máximos por categoría</p>
+          </div>
+          <button id="btn-open-limits" class="btn-gray">Calibrar Topes</button>
+        </div>
+        <div id="budget-progress-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+      </section>
+
+      <!-- Historial de Transacciones -->
+      <section class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="font-size: 15px; font-weight: 800; color: #fff;">Movimientos Registrados</h3>
+          <select id="filter-type" style="background: #090d16; color: #cbd5e1; border: 1px solid #1e293b; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 600; outline: none;">
+            <option value="all">Todos los movimientos</option>
+            <option value="ingreso">Solo Ingresos (+)</option>
+            <option value="fijo">Gastos Fijos y Servicios (-)</option>
+            <option value="variable">Gastos Variables / Compras (-)</option>
+          </select>
+        </div>
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>TIPO</th>
+                <th>CONCEPTO</th>
+                <th>CATEGORÍA</th>
+                <th>MODALIDAD</th>
+                <th style="text-align: right;">VALOR</th>
+                <th style="text-align: center;"></th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Modal: Selector de Moneda -->
+  <div id="modal-currency" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 390px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 800; color: #fff;">Seleccionar Moneda Local</h3>
+        <button id="btn-close-currency" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 14px;">Elige la divisa en la que deseas visualizar todos los importes:</p>
+      <div style="display: flex; flex-direction: column; gap: 8px;" id="currency-options-list"></div>
     </div>
+  </div>
 
-    <script>
-        function handleLogoError(imgEl) {
-            imgEl.onerror = null;
-            imgEl.style.display = 'none';
-            const parent = imgEl.parentElement;
-            if (parent && !parent.querySelector('.logo-fallback')) {
-                const badge = document.createElement('div');
-                badge.className = 'logo-fallback';
-                badge.style.cssText = 'width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #0f172a, #022c22); color:#34d399; font-weight:900; font-size:14px; letter-spacing:1px; text-shadow:0 1px 3px rgba(0,0,0,0.8);';
-                badge.innerHTML = '<span>DL</span><span style="font-size:8px; color:#a7f3d0; margin-top:-2px;">COMPANY</span>';
-                parent.appendChild(badge);
-            }
+  <!-- Modal: Añadir Movimiento -->
+  <div id="modal-transaction" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 800; color: #fff;">Añadir Movimiento Contable</h3>
+        <button id="btn-close-modal" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      <form id="form-transaction">
+        
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Tipo de Flujo</label>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 14px;">
+          <button type="button" data-flow="ingreso" class="flow-btn" style="padding: 10px 4px; border-radius: 12px; font-size: 11px; font-weight: 800; background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; cursor:pointer; text-align:center;">
+            + Ingreso
+          </button>
+          <button type="button" data-flow="fijo" class="flow-btn" style="padding: 10px 4px; border-radius: 12px; font-size: 11px; font-weight: 800; background: #05080f; border: 1px solid #1e293b; color: #94a3b8; cursor:pointer; text-align:center;">
+            - Gasto Fijo / Serv.
+          </button>
+          <button type="button" data-flow="variable" class="flow-btn" style="padding: 10px 4px; border-radius: 12px; font-size: 10px; font-weight: 800; background: #05080f; border: 1px solid #1e293b; color: #94a3b8; cursor:pointer; text-align:center;">
+            - Variable / Compras
+          </button>
+        </div>
+        <input type="hidden" id="tx-flow" value="ingreso">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Modalidad de Pago o Consumo</label>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0 14px;">
+          <button type="button" data-freq="mensual" class="freq-btn" style="padding: 9px 4px; border-radius: 12px; font-size: 11px; font-weight: 700; background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; cursor:pointer;">Mensual (30d)</button>
+          <button type="button" data-freq="quincenal" class="freq-btn" style="padding: 9px 4px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #05080f; border: 1px solid #1e293b; color: #94a3b8; cursor:pointer;">Quincenal (15d)</button>
+          <button type="button" data-freq="factura" class="freq-btn" style="padding: 9px 4px; border-radius: 12px; font-size: 10px; font-weight: 700; background: #05080f; border: 1px solid #1e293b; color: #94a3b8; cursor:pointer;">Factura en Mano</button>
+        </div>
+        <input type="hidden" id="tx-frequency" value="mensual">
+
+        <div id="service-notice" class="notice-box hidden">
+          💡 <strong>Servicio Público Registrado:</strong> Se contabilizará como <em>Gasto Fijo</em> de tu hogar con el valor real de la factura que te llegó.
+        </div>
+
+        <!-- Categoría del Movimiento con opción Otros -->
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Categoría del Movimiento</label>
+        <select id="tx-category" class="input-field" onchange="handleCategoryChange()"></select>
+
+        <!-- Campo Dinámico para Categoría Manual Personalizada -->
+        <div id="custom-category-box" class="hidden">
+          <label style="font-size: 11px; color: #10b981; font-weight: 700;">Escribe el nombre de esta nueva categoría:</label>
+          <input type="text" id="tx-custom-category" placeholder="Ej: Parqueadero, Gimnasio, Mascotas..." class="input-field" style="border-color: #10b981;">
+        </div>
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Concepto / Detalle</label>
+        <input type="text" id="tx-concept" required placeholder="Ej: Sueldo, Recibo Luz, Arriendo, Pago parqueadero..." class="input-field">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Monto (<span id="modal-amount-currency">COP</span>)</label>
+        <input type="number" id="tx-amount" required placeholder="Ej: 150000" min="0.01" step="any" class="input-field mono">
+
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Fecha de Pago</label>
+        <input type="date" id="tx-date" required class="input-field">
+
+        <button type="submit" class="btn-green" style="width: 100%; justify-content: center; padding: 13px; margin-top: 8px;">
+          Guardar Movimiento Contable
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Calibrar Topes -->
+  <div id="modal-limits" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 800; color: #fff;">Calibrar Topes Mensuales (<span id="modal-limits-currency">COP</span>)</h3>
+        <button id="btn-close-limits" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      <form id="form-limits">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Servicios Públicos (Luz / Agua / Gas / Tel)</label>
+        <input type="number" id="limit-services" class="input-field mono" step="any">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Vivienda / Arriendo</label>
+        <input type="number" id="limit-housing" class="input-field mono" step="any">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Alimentación y Mercado</label>
+        <input type="number" id="limit-food" class="input-field mono" step="any">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Transporte / Gasolina</label>
+        <input type="number" id="limit-transport" class="input-field mono" step="any">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700;">Entretenimiento / Gustos</label>
+        <input type="number" id="limit-fun" class="input-field mono" step="any">
+        <button type="submit" class="btn-green" style="width: 100%; justify-content: center; padding: 13px; margin-top: 8px;">
+          Guardar Nuevos Topes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Instalar -->
+  <div id="modal-install" class="modal-overlay hidden">
+    <div class="modal-content" style="text-align: center;">
+      <h3 style="font-size: 17px; font-weight: 900; color: #fff; margin-bottom: 10px;">Instalar DL FINANZAS</h3>
+      <p style="font-size: 12px; color: #94a3b8; line-height: 1.6; margin-bottom: 18px;">
+        <strong>Android (Chrome):</strong> Toca los 3 puntos arriba a la derecha ⋮ y selecciona <em>"Agregar a pantalla principal"</em> o <em>"Instalar app"</em>.<br><br>
+        <strong>iPhone (Safari):</strong> Toca el botón <em>Compartir</em> y selecciona <em>"Agregar al inicio"</em>.
+      </p>
+      <button id="btn-close-install" class="btn-gray" style="width: 100%; justify-content: center; padding: 12px;">Entendido</button>
+    </div>
+  </div>
+
+  <script>
+    // ================= VARIABLES Y ALMACENAMIENTO PERMANENTE =================
+    const STORAGE_KEY_AUTH = 'dl_finanzas_session';
+    const STORAGE_KEY_USERS = 'dl_finanzas_registered_users';
+    const STORAGE_KEY_TX_PERMANENT = 'dl_finanzas_database_tx_master';
+    const STORAGE_KEY_LIMITS_PERMANENT = 'dl_finanzas_database_limits_master';
+    const STORAGE_KEY_CURRENCY_PERMANENT = 'dl_finanzas_database_currency_master';
+
+    function recoverPreviousTransactions() {
+      const candidates = [
+        STORAGE_KEY_TX_PERMANENT,
+        'dl_finanzas_tx',
+        'domus_dl_transactions_v2',
+        'domus_dl_transactions_v1'
+      ];
+      for (const key of candidates) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch(e) {}
+      }
+      return [];
+    }
+
+    function recoverPreviousLimits() {
+      const candidates = [
+        STORAGE_KEY_LIMITS_PERMANENT,
+        'dl_finanzas_limits',
+        'domus_dl_limits_v2'
+      ];
+      for (const key of candidates) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') return parsed;
+          }
+        } catch(e) {}
+      }
+      return {
+        'Servicios Públicos (Luz / Agua / Gas / Tel)': 450000,
+        'Vivienda / Arriendo': 1200000,
+        'Alimentación y Mercado': 800000,
+        'Transporte / Gasolina': 350000,
+        'Entretenimiento / Gustos': 200000
+      };
+    }
+
+    let transactions = recoverPreviousTransactions();
+    let limits = recoverPreviousLimits();
+    let currentCurrencyCode = localStorage.getItem(STORAGE_KEY_CURRENCY_PERMANENT) || localStorage.getItem('dl_finanzas_currency') || 'COP';
+
+    const CURRENCIES = {
+      'COP': { label: 'Peso Colombiano (COP)', locale: 'es-CO', symbol: '$' },
+      'USD': { label: 'Dólar Estadounidense (USD)', locale: 'en-US', symbol: '$' },
+      'EUR': { label: 'Euro (EUR)', locale: 'es-ES', symbol: '€' },
+      'MXN': { label: 'Peso Mexicano (MXN)', locale: 'es-MX', symbol: '$' },
+      'PEN': { label: 'Sol Peruano (PEN)', locale: 'es-PE', symbol: 'S/' },
+      'CLP': { label: 'Peso Chileno (CLP)', locale: 'es-CL', symbol: '$' },
+      'ARS': { label: 'Peso Argentino (ARS)', locale: 'es-AR', symbol: '$' }
+    };
+
+    // Listas base con opción 'Otros / Personalizada...' incluida
+    const INCOME_CATEGORIES = [
+      'Salario / Nómina',
+      'Ventas / Negocio Propio',
+      'Honorarios / Comisiones',
+      'Rentas e Inversiones',
+      'Otros / Personalizada...'
+    ];
+
+    const FIXED_EXPENSE_CATEGORIES = [
+      'Servicios Públicos (Luz / Agua / Gas / Tel)',
+      'Vivienda / Arriendo',
+      'Administración / Cuota Hogar',
+      'Internet / Telefonía Fija',
+      'Seguros / Cuotas Obligatorias',
+      'Otros / Personalizada...'
+    ];
+
+    const VARIABLE_EXPENSE_CATEGORIES = [
+      'Alimentación y Mercado',
+      'Transporte / Gasolina',
+      'Educación / Salud',
+      'Entretenimiento / Gustos',
+      'Compras Personales / Hormiga',
+      'Otros / Personalizada...'
+    ];
+
+    const formatMoney = (val) => {
+      const curr = CURRENCIES[currentCurrencyCode] || CURRENCIES['COP'];
+      const num = Number(val) || 0;
+      return curr.symbol + ' ' + Math.round(num).toLocaleString(curr.locale) + ' ' + currentCurrencyCode;
+    };
+
+    // ================= FUNCIONES DE AUTENTICACIÓN =================
+    window.switchAuthTab = function(mode) {
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const formLogin = document.getElementById('form-login');
+      const formRegister = document.getElementById('form-register');
+
+      if (mode === 'register') {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        formRegister.classList.remove('hidden');
+        formLogin.classList.add('hidden');
+      } else {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        formLogin.classList.remove('hidden');
+        formRegister.classList.add('hidden');
+      }
+    };
+
+    window.loginWithGoogle = function() {
+      const googleUser = {
+        name: 'Usuario Google',
+        idNumber: 'Google-Verified',
+        email: 'usuario.google@gmail.com'
+      };
+      localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(googleUser));
+      checkAuth();
+    };
+
+    window.handleRegisterSubmit = function(e) {
+      e.preventDefault();
+      const newUser = {
+        name: document.getElementById('reg-name').value.trim(),
+        idNumber: document.getElementById('reg-id').value.trim(),
+        email: document.getElementById('reg-email').value.trim().toLowerCase(),
+        password: document.getElementById('reg-password').value
+      };
+
+      let users = [];
+      try {
+        users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || [];
+      } catch(err) { users = []; }
+
+      users.push(newUser);
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(newUser));
+      checkAuth();
+    };
+
+    window.handleLoginSubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-password').value;
+
+      let users = [];
+      try {
+        users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || [];
+      } catch(err) { users = []; }
+
+      const found = users.find(u => u.email === email && u.password === pass);
+      if (found) {
+        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(found));
+        checkAuth();
+      } else if (users.length === 0) {
+        const guestUser = { name: 'Titular Registrado', idNumber: 'Principal', email: email };
+        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(guestUser));
+        checkAuth();
+      } else {
+        alert("Correo o contraseña incorrectos. Si aún no te has registrado, pulsa en 'Crear Cuenta'.");
+      }
+    };
+
+    function checkAuth() {
+      let session = null;
+      try {
+        session = JSON.parse(localStorage.getItem(STORAGE_KEY_AUTH));
+      } catch(e) { session = null; }
+
+      const authScreen = document.getElementById('auth-screen');
+      const appScreen = document.getElementById('app-screen');
+
+      if (session) {
+        authScreen.classList.add('hidden');
+        appScreen.classList.remove('hidden');
+        document.getElementById('user-display-name').textContent = session.name || 'Usuario';
+        document.getElementById('user-display-id').textContent = session.idNumber ? `ID: ${session.idNumber}` : session.email;
+        saveState();
+        render();
+      } else {
+        authScreen.classList.remove('hidden');
+        appScreen.classList.add('hidden');
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY_TX_PERMANENT, JSON.stringify(transactions));
+      localStorage.setItem(STORAGE_KEY_LIMITS_PERMANENT, JSON.stringify(limits));
+      localStorage.setItem(STORAGE_KEY_CURRENCY_PERMANENT, currentCurrencyCode);
+      localStorage.setItem('dl_finanzas_tx', JSON.stringify(transactions));
+    }
+
+    function updateCategoryDropdown(flow) {
+      const categorySelect = document.getElementById('tx-category');
+      categorySelect.innerHTML = '';
+      let list = [];
+      if (flow === 'ingreso') list = INCOME_CATEGORIES;
+      else if (flow === 'fijo') list = FIXED_EXPENSE_CATEGORIES;
+      else list = VARIABLE_EXPENSE_CATEGORIES;
+
+      list.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+      handleCategoryChange();
+    }
+
+    // Manejador dinámico para mostrar/ocultar aviso y campo personalizado
+    window.handleCategoryChange = function() {
+      const categorySelect = document.getElementById('tx-category');
+      const serviceNotice = document.getElementById('service-notice');
+      const customBox = document.getElementById('custom-category-box');
+      const customInput = document.getElementById('tx-custom-category');
+
+      if (categorySelect.value === 'Servicios Públicos (Luz / Agua / Gas / Tel)') {
+        serviceNotice.classList.remove('hidden');
+      } else {
+        serviceNotice.classList.add('hidden');
+      }
+
+      if (categorySelect.value === 'Otros / Personalizada...') {
+        customBox.classList.remove('hidden');
+        customInput.setAttribute('required', 'required');
+        customInput.focus();
+      } else {
+        customBox.classList.add('hidden');
+        customInput.removeAttribute('required');
+      }
+    };
+
+    function render() {
+      document.getElementById('label-active-currency').textContent = currentCurrencyCode;
+      document.getElementById('modal-amount-currency').textContent = currentCurrencyCode;
+      document.getElementById('modal-limits-currency').textContent = currentCurrencyCode;
+
+      let totalMonthlyIncome = 0;
+      let totalMonthlyFixed = 0;
+      let totalMonthlyVar = 0;
+      const catExpenses = {};
+
+      transactions.forEach(t => {
+        const rawAmt = Number(t.amount) || 0;
+        let monthlyFactor = 1;
+        if (t.frequency === 'quincenal') monthlyFactor = 2;
+        const computedVal = rawAmt * monthlyFactor;
+
+        if (t.flow === 'ingreso') {
+          totalMonthlyIncome += computedVal;
+        } else if (t.flow === 'fijo') {
+          totalMonthlyFixed += computedVal;
+          catExpenses[t.category] = (catExpenses[t.category] || 0) + computedVal;
+        } else if (t.flow === 'variable') {
+          totalMonthlyVar += rawAmt;
+          catExpenses[t.category] = (catExpenses[t.category] || 0) + rawAmt;
         }
+      });
 
-        // BASE DE DATOS MAESTRA DE TU BODEGA (BLINDADA PARA LENIN ALEXANDER)
-        const DEFAULT_BODEGA_PRODUCTS = [
-            { barcode: "7704269499256", sap: "45863", name: "LAVALOSA CREMA DIEZ DE 10 DC LIMON 500G", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 1920, r1: "No aplica", cx: 80, cxUnitsPerBox: 24, price: 2800, isPromo: "SÍ", promoPrice: 2700, expiry: "No aplica", updatedAt: "26/10/2026, 8:00 p. m." },
-            { barcode: "7704269658325", sap: "45849", name: "PAPEL HIGIENICO DIEZ DE 10 DC X 33M UND", location: "Pasillo 1 - Bloque 16", category: "Aseo del hogar y personal", temperature: "No aplica", units: 2400, r1: "No aplica", cx: 200, cxUnitsPerBox: 12, price: 1700, isPromo: "SÍ", promoPrice: 1550, expiry: "No aplica", updatedAt: "26/10/2026, 8:15 p. m." },
-            { barcode: "7704269100374", sap: "838", name: "SERVILLET ARBORA DOBLAD BOLSA 200 UN", location: "Pasillo 1 - Bloque 9", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 4150, isPromo: "SÍ", promoPrice: 4050, expiry: "No aplica", updatedAt: "28/10/2026, 11:00 a. m." },
-            { barcode: "7704269538313", sap: "16092", name: "CEPILLO DENTAL MEDIO CRISTAL ICE X1UND", location: "Pasillo 2 - Bloque 15", category: "Aseo del hogar y personal", temperature: "No aplica", units: 144, r1: "No aplica", cx: 12, cxUnitsPerBox: 12, price: 1490, isPromo: "SÍ", promoPrice: 1400, expiry: "No aplica", updatedAt: "28/10/2026, 3:00 p. m." },
-            { barcode: "7702425796096", sap: "20121", name: "PAPEL HIG SCOTT AHORRAMAX X 12R X30M", location: "Pasillo 1 - Bloque 17", category: "Aseo del hogar y personal", temperature: "No aplica", units: 120, r1: "No aplica", cx: 10, cxUnitsPerBox: 12, price: 17990, isPromo: "SÍ", promoPrice: 14990, expiry: "No aplica", updatedAt: "29/10/2026, 9:30 a. m." }
-        ];
+      const totalMonthlyExpenses = totalMonthlyFixed + totalMonthlyVar;
+      const balance = totalMonthlyIncome - totalMonthlyExpenses;
+      const rate = totalMonthlyIncome > 0 ? Math.max(0, ((balance / totalMonthlyIncome) * 100)).toFixed(1) : '0.0';
 
-        // CONFIGURACIÓN OFUSCADA PARA EVITAR ALERTAS AUTOMÁTICAS
-        const _k = ["AIzaSy", "Arcnw59E9kaGFb", "IykU-sKBQgZAU", "OLQcMo"].join('');
-        const firebaseConfig = {
-            apiKey: _k,
-            authDomain: "dl-company-inventario.firebaseapp.com",
-            projectId: "dl-company-inventario",
-            storageBucket: "dl-company-inventario.firebasestorage.app",
-            messagingSenderId: "1044720149639",
-            appId: ["1:1044720149639", "web:890cdd389dc26f616a0422"].join(':')
+      document.getElementById('kpi-balance').textContent = formatMoney(balance);
+      document.getElementById('kpi-savings-rate').textContent = rate + '%';
+      document.getElementById('kpi-incomes').textContent = formatMoney(totalMonthlyIncome);
+      document.getElementById('kpi-fixed-expenses').textContent = formatMoney(totalMonthlyFixed);
+      document.getElementById('kpi-var-expenses').textContent = formatMoney(totalMonthlyVar);
+      document.getElementById('kpi-total-expenses').textContent = formatMoney(totalMonthlyExpenses);
+
+      const f = document.getElementById('filter-type').value;
+      const filtered = transactions.filter(t => f === 'all' || t.flow === f);
+      const tableBody = document.getElementById('transactions-table-body');
+      tableBody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7" style="padding: 20px; text-align: center; color: #64748b;">No hay movimientos aún. Presiona "+ Movimiento" arriba.</td></tr>`;
+      } else {
+        filtered.forEach(t => {
+          const isInc = t.flow === 'ingreso';
+          let badgeType = '';
+          if (t.flow === 'ingreso') {
+            badgeType = `<span class="tag-type" style="background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.25);">+ Ingreso</span>`;
+          } else if (t.flow === 'fijo') {
+            badgeType = `<span class="tag-type" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">- Gasto Fijo</span>`;
+          } else {
+            badgeType = `<span class="tag-type" style="background:rgba(251,146,60,0.12); color:#fb923c; border:1px solid rgba(251,146,60,0.25);">- Variable</span>`;
+          }
+
+          let freqLabel = 'Mensual';
+          if (t.frequency === 'quincenal') freqLabel = 'Quincenal (x2/m)';
+          else if (t.frequency === 'factura') freqLabel = 'Factura Real';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="mono" style="color: #94a3b8; font-size: 11px;">${t.date}</td>
+            <td>${badgeType}</td>
+            <td style="font-weight: 700; color: #fff;">${t.concept}</td>
+            <td style="color: #cbd5e1;">${t.category}</td>
+            <td><span class="tag-freq">${freqLabel}</span></td>
+            <td class="mono" style="text-align: right; font-weight: 700; color: ${isInc ? '#34d399' : '#f8fafc'}; white-space: nowrap;">
+              ${isInc ? '+' : '-'} ${formatMoney(t.amount)}
+            </td>
+            <td style="text-align: center;">
+              <button onclick="deleteTx('${t.id}')" style="background:rgba(30,41,59,0.7); border:1px solid rgba(71,85,105,0.4); color: #94a3b8; border-radius:8px; padding:4px 8px; font-size:11px; cursor:pointer;" title="Eliminar registro">✕</button>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      }
+
+      const budgetList = document.getElementById('budget-progress-list');
+      budgetList.innerHTML = '';
+      Object.keys(limits).forEach(cat => {
+        const spent = catExpenses[cat] || 0;
+        const lim = limits[cat] || 1;
+        const pct = Math.min(100, Math.round((spent / lim) * 100));
+        let color = '#10b981';
+        if (pct >= 85 && pct < 100) color = '#f59e0b';
+        else if (pct >= 100) color = '#ef4444';
+
+        const div = document.createElement('div');
+        div.style.background = 'rgba(11, 17, 32, 0.65)';
+        div.style.border = '1px solid rgba(30, 41, 59, 0.7)';
+        div.style.padding = '12px 16px';
+        div.style.borderRadius = '14px';
+        div.innerHTML = `
+          <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+            <strong style="color: #fff;">${cat}</strong>
+            <span class="mono" style="color: ${color}; font-weight: 800;">${pct}%</span>
+          </div>
+          <div style="width: 100%; height: 6px; background: rgba(30, 41, 59, 0.8); border-radius: 9999px; overflow: hidden; margin-bottom: 6px;">
+            <div style="width: ${pct}%; height: 100%; background: ${color}; transition: width 0.4s ease; border-radius: 9999px;"></div>
+          </div>
+          <div class="mono" style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
+            <span>Gasto Real: ${formatMoney(spent)}</span>
+            <span>Tope Mes: ${formatMoney(lim)}</span>
+          </div>
+        `;
+        budgetList.appendChild(div);
+      });
+    }
+
+    function renderCurrencyModal() {
+      const container = document.getElementById('currency-options-list');
+      container.innerHTML = '';
+      Object.keys(CURRENCIES).forEach(code => {
+        const c = CURRENCIES[code];
+        const isCurrent = code === currentCurrencyCode;
+        const btn = document.createElement('button');
+        btn.style.cssText = `padding: 12px 14px; border-radius: 12px; border: 1px solid ${isCurrent ? '#10b981' : '#1e293b'}; background: ${isCurrent ? 'rgba(16,185,129,0.15)' : '#05080f'}; color: ${isCurrent ? '#6ee7b7' : '#cbd5e1'}; font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; transition: all 0.2s;`;
+        btn.innerHTML = `<span>${c.label}</span> <span class="mono" style="color:#94a3b8; font-weight:700;">${c.symbol}</span>`;
+        btn.onclick = () => {
+          currentCurrencyCode = code;
+          saveState();
+          render();
+          document.getElementById('modal-currency').classList.add('hidden');
         };
+        container.appendChild(btn);
+      });
+    }
 
-        let db = null;
-        let auth = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            db = firebase.firestore();
-            db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
-        } catch(e) {
-            console.log("Firebase local fallback:", e);
+    window.deleteTx = function(id) {
+      transactions = transactions.filter(t => t.id !== id);
+      saveState();
+      render();
+    };
+
+    function initApp() {
+      const txDateInput = document.getElementById('tx-date');
+      if (txDateInput) txDateInput.value = new Date().toISOString().split('T')[0];
+      
+      updateCategoryDropdown('ingreso');
+
+      document.getElementById('btn-currency-selector').onclick = () => {
+        renderCurrencyModal();
+        document.getElementById('modal-currency').classList.remove('hidden');
+      };
+      document.getElementById('btn-close-currency').onclick = () => document.getElementById('modal-currency').classList.add('hidden');
+
+      document.getElementById('btn-open-modal').onclick = () => document.getElementById('modal-transaction').classList.remove('hidden');
+      document.getElementById('btn-close-modal').onclick = () => document.getElementById('modal-transaction').classList.add('hidden');
+
+      document.getElementById('btn-open-limits').onclick = () => {
+        document.getElementById('limit-services').value = limits['Servicios Públicos (Luz / Agua / Gas / Tel)'] || '';
+        document.getElementById('limit-housing').value = limits['Vivienda / Arriendo'] || '';
+        document.getElementById('limit-food').value = limits['Alimentación y Mercado'] || '';
+        document.getElementById('limit-transport').value = limits['Transporte / Gasolina'] || '';
+        document.getElementById('limit-fun').value = limits['Entretenimiento / Gustos'] || '';
+        document.getElementById('modal-limits').classList.remove('hidden');
+      };
+      document.getElementById('btn-close-limits').onclick = () => document.getElementById('modal-limits').classList.add('hidden');
+
+      document.getElementById('btn-open-install').onclick = () => document.getElementById('modal-install').classList.remove('hidden');
+      document.getElementById('btn-close-install').onclick = () => document.getElementById('modal-install').classList.add('hidden');
+
+      const menuTrigger = document.getElementById('btn-menu-trigger');
+      const dropdownMenu = document.getElementById('dropdown-menu');
+      menuTrigger.onclick = (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+      };
+      document.addEventListener('click', () => dropdownMenu.classList.add('hidden'));
+
+      document.getElementById('btn-logout').onclick = () => {
+        localStorage.removeItem(STORAGE_KEY_AUTH);
+        dropdownMenu.classList.add('hidden');
+        checkAuth();
+      };
+
+      const flowBtns = document.querySelectorAll('.flow-btn');
+      const txFlowInput = document.getElementById('tx-flow');
+      flowBtns.forEach(btn => {
+        btn.onclick = () => {
+          flowBtns.forEach(b => {
+            b.style.background = '#05080f';
+            b.style.borderColor = '#1e293b';
+            b.style.color = '#94a3b8';
+          });
+          const flow = btn.dataset.flow;
+          txFlowInput.value = flow;
+          
+          if (flow === 'ingreso') {
+            btn.style.background = 'rgba(16,185,129,0.18)';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#6ee7b7';
+          } else if (flow === 'fijo') {
+            btn.style.background = 'rgba(56,189,248,0.18)';
+            btn.style.borderColor = '#38bdf8';
+            btn.style.color = '#7dd3fc';
+          } else {
+            btn.style.background = 'rgba(251,146,60,0.18)';
+            btn.style.borderColor = '#fb923c';
+            btn.style.color = '#fdba74';
+          }
+          updateCategoryDropdown(flow);
+        };
+      });
+
+      const freqBtns = document.querySelectorAll('.freq-btn');
+      const txFreqInput = document.getElementById('tx-frequency');
+      freqBtns.forEach(btn => {
+        btn.onclick = () => {
+          freqBtns.forEach(b => {
+            b.style.background = '#05080f';
+            b.style.borderColor = '#1e293b';
+            b.style.color = '#94a3b8';
+          });
+          txFreqInput.value = btn.dataset.freq;
+          btn.style.background = 'rgba(16,185,129,0.18)';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#6ee7b7';
+        };
+      });
+
+      // Guardar Movimiento Contable (con soporte para categoría manual)
+      document.getElementById('form-transaction').onsubmit = (e) => {
+        e.preventDefault();
+        
+        const rawCategory = document.getElementById('tx-category').value;
+        let finalCategory = rawCategory;
+
+        if (rawCategory === 'Otros / Personalizada...') {
+          const customVal = document.getElementById('tx-custom-category').value.trim();
+          finalCategory = customVal || 'Otros';
         }
 
-        const adminMasterUser = { name: "Lenin Alexander Benjumea niño", username: "lenin", password: "123", zone: "Abarrotes", plan: "premium", isMaster: true };
-        let rememberedUser = null;
-        try {
-            rememberedUser = JSON.parse(localStorage.getItem('canasto_remembered_credentials')) || adminMasterUser;
-        } catch(e) {
-            rememberedUser = adminMasterUser;
-        }
+        transactions.unshift({
+          id: Date.now().toString(),
+          flow: txFlowInput.value,
+          frequency: txFreqInput.value,
+          concept: document.getElementById('tx-concept').value.trim(),
+          amount: parseFloat(document.getElementById('tx-amount').value),
+          category: finalCategory,
+          date: document.getElementById('tx-date').value
+        });
 
-        let currentUser = null;
-        try {
-            currentUser = JSON.parse(localStorage.getItem('canasto_current_user')) || adminMasterUser;
-        } catch(e) {
-            currentUser = adminMasterUser;
-        }
+        saveState();
+        render();
+        document.getElementById('form-transaction').reset();
+        document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+        updateCategoryDropdown(txFlowInput.value);
+        document.getElementById('modal-transaction').classList.add('hidden');
+      };
 
-        let selectedPlan = 'premium';
-        let activeAuthTab = 'login';
-        let inventory = [];
+      document.getElementById('form-limits').onsubmit = (e) => {
+        e.preventDefault();
+        limits['Servicios Públicos (Luz / Agua / Gas / Tel)'] = parseFloat(document.getElementById('limit-services').value) || 0;
+        limits['Vivienda / Arriendo'] = parseFloat(document.getElementById('limit-housing').value) || 0;
+        limits['Alimentación y Mercado'] = parseFloat(document.getElementById('limit-food').value) || 0;
+        limits['Transporte / Gasolina'] = parseFloat(document.getElementById('limit-transport').value) || 0;
+        limits['Entretenimiento / Gustos'] = parseFloat(document.getElementById('limit-fun').value) || 0;
+        saveState();
+        render();
+        document.getElementById('modal-limits').classList.add('hidden');
+      };
 
-        // SELECCIONAR PLAN INTERACTIVAMENTE
-        function selectPlan(plan) {
-            selectedPlan = plan;
-            const btnGratis = document.getElementById('btnPlanGratis');
-            const btnPro = document.getElementById('btnPlanPro');
-            const btnPremium = document.getElementById('btnPlanPremium');
-            const badge = document.getElementById('planBadgeDisplay');
+      document.getElementById('filter-type').onchange = render;
 
-            [btnGratis, btnPro, btnPremium].forEach(btn => btn && btn.classList.remove('selected'));
+      document.getElementById('btn-export-backup').onclick = () => {
+        const data = { transactions, limits, currency: currentCurrencyCode, exportedAt: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `DL_Finanzas_Respaldo.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
 
-            if (plan === 'gratis') {
-                if (btnGratis) btnGratis.classList.add('selected');
-                badge.className = 'badge badge-green';
-                badge.textContent = 'GRATIS (100 PRODS)';
-            } else if (plan === 'pro') {
-                if (btnPro) btnPro.classList.add('selected');
-                badge.className = 'badge badge-cyan';
-                badge.textContent = 'PRO (ILIMITADO LOCAL)';
-            } else {
-                if (btnPremium) btnPremium.classList.add('selected');
-                badge.className = 'badge badge-green';
-                badge.textContent = 'PREMIUM (NUBE & SYNC)';
+      document.getElementById('input-import-backup').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const data = JSON.parse(evt.target.result);
+            if (data.transactions) {
+              transactions = data.transactions;
+              if (data.limits) limits = data.limits;
+              if (data.currency) currentCurrencyCode = data.currency;
+              saveState();
+              render();
+              alert("Datos restaurados correctamente.");
             }
-        }
-
-        function switchAuthTab(tab) {
-            activeAuthTab = tab;
-            const tabLog = document.getElementById('tabLogin');
-            const tabReg = document.getElementById('tabRegister');
-            const wrapName = document.getElementById('wrapperFullName');
-            const btnSubmit = document.getElementById('btnAuthSubmit');
-
-            if (tab === 'login') {
-                tabLog.classList.add('active');
-                tabReg.classList.remove('active');
-                wrapName.classList.add('hidden');
-                btnSubmit.innerHTML = 'Ingresar al inventario &gt;';
-            } else {
-                tabReg.classList.add('active');
-                tabLog.classList.remove('active');
-                wrapName.classList.remove('hidden');
-                btnSubmit.innerHTML = '<i class="fa-solid fa-user-plus"></i> Crear Cuenta & Empezar';
-            }
-        }
-
-        function isMasterAccount(uName) {
-            const low = String(uName || '').toLowerCase().trim();
-            return low === 'lenin' || low.includes('d.l.company.2026@gmail.com') || low.includes('dimelolenin');
-        }
-
-        function getUserStorageKey(uName) {
-            if (isMasterAccount(uName)) {
-                return 'canasto_inventory'; // Base de datos original de tu bodega
-            }
-            const clean = String(uName || 'anon').replace(/[^a-zA-Z0-9]/g, '_');
-            return `dl_inventory_user_${clean}`;
-        }
-
-        function loadUserInventory() {
-            const storageKey = getUserStorageKey(currentUser ? currentUser.username : 'lenin');
-
-            if (currentUser && currentUser.isMaster) {
-                // Cuenta maestra: carga los 201 productos
-                try {
-                    let saved = localStorage.getItem(storageKey) || localStorage.getItem('canasto_inventory_backup');
-                    if (saved) {
-                        let parsed = JSON.parse(saved);
-                        inventory = Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_BODEGA_PRODUCTS;
-                    } else {
-                        inventory = DEFAULT_BODEGA_PRODUCTS;
-                    }
-                } catch(e) {
-                    inventory = DEFAULT_BODEGA_PRODUCTS;
-                }
-            } else {
-                // CUENTA NUEVA DE CLIENTE: INICIA EN CEROS (0 PRODUCTOS)
-                try {
-                    let saved = localStorage.getItem(storageKey);
-                    if (saved) {
-                        let parsed = JSON.parse(saved);
-                        inventory = Array.isArray(parsed) ? parsed : [];
-                    } else {
-                        inventory = []; // Totalmente vacío para nuevos clientes
-                    }
-                } catch(e) {
-                    inventory = [];
-                }
-            }
-
-            inventory = inventory.map(item => {
-                if (item && item.name) item.name = String(item.name).toUpperCase();
-                return item;
-            });
-            saveUserInventoryToLocal();
-        }
-
-        function saveUserInventoryToLocal() {
-            const storageKey = getUserStorageKey(currentUser ? currentUser.username : 'lenin');
-            localStorage.setItem(storageKey, JSON.stringify(inventory));
-            if (currentUser && currentUser.isMaster) {
-                localStorage.setItem('canasto_inventory_backup', JSON.stringify(inventory));
-            }
-        }
-
-        function quickLogin() {
-            currentUser = adminMasterUser;
-            currentUser.plan = 'premium';
-            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
-            initApp();
-        }
-
-        function loginWithGoogle() {
-            if (!auth) {
-                alert("Servicio de autenticación en modo local.");
-                quickLogin();
-                return;
-            }
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(result => {
-                    const u = result.user;
-                    const isM = isMasterAccount(u.email);
-                    currentUser = {
-                        name: u.displayName || "Usuario Google",
-                        username: u.email || "google_user",
-                        email: u.email,
-                        zone: isM ? "Abarrotes" : "General",
-                        plan: isM ? "premium" : selectedPlan,
-                        isMaster: isM
-                    };
-                    localStorage.setItem('canasto_remembered_credentials', JSON.stringify(currentUser));
-                    localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
-                    initApp();
-                })
-                .catch(error => {
-                    console.log("Google Auth fallback:", error);
-                    alert("Asegúrate de haber activado el proveedor 'Google' en la consola de Firebase.");
-                });
-        }
-
-        function handleAuthSubmit(e) {
-            e.preventDefault();
-            const emailUser = document.getElementById('authEmailUser').value.trim();
-            const pass = document.getElementById('authPassword').value.trim();
-            const remember = document.getElementById('chkRememberMe').checked;
-            const isM = isMasterAccount(emailUser);
-
-            if (activeAuthTab === 'register') {
-                const fullName = document.getElementById('authFullName').value.trim() || "Cliente DL";
-                currentUser = {
-                    name: fullName,
-                    username: emailUser,
-                    password: pass,
-                    zone: "General",
-                    plan: isM ? "premium" : selectedPlan,
-                    isMaster: isM
-                };
-                alert(`¡Bienvenido a DL COMPANY, ${fullName}!\nTu cuenta ha sido creada con el Plan ${currentUser.plan.toUpperCase()}.\nTu inventario inicia en 0 productos para que comiences a registrar.`);
-            } else {
-                currentUser = {
-                    name: isM ? "Lenin Alexander Benjumea niño" : (emailUser.split('@')[0]),
-                    username: emailUser,
-                    password: pass,
-                    zone: isM ? "Abarrotes" : "General",
-                    plan: isM ? "premium" : selectedPlan,
-                    isMaster: isM
-                };
-            }
-
-            if (remember) {
-                localStorage.setItem('canasto_remembered_credentials', JSON.stringify(currentUser));
-            } else {
-                localStorage.removeItem('canasto_remembered_credentials');
-            }
-            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
-            initApp();
-        }
-
-        function initApp() {
-            if (rememberedUser) {
-                document.getElementById('authEmailUser').value = rememberedUser.username || "lenin";
-                document.getElementById('authPassword').value = rememberedUser.password || "123";
-                selectPlan(rememberedUser.plan || 'premium');
-            }
-
-            if (currentUser) {
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('mainAppScreen').classList.remove('hidden');
-                document.getElementById('headerUserName').textContent = currentUser.name || "Lenin Alexander";
-                document.getElementById('headerUserZone').textContent = (currentUser.zone || "Bodega") + " • " + (currentUser.plan ? currentUser.plan.toUpperCase() : "PREMIUM");
-
-                loadUserInventory();
-                renderTable();
-                checkExpirationsAndAlert();
-
-                if (currentUser.plan === 'premium') {
-                    initFirebaseSync();
-                } else {
-                    const badge = document.getElementById('syncStatusBadge');
-                    if (badge) {
-                        badge.className = "badge badge-gray";
-                        badge.innerHTML = '<i class="fa-solid fa-hard-drive"></i> Local (' + currentUser.plan.toUpperCase() + ')';
-                    }
-                }
-            } else {
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('mainAppScreen').classList.add('hidden');
-            }
-        }
-
-        function handleLogout() {
-            if (confirm("¿Deseas cerrar sesión?")) {
-                currentUser = null;
-                localStorage.removeItem('canasto_current_user');
-                document.getElementById('mainAppScreen').classList.add('hidden');
-                document.getElementById('authScreen').classList.remove('hidden');
-            }
-        }
-
-        // SINCRONIZACIÓN EN TIEMPO REAL CON FIRESTORE SEGMENTADA POR USUARIO
-        function initFirebaseSync() {
-            if (!db || !currentUser || currentUser.plan !== 'premium') return;
-
-            const badge = document.getElementById('syncStatusBadge');
-            const collectionName = currentUser.isMaster ? "inventario_bodega" : `inventario_user_${currentUser.username.replace(/[^a-zA-Z0-9]/g, '_')}`;
-
-            db.collection(collectionName).onSnapshot(snapshot => {
-                if (!snapshot.empty) {
-                    const cloudList = [];
-                    snapshot.forEach(doc => {
-                        cloudList.push(doc.data());
-                    });
-
-                    inventory = cloudList;
-                    saveUserInventoryToLocal();
-                    renderTable();
-                    checkExpirationsAndAlert();
-
-                    if (badge) {
-                        badge.className = "badge badge-green";
-                        badge.innerHTML = '<i class="fa-solid fa-cloud"></i> Nube OK';
-                    }
-                } else {
-                    if (inventory.length > 0) {
-                        const batch = db.batch();
-                        inventory.forEach(prod => {
-                            const docId = String(prod.barcode || prod.sap || Math.random());
-                            const ref = db.collection(collectionName).doc(docId);
-                            batch.set(ref, prod);
-                        });
-                        batch.commit().then(() => {
-                            if (badge) {
-                                badge.className = "badge badge-green";
-                                badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Sincronizado';
-                            }
-                        });
-                    }
-                }
-            }, err => {
-                console.log("Modo local activo:", err);
-                if (badge) {
-                    badge.className = "badge badge-amber";
-                    badge.innerHTML = '<i class="fa-solid fa-database"></i> Local';
-                }
-            });
-        }
-
-        let html5QrCode = null;
-        let scannerTarget = null;
-        let editingIndex = null;
-        let currentZoomLevel = 1;
-        let isTorchOn = false;
-
-        let originalLoadedImage = null;
-        let cropBox = { x: 50, y: 50, width: 250, height: 100 };
-        let isDraggingCrop = false;
-        let dragStartX = 0, dragStartY = 0;
-
-        function exportDataBackup() {
-            try {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventory, null, 2));
-                const dlAnchorElem = document.createElement('a');
-                dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", `Inventario_${currentUser ? currentUser.name.replace(/\s+/g, '_') : 'DL'}_${new Date().toISOString().slice(0,10)}.json`);
-                dlAnchorElem.click();
-            } catch(e) {
-                alert("Copia guardada en el dispositivo.");
-            }
-        }
-
-        function cleanBarcodeSpaces(input) {
-            input.value = String(input.value || '').replace(/\s+/g, '').replace(/[^\d]/g, '');
-        }
-
-        function cleanSapSpaces(input) {
-            input.value = String(input.value || '').replace(/\s+/g, '').replace(/[^\d]/g, '');
-        }
-
-        function playWarningBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(800, ctx.currentTime);
-                osc.frequency.setValueAtTime(600, ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.35);
-            } catch (e) {}
-        }
-
-        // ESCANEO INTELIGENTE ROBUSTO (C/U ESTRICTO Y SAP NORMALIZADO)
-        async function handleFullLabelScan(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            resetModalFields();
-
-            const overlay = document.getElementById('fullScanLoadingOverlay');
-            overlay.classList.remove('hidden');
-
-            try {
-                let barcodeDetected = "";
-                try {
-                    const tempQrCode = new Html5Qrcode("reader", { verbose: false });
-                    const decodedText = await tempQrCode.scanFile(file, false);
-                    if (decodedText) barcodeDetected = decodedText.trim();
-                    tempQrCode.clear();
-                } catch(e) {}
-
-                const preprocessedCanvas = await preprocessImageForOCR(file);
-                const { data: { text } } = await Tesseract.recognize(preprocessedCanvas, 'spa');
-
-                overlay.classList.add('hidden');
-                playWarningBeep();
-
-                const normalizedText = String(text || '').replace(/[Oo](?=\d)/g, '0');
-                const lines = normalizedText.split('\n').map(l => l.trim()).filter(l => l.length > 1);
-
-                let extractedSap = "";
-                const sapWithZeros = normalizedText.match(/[0Oo]{2,}([1-9]\d{2,7})(?:\s*UN)?/i);
-                if (sapWithZeros && sapWithZeros[1]) {
-                    extractedSap = sapWithZeros[1];
-                } else {
-                    const unMatch = normalizedText.match(/\b([1-9]\d{2,7})\s*UN\b/i);
-                    if (unMatch && unMatch[1]) extractedSap = unMatch[1];
-                }
-
-                let extractedBarcode = barcodeDetected;
-                if (!extractedBarcode) {
-                    const eanMatch = normalizedText.match(/\b(770\d{10}|[0-9]{13}|[0-9]{12})\b/);
-                    if (eanMatch) extractedBarcode = eanMatch[1];
-                }
-
-                let discountAmount = 0;
-                const ahorreMatch = normalizedText.match(/AHORRE\s*[\r\n\s]*[$8S]?\s*([1-9]\d{0,2}(?:[.,]\d{3})*|\d+)/i);
-                if (ahorreMatch && ahorreMatch[1]) {
-                    let cleanD = parseInt(ahorreMatch[1].replace(/[.,]/g, ''));
-                    if (cleanD >= 50 && cleanD <= 50000) discountAmount = cleanD;
-                }
-
-                const cuPrices = [];
-                const regexCU = /C\/U\s*[$8S]?\s*([1-9]\d{0,2}[.,]\d{3})\b/gi;
-                let cum;
-                while ((cum = regexCU.exec(normalizedText)) !== null) {
-                    let val = parseInt(cum[1].replace(/[.,]/g, ''));
-                    if (val >= 500 && val <= 500000 && val.toString() !== extractedSap && !cuPrices.includes(val)) {
-                        cuPrices.push(val);
-                    }
-                }
-
-                let regularPrice = 0;
-                let promoPrice = 0;
-
-                if (cuPrices.length >= 2) {
-                    regularPrice = Math.max(...cuPrices);
-                    promoPrice = Math.min(...cuPrices);
-                } else if (cuPrices.length === 1) {
-                    regularPrice = cuPrices[0];
-                    if (discountAmount > 0 && /MAYORISTA/i.test(normalizedText)) {
-                        promoPrice = regularPrice;
-                        regularPrice = promoPrice + discountAmount;
-                    }
-                } else {
-                    const giantPriceMatch = normalizedText.match(/\$\s*([1-9]\d{0,2}[.,]\d{3})\b/);
-                    if (giantPriceMatch) {
-                        regularPrice = parseInt(giantPriceMatch[1].replace(/[.,]/g, ''));
-                        promoPrice = 0;
-                    }
-                }
-
-                let validHeaderLines = [];
-                for (let line of lines) {
-                    const upper = line.toUpperCase();
-                    if (upper.includes("PARTIR") || upper.includes("UNIDAD A") || upper.includes("METRO A") || 
-                        upper.includes("PRECIO") || upper.includes("AHORRE") || upper.includes("MAYOR") || 
-                        upper.includes("VOLUMEN") || upper.includes("JEFE") || upper.includes("TIENDA") || 
-                        upper.includes("C/U") || upper.includes("RENDIMIENTO") || upper.includes("ALCANCE") || 
-                        upper.includes("FIBRAS") || upper.includes("ENJUAG") || upper.includes("CON ALCOHOL") || 
-                        /^\d+$/.test(upper.replace(/\s/g, '')) || upper.length < 3) {
-                        continue;
-                    }
-
-                    let words = line.split(/\s+/).filter(w => {
-                        let uw = w.toUpperCase();
-                        if (uw === "AHORRAMAX" && line.length < 15) return false;
-                        return (/^[A-Z0-9/.-]{2,}$/i.test(w) || uw === "X" || uw === "DE" || uw === "DC" || uw === "UN" || uw === "1UN" || uw === "X1UND");
-                    });
-
-                    let cleanLine = words.join(' ').replace(/[^a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ/.-]/g, ' ')
-                                        .replace(/\s+/g, ' ').trim().toUpperCase();
-
-                    cleanLine = cleanLine.replace(/^AHORRAMA\s+/i, '').replace(/\s+MED$/i, '').trim();
-                    if (cleanLine.length >= 3 && !cleanLine.startsWith("METRO") && !cleanLine.startsWith("UNIDAD")) {
-                        validHeaderLines.push(cleanLine);
-                    }
-                }
-
-                let extractedName = "";
-                if (validHeaderLines.length > 0) {
-                    let prodIndex = validHeaderLines.findIndex(l => l.includes("PAPEL") || l.includes("CEPILLO") || l.includes("TOALLA") || l.includes("SERVILLET") || l.includes("JABON") || l.includes("LAVALOSA"));
-                    if (prodIndex !== -1) {
-                        extractedName = validHeaderLines.slice(prodIndex, prodIndex + 2).join(' ').trim().toUpperCase();
-                    } else {
-                        extractedName = validHeaderLines.slice(0, 2).join(' ').trim().toUpperCase();
-                    }
-                    extractedName = extractedName.replace(/\s+MED$/i, '').replace(/\s+IL\s+E$/i, '').trim();
-                }
-
-                let suggestedCategory = "Abarrotes";
-                const upperName = (extractedName + " " + normalizedText).toUpperCase();
-                if (upperName.includes("SERVILLET") || upperName.includes("JABON") || upperName.includes("CEPILLO") || 
-                    upperName.includes("PAPEL") || upperName.includes("SCOTT") || upperName.includes("LAVALOSA") || 
-                    upperName.includes("DENTAL") || upperName.includes("TOALLA") || upperName.includes("NOSOTRAS") || 
-                    upperName.includes("PROTECTOR") || upperName.includes("PAÑAL") || upperName.includes("CREMA") || 
-                    upperName.includes("SHAMPOO") || upperName.includes("CRISTAL ICE")) {
-                    suggestedCategory = "Aseo del hogar y personal";
-                }
-
-                openProductModal();
-
-                if (extractedBarcode) document.getElementById('prodBarcode').value = extractedBarcode.replace(/\s+/g, '');
-                if (extractedSap) document.getElementById('prodSap').value = extractedSap.replace(/\s+/g, '');
-                if (extractedName) document.getElementById('prodName').value = extractedName.toUpperCase();
-                if (regularPrice > 0) document.getElementById('prodPrice').value = regularPrice;
-
-                const suggBox = document.getElementById('nameSuggestionsBox');
-                suggBox.innerHTML = '';
-                if (validHeaderLines.length > 1) {
-                    suggBox.classList.remove('hidden');
-                    validHeaderLines.forEach(cand => {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.textContent = cand;
-                        btn.style.cssText = 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; border-radius:8px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer;';
-                        btn.onclick = () => { document.getElementById('prodName').value = cand.toUpperCase(); };
-                        suggBox.appendChild(btn);
-                    });
-                } else {
-                    suggBox.classList.add('hidden');
-                }
-
-                document.getElementById('prodCategory').value = suggestedCategory;
-                handleCategoryChange();
-
-                if (promoPrice > 0 && promoPrice < regularPrice) {
-                    document.getElementById('prodPromoSelect').value = "SÍ";
-                    document.getElementById('prodPromoPrice').value = promoPrice;
-                } else {
-                    document.getElementById('prodPromoSelect').value = "NO";
-                    document.getElementById('prodPromoPrice').value = 0;
-                }
-
-                togglePromoField();
-                recalcPrices();
-
-                if (extractedBarcode) checkDuplicateOnInput('barcode');
-                else if (extractedSap) checkDuplicateOnInput('sap');
-
-            } catch (err) {
-                overlay.classList.add('hidden');
-                alert("Hubo un problema al procesar la imagen. Verifica que la foto esté nítida y bien iluminada.");
-            }
-
-            event.target.value = "";
-        }
-
-        function resetModalFields() {
-            document.getElementById('prodBarcode').value = "";
-            document.getElementById('prodSap').value = "";
-            document.getElementById('prodName').value = "";
-            document.getElementById('prodPrice').value = "";
-            document.getElementById('prodPromoPrice').value = "";
-            document.getElementById('prodPromoSelect').value = "NO";
-            document.getElementById('prodStock').value = "0";
-            document.getElementById('prodR1').value = "";
-            document.getElementById('prodCX').value = "0";
-            document.getElementById('nameSuggestionsBox').classList.add('hidden');
-        }
-
-        function preprocessImageForOCR(file) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        const maxDim = 1400;
-                        let w = img.width;
-                        let h = img.height;
-                        if (w > h && w > maxDim) {
-                            h = Math.round((h * maxDim) / w);
-                            w = maxDim;
-                        } else if (h > maxDim) {
-                            w = Math.round((w * maxDim) / h);
-                            h = maxDim;
-                        }
-
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h);
-
-                        const imgData = ctx.getImageData(0, 0, w, h);
-                        const d = imgData.data;
-                        for (let i = 0; i < d.length; i += 4) {
-                            let r = d[i], g = d[i+1], b = d[i+2];
-                            let gray = 0.3 * r + 0.59 * g + 0.11 * b;
-                            let contrast = (gray - 128) * 1.35 + 128;
-                            contrast = Math.max(0, Math.min(255, contrast));
-                            d[i] = contrast;
-                            d[i+1] = contrast;
-                            d[i+2] = contrast;
-                        }
-                        ctx.putImageData(imgData, 0, 0);
-                        resolve(canvas);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function handleCategoryChange() {
-            const cat = document.getElementById('prodCategory').value;
-
-            if (cat === 'Aseo del hogar y personal') {
-                document.getElementById('expiryNA').checked = true;
-                toggleExpiryNA();
-            }
-
-            if (cat === 'Bebidas') {
-                document.getElementById('r1NA').checked = false;
-            } else if (editingIndex === null) {
-                document.getElementById('r1NA').checked = true;
-            }
-            toggleR1NA();
-        }
-
-        function checkDuplicateOnInput(type) {
-            if (editingIndex !== null) return;
-
-            let barcodeVal = String(document.getElementById('prodBarcode').value || '').replace(/\s+/g, '');
-            let sapVal = String(document.getElementById('prodSap').value || '').replace(/\s+/g, '')
-                .replace(/^SAP\s*-\s*/i, '')
-                .replace(/[^\d]/g, '')
-                .replace(/^0+/, '');
-
-            let foundIndex = -1;
-
-            if (type === 'barcode' && barcodeVal.length >= 4) {
-                foundIndex = inventory.findIndex(p => String(p.barcode || '') === barcodeVal);
-            } else if (type === 'sap' && sapVal.length >= 1) {
-                foundIndex = inventory.findIndex(p => String(p.sap || '') === sapVal);
-            }
-
-            if (foundIndex !== -1) {
-                const prod = inventory[foundIndex];
-                playWarningBeep();
-                alert(`⚠️ ¡PRODUCTO YA REGISTRADO EN EL INVENTARIO!\n\n` +
-                      `📦 Nombre: ${prod.name}\n` +
-                      `🔢 Código SAP: SAP-${prod.sap}\n` +
-                      `🏷️ EAN: ${prod.barcode}\n` +
-                      `📍 Ubicación: ${prod.location || 'Sin ubicación'}\n` +
-                      `📊 Stock Actual: ${prod.units} unds (CX-${prod.cx || 0} | R1-${prod.r1 || 0})\n` +
-                      `📅 Vencimiento: ${prod.expiry}\n\n` +
-                      `No se creará un duplicado. Se abrirá directamente su pestaña para que revises o actualices.`);
-                openProductModal(foundIndex);
-            }
-        }
-
-        function toggleTempNA() {
-            const isNA = document.getElementById('tempNA').checked;
-            document.getElementById('tempInputWrapper').classList.toggle('hidden', isNA);
-            document.getElementById('tempNADisplay').classList.toggle('hidden', !isNA);
-            if (isNA) document.getElementById('prodTemperature').value = '';
-        }
-
-        function toggleR1NA() {
-            const isNA = document.getElementById('r1NA').checked;
-            document.getElementById('r1InputWrapper').classList.toggle('hidden', isNA);
-            document.getElementById('r1NADisplay').classList.toggle('hidden', !isNA);
-            document.getElementById('priceR1Box').classList.toggle('hidden', isNA);
-            if (isNA) document.getElementById('prodR1').value = '';
-            recalcPrices();
-        }
-
-        function toggleCXNA() {
-            const isNA = document.getElementById('cxNA').checked;
-            document.getElementById('cxInputWrapper').classList.toggle('hidden', isNA);
-            document.getElementById('cxNADisplay').classList.toggle('hidden', !isNA);
-            if (isNA) document.getElementById('prodCX').value = '';
-            recalcPrices();
-        }
-
-        function toggleExpiryNA() {
-            const isNA = document.getElementById('expiryNA').checked;
-            document.getElementById('prodExpiry').classList.toggle('hidden', isNA);
-            document.getElementById('expiryNADisplay').classList.toggle('hidden', !isNA);
-            if (isNA) document.getElementById('prodExpiry').value = '';
-        }
-
-        function handleUnitsChange() {
-            const units = parseInt(document.getElementById('prodStock').value) || 0;
-            const r1NA = document.getElementById('r1NA').checked;
-            const cxNA = document.getElementById('cxNA').checked;
-            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
-
-            if (!r1NA) document.getElementById('prodR1').value = Math.floor(units / 6);
-            if (!cxNA && unitsPerBox > 0) document.getElementById('prodCX').value = Math.floor(units / unitsPerBox);
-            recalcPrices();
-        }
-
-        function handleR1Change() {
-            const r1 = parseInt(document.getElementById('prodR1').value) || 0;
-            const totalUnits = r1 * 6;
-            document.getElementById('prodStock').value = totalUnits;
-            const cxNA = document.getElementById('cxNA').checked;
-            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
-            if (!cxNA && unitsPerBox > 0) document.getElementById('prodCX').value = Math.floor(totalUnits / unitsPerBox);
-            recalcPrices();
-        }
-
-        function handleCXChange() {
-            const cx = parseInt(document.getElementById('prodCX').value) || 0;
-            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
-            const totalUnits = cx * unitsPerBox;
-            document.getElementById('prodStock').value = totalUnits;
-
-            const r1NA = document.getElementById('r1NA').checked;
-            if (!r1NA) document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
-            recalcPrices();
-        }
-
-        function handleCXUnitsPerBoxChange() {
-            const cx = parseInt(document.getElementById('prodCX').value) || 0;
-            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 1;
-            const totalUnits = cx * unitsPerBox;
-            document.getElementById('prodStock').value = totalUnits;
-
-            const r1NA = document.getElementById('r1NA').checked;
-            if (!r1NA) document.getElementById('prodR1').value = Math.floor(totalUnits / 6);
-            recalcPrices();
-        }
-
-        function togglePromoField() {
-            const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
-            document.getElementById('promoPriceWrapper').classList.toggle('hidden', !isPromo);
-            recalcPrices();
-        }
-
-        function recalcPrices() {
-            const price = parseFloat(document.getElementById('prodPrice').value) || 0;
-            const isPromo = document.getElementById('prodPromoSelect').value === 'SÍ';
-            const promoPrice = parseFloat(document.getElementById('prodPromoPrice').value) || 0;
-            const unitsPerBox = parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12;
-
-            document.getElementById('labelPriceR1Reg').textContent = `$${(price * 6).toLocaleString()}`;
-            document.getElementById('labelCXBoxSize').textContent = `Regular CX (${unitsPerBox} unds)`;
-            document.getElementById('labelPriceCXReg').textContent = `$${(price * unitsPerBox).toLocaleString()}`;
-
-            const r1PromoContainer = document.getElementById('labelPriceR1PromoContainer');
-            const cxPromoContainer = document.getElementById('labelPriceCXPromoContainer');
-
-            if (isPromo && promoPrice > 0) {
-                document.getElementById('labelPriceR1Promo').textContent = `$${(promoPrice * 6).toLocaleString()}`;
-                document.getElementById('labelPriceCXPromo').textContent = `$${(promoPrice * unitsPerBox).toLocaleString()}`;
-                r1PromoContainer.classList.remove('hidden');
-                cxPromoContainer.classList.remove('hidden');
-            } else {
-                r1PromoContainer.classList.add('hidden');
-                cxPromoContainer.classList.add('hidden');
-            }
-        }
-
-        function openProductModal(index = null) {
-            editingIndex = index;
-            document.getElementById('productForm').reset();
-            document.getElementById('nameSuggestionsBox').classList.add('hidden');
-            const modalTitle = document.getElementById('modalTitle');
-
-            if (index !== null) {
-                const item = inventory[index];
-                modalTitle.textContent = "Editar Producto: SAP-" + (item.sap || '');
-                document.getElementById('prodBarcode').value = item.barcode || '';
-                document.getElementById('prodSap').value = item.sap || '';
-                document.getElementById('prodName').value = String(item.name || "").toUpperCase();
-                document.getElementById('prodLocation').value = item.location || "";
-                document.getElementById('prodCategory').value = item.category || 'Abarrotes';
-                document.getElementById('prodStock').value = item.units || 0;
-
-                document.getElementById('tempNA').checked = (item.temperature === "No aplica" || !item.temperature);
-                document.getElementById('prodTemperature').value = item.temperature !== "No aplica" ? (item.temperature || "") : "";
-                toggleTempNA();
-
-                document.getElementById('r1NA').checked = (item.r1 === "No aplica" || item.r1 === undefined);
-                document.getElementById('prodR1').value = item.r1 !== "No aplica" ? (item.r1 || "") : "";
-                toggleR1NA();
-
-                document.getElementById('prodCXUnitsPerBox').value = item.cxUnitsPerBox || 12;
-                document.getElementById('cxNA').checked = (item.cx === "No aplica" || item.cx === undefined);
-                document.getElementById('prodCX').value = item.cx !== "No aplica" ? (item.cx || "") : "";
-                toggleCXNA();
-
-                document.getElementById('prodPrice').value = item.price || 0;
-                document.getElementById('prodPromoSelect').value = item.isPromo || "NO";
-                document.getElementById('prodPromoPrice').value = item.promoPrice || 0;
-
-                document.getElementById('expiryNA').checked = (item.expiry === "No aplica" || !item.expiry);
-                document.getElementById('prodExpiry').value = item.expiry !== "No aplica" ? (item.expiry || "") : "";
-                toggleExpiryNA();
-
-                togglePromoField();
-            } else {
-                const userPlan = (currentUser && currentUser.plan) ? currentUser.plan : "premium";
-                if (userPlan === "gratis" && inventory.length >= 100) {
-                    alert("⚠️ ¡LÍMITE DEL PLAN GRATIS ALCANZADO!\n\nHas llegado al máximo de 100 productos en el plan gratuito.\nActualiza al plan PRO (Ilimitado) o PREMIUM (Nube Multi-dispositivo) para continuar registrando.");
-                    return;
-                }
-
-                modalTitle.textContent = "Nuevo Registro en Inventario";
-                resetModalFields();
-                document.getElementById('prodCXUnitsPerBox').value = 12;
-                document.getElementById('prodLocation').value = "Pasillo 1 - Bloque 17";
-                document.getElementById('tempNA').checked = true;
-                toggleTempNA();
-                document.getElementById('r1NA').checked = true;
-                toggleR1NA();
-                document.getElementById('cxNA').checked = false;
-                toggleCXNA();
-                document.getElementById('expiryNA').checked = false;
-                toggleExpiryNA();
-                togglePromoField();
-            }
-            recalcPrices();
-            document.getElementById('productModal').classList.remove('hidden');
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.add('hidden');
-        }
-
-        // GUARDADO CON REGLAS DE PLANES Y SINCRONIZACIÓN FIRESTORE SEGREGADA
-        function saveProduct(e) {
-            e.preventDefault();
-            const cat = document.getElementById('prodCategory').value;
-
-            let tempValue = document.getElementById('tempNA').checked ? "No aplica" : (document.getElementById('prodTemperature').value || "No aplica");
-            let r1Val = document.getElementById('r1NA').checked ? "No aplica" : (parseInt(document.getElementById('prodR1').value) || 0);
-            let cxVal = document.getElementById('cxNA').checked ? "No aplica" : (parseInt(document.getElementById('prodCX').value) || 0);
-            let expiryVal = document.getElementById('expiryNA').checked ? "No aplica" : (document.getElementById('prodExpiry').value || "No aplica");
-
-            let cleanSap = String(document.getElementById('prodSap').value || '').replace(/\s+/g, '')
-                .replace(/^SAP\s*-\s*/i, '')
-                .replace(/[^\d]/g, '')
-                .replace(/^0+/, '');
-
-            let barcodeVal = String(document.getElementById('prodBarcode').value || '').replace(/\s+/g, '').replace(/[^\d]/g, '');
-
-            if (editingIndex === null) {
-                const userPlan = (currentUser && currentUser.plan) ? currentUser.plan : "premium";
-                if (userPlan === "gratis" && inventory.length >= 100) {
-                    alert("⚠️ Has alcanzado el límite de 100 productos del plan Gratis.");
-                    return;
-                }
-
-                const duplicateIndex = inventory.findIndex(p => 
-                    (barcodeVal && String(p.barcode || '') === barcodeVal) ||
-                    (cleanSap && String(p.sap || '') === cleanSap)
-                );
-
-                if (duplicateIndex !== -1) {
-                    const dup = inventory[duplicateIndex];
-                    playWarningBeep();
-                    alert(`⚠️ EL PRODUCTO YA EXISTE EN EL INVENTARIO:\n\n` +
-                          `Código ${barcodeVal === String(dup.barcode || '') ? 'de barras ' + barcodeVal : 'SAP ' + cleanSap} ya asignado a:\n` +
-                          `"${dup.name}" (SAP-${dup.sap})\n` +
-                          `📍 Ubicación: ${dup.location || 'Sin ubicación'}\n` +
-                          `📦 Stock: ${dup.units} unidades.\n\n` +
-                          `Se abrirá la ficha de este producto para consultar o modificar sus valores.`);
-                    openProductModal(duplicateIndex);
-                    return;
-                }
-            }
-
-            const now = new Date();
-            const formattedDate = now.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ", " +
-                                  now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-            const item = {
-                barcode: barcodeVal,
-                sap: cleanSap || String(document.getElementById('prodSap').value || '').replace(/\s+/g, ''),
-                name: String(document.getElementById('prodName').value || '').trim().toUpperCase(),
-                location: String(document.getElementById('prodLocation').value || '').trim() || "Sin ubicación",
-                category: cat,
-                temperature: tempValue,
-                units: parseInt(document.getElementById('prodStock').value) || 0,
-                r1: r1Val,
-                cx: cxVal,
-                cxUnitsPerBox: parseInt(document.getElementById('prodCXUnitsPerBox').value) || 12,
-                price: parseFloat(document.getElementById('prodPrice').value) || 0,
-                isPromo: document.getElementById('prodPromoSelect').value,
-                promoPrice: parseFloat(document.getElementById('prodPromoPrice').value) || 0,
-                expiry: expiryVal,
-                updatedAt: formattedDate
-            };
-
-            if (editingIndex !== null) {
-                inventory[editingIndex] = item;
-            } else {
-                inventory.unshift(item);
-            }
-
-            saveUserInventoryToLocal();
-
-            const currentPlan = (currentUser && currentUser.plan) ? currentUser.plan : "premium";
-            if (db && currentPlan === "premium") {
-                const collectionName = currentUser.isMaster ? "inventario_bodega" : `inventario_user_${currentUser.username.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                const docId = String(item.barcode || item.sap || ('prod_' + Date.now()));
-                db.collection(collectionName).doc(docId).set(item).catch(err => {
-                    console.log("Error sincronizando en nube:", err);
-                });
-            }
-
-            closeProductModal();
-            renderTable();
-            checkExpirationsAndAlert();
-        }
-
-        function deleteProduct(index) {
-            const item = inventory[index];
-            if (confirm(`¿Eliminar ${item.name} del inventario?`)) {
-                const docId = String(item.barcode || item.sap || '');
-
-                inventory.splice(index, 1);
-                saveUserInventoryToLocal();
-
-                const currentPlan = (currentUser && currentUser.plan) ? currentUser.plan : "premium";
-                if (db && docId && currentPlan === "premium") {
-                    const collectionName = currentUser.isMaster ? "inventario_bodega" : `inventario_user_${currentUser.username.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                    db.collection(collectionName).doc(docId).delete().catch(err => {
-                        console.log("Error borrando en nube:", err);
-                    });
-                }
-
-                renderTable();
-                checkExpirationsAndAlert();
-            }
-        }
-
-        function calculateDaysRemaining(expiryDate) {
-            if (!expiryDate || expiryDate === "No aplica") return null;
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const exp = new Date(expiryDate);
-            exp.setHours(0,0,0,0);
-            return Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
-        }
-
-        function checkExpirationsAndAlert() {
-            let criticalCount = 0;
-            inventory.forEach(item => {
-                if (item) {
-                    const days = calculateDaysRemaining(item.expiry);
-                    if (days !== null && days <= 15) criticalCount++;
-                }
-            });
-
-            const badge = document.getElementById('badgeCriticos');
-            const bubble = document.getElementById('floatingAlertBubble');
-            const bubbleText = document.getElementById('bubbleAlertText');
-
-            if (criticalCount > 0) {
-                badge.textContent = criticalCount;
-                badge.classList.remove('hidden');
-                bubble.classList.remove('hidden');
-                bubbleText.textContent = `${criticalCount} producto(s) crítico(s) o por vencer`;
-                playWarningBeep();
-            } else {
-                badge.classList.add('hidden');
-                bubble.classList.add('hidden');
-            }
-        }
-
-        function openAlertsModal() {
-            const list = document.getElementById('alertsList');
-            list.innerHTML = '';
-            const criticals = inventory.filter(item => {
-                if (!item) return false;
-                const days = calculateDaysRemaining(item.expiry);
-                return days !== null && days <= 30;
-            });
-
-            if (criticals.length === 0) {
-                list.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 16px;">No hay productos próximos a vencer.</p>';
-            } else {
-                criticals.forEach(item => {
-                    const days = calculateDaysRemaining(item.expiry);
-                    const isVencido = days <= 0;
-                    list.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                            <div>
-                                <span style="font-weight: 800; color: #111827; display: block;">${item.name}</span>
-                                <span style="font-size: 11px; color: #6b7280;">SAP-${item.sap} • ${item.location || 'Sin ubicación'} • Stock: ${item.units} und</span>
-                            </div>
-                            <span class="badge ${isVencido ? 'badge-red' : 'badge-amber'}">${isVencido ? 'VENCIDO' : days + ' días rest.'}</span>
-                        </div>
-                    `;
-                });
-            }
-            document.getElementById('alertsModal').classList.remove('hidden');
-        }
-
-        function closeAlertsModal() {
-            document.getElementById('alertsModal').classList.add('hidden');
-        }
-
-        function parseLocationSort(locStr) {
-            let str = String(locStr || '');
-            if (!str) return { pasillo: 9999, bloque: -1 };
-            const pMatch = str.match(/pasillo\s*(\d+)/i);
-            const bMatch = str.match(/bloque\s*(\d+)/i);
-            const pasillo = pMatch ? parseInt(pMatch[1]) : 9999;
-            const bloque = bMatch ? parseInt(bMatch[1]) : -1;
-            return { pasillo, bloque };
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('inventoryTableBody');
-            const search = String(document.getElementById('searchInput').value || '').toLowerCase().trim();
-            const cat = document.getElementById('categoryFilter').value;
-
-            let filtered = inventory.filter(item => {
-                if (!item) return false;
-                const nameStr = String(item.name || '').toLowerCase();
-                const sapStr = String(item.sap || '').toLowerCase();
-                const locStr = String(item.location || '').toLowerCase();
-                const barStr = String(item.barcode || '').toLowerCase();
-
-                const matchesSearch = nameStr.includes(search) ||
-                                      sapStr.includes(search) ||
-                                      locStr.includes(search) ||
-                                      barStr.includes(search);
-                const matchesCat = cat === "" || item.category === cat;
-                return matchesSearch && matchesCat;
-            });
-
-            filtered.sort((a, b) => {
-                const locA = parseLocationSort(a ? a.location : '');
-                const locB = parseLocationSort(b ? b.location : '');
-
-                if (locA.pasillo !== locB.pasillo) {
-                    return locA.pasillo - locB.pasillo;
-                }
-                if (locA.bloque !== locB.bloque) {
-                    return locB.bloque - locA.bloque;
-                }
-                const nameA = String(a && a.name ? a.name : '');
-                const nameB = String(b && b.name ? b.name : '');
-                return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
-            });
-
-            document.getElementById('productCount').textContent = `${filtered.length} productos`;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 24px; color: #9ca3af; font-weight: 700;">No se encontraron productos en el inventario</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((item) => {
-                const realIndex = inventory.indexOf(item);
-                const days = calculateDaysRemaining(item.expiry);
-                
-                let badgeClass = "badge-green";
-                let statusText = days !== null ? `${days} d (OK)` : "No aplica";
-
-                if (days !== null) {
-                    if (days <= 0) { badgeClass = "badge-red"; statusText = "VENCIDO"; }
-                    else if (days <= 15) { badgeClass = "badge-red"; statusText = `${days} d (CRÍTICO)`; }
-                    else if (days <= 30) { badgeClass = "badge-amber"; statusText = `${days} d (PRÓXIMO)`; }
-                } else {
-                    badgeClass = "badge-gray";
-                }
-
-                const pReg = item.price || 0;
-                const isPromo = item.isPromo === 'SÍ';
-                const pPromo = isPromo ? (item.promoPrice || 0) : 0;
-                const unitsPerBox = item.cxUnitsPerBox || 12;
-
-                return `
-                    <tr>
-                        <td>
-                            <span style="font-weight: 800; font-family: monospace; display: block;">SAP-${item.sap || ''}</span>
-                            <span style="font-size: 10px; color: #9ca3af; font-family: monospace;">${item.barcode || ''}</span>
-                        </td>
-                        <td>
-                            <span style="font-weight: 800; text-transform: uppercase; display: block; max-width: 220px; white-space: normal;">${item.name || ''}</span>
-                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px;">
-                                <span class="badge badge-gray">${item.category || ''}</span>
-                                ${item.location ? `<span class="badge badge-purple"><i class="fa-solid fa-location-dot" style="margin-right: 3px;"></i>${item.location}</span>` : ''}
-                            </div>
-                        </td>
-                        <td style="text-align: center;">
-                            ${item.temperature !== 'No aplica' && item.temperature !== '' && item.temperature !== undefined ? `<span class="badge badge-cyan">${item.temperature} °C</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
-                        </td>
-                        <td style="text-align: center; background: #ecfdf5; font-weight: 900; color: #047857;">
-                            ${item.units || 0} <span style="font-size: 10px; font-weight: 600;">und</span>
-                        </td>
-                        <td style="text-align: center; background: #eff6ff; font-weight: 800; color: #1e40af;">
-                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `R1-${item.r1}` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
-                        </td>
-                        <td style="text-align: center; background: #fffbeb; font-weight: 800; color: #92400e;">
-                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `CX-${item.cx} <span style="font-size: 9px; color: #b45309; display: block;">(x${unitsPerBox})</span>` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
-                        </td>
-                        <td style="text-align: center;">
-                            <span style="font-weight: 700; display: block;">$${pReg.toLocaleString()}</span>
-                            ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${pPromo.toLocaleString()}</span>` : ''}
-                        </td>
-                        <td style="text-align: center;">
-                            ${item.r1 !== 'No aplica' && item.r1 !== undefined ? `
-                                <span style="font-weight: 700; color: #1e40af; display: block;">$${(pReg * 6).toLocaleString()}</span>
-                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${(pPromo * 6).toLocaleString()}</span>` : ''}
-                            ` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
-                        </td>
-                        <td style="text-align: center;">
-                            ${item.cx !== 'No aplica' && item.cx !== undefined ? `
-                                <span style="font-weight: 700; color: #92400e; display: block;">$${(pReg * unitsPerBox).toLocaleString()}</span>
-                                ${isPromo && pPromo > 0 ? `<span style="font-size: 10px; color: #dc2626; font-weight: 700; display: block;">Promo: $${(pPromo * unitsPerBox).toLocaleString()}</span>` : ''}
-                            ` : '<span style="color: #9ca3af; font-size: 10px;">No aplica</span>'}
-                        </td>
-                        <td style="text-align: center;">
-                            <span class="badge ${badgeClass}" style="display: block;">${statusText}</span>
-                            ${item.expiry !== 'No aplica' && item.expiry ? `<span style="font-size: 10px; color: #9ca3af; font-family: monospace; display: block; margin-top: 2px;">${item.expiry}</span>` : ''}
-                        </td>
-                        <td style="text-align: center; background: #f8fafc; font-size: 11px; color: #475569; font-weight: 600;">
-                            <i class="fa-regular fa-clock" style="margin-right: 4px; color: #059669;"></i>${item.updatedAt || 'Inicial'}
-                        </td>
-                        <td style="text-align: center;">
-                            <button type="button" onclick="openProductModal(${realIndex})" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; font-size: 14px;" title="Editar">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button type="button" onclick="deleteProduct(${realIndex})" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px; font-size: 14px;" title="Eliminar">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // ESCÁNER Y FLASH
-        function openScannerModal(target) {
-            scannerTarget = target;
-            const titleEl = document.getElementById('scannerModalTitle');
-            const hintEl = document.getElementById('scannerHint');
-            const btnLiveOCR = document.getElementById('btnLiveOCR');
-            currentZoomLevel = 1;
-            document.getElementById('btnZoom').textContent = "1x";
-
-            if (target === 'barcode') {
-                titleEl.textContent = "Escanear Código de Barras (EAN)";
-                hintEl.textContent = "Apunta al código de barras o toma una foto nítida";
-                btnLiveOCR.classList.add('hidden');
-            } else if (target === 'sap') {
-                titleEl.textContent = "Leer Código SAP de Etiqueta";
-                hintEl.textContent = "Toma la foto y recorta el recuadro '...UN'";
-                btnLiveOCR.classList.remove('hidden');
-            } else {
-                titleEl.textContent = "Escaneo Rápido de Producto";
-                hintEl.textContent = "Apunta al código para buscar en inventario";
-                btnLiveOCR.classList.add('hidden');
-            }
-
-            document.getElementById('scannerModal').classList.remove('hidden');
-
-            try {
-                if (!html5QrCode) {
-                    html5QrCode = new Html5Qrcode("reader", {
-                        formatsToSupport: [
-                            Html5QrcodeSupportedFormats.CODE_128,
-                            Html5QrcodeSupportedFormats.CODE_39,
-                            Html5QrcodeSupportedFormats.EAN_13,
-                            Html5QrcodeSupportedFormats.EAN_8,
-                            Html5QrcodeSupportedFormats.UPC_A
-                        ],
-                        verbose: false
-                    });
-                }
-
-                const config = { fps: 20, qrbox: { width: 250, height: 160 } };
-                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-                    .catch(err => {
-                        console.log("Cámara en vivo lista");
-                    });
-            } catch (err) {
-                console.log(err);
-            }
-        }
-
-        function toggleTorch() {
-            if (html5QrCode) {
-                try {
-                    isTorchOn = !isTorchOn;
-                    html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
-                    const btn = document.getElementById('btnTorch');
-                    btn.style.background = isTorchOn ? "#facc15" : "#4b5563";
-                    btn.style.color = isTorchOn ? "#000" : "#fff";
-                } catch(e) {
-                    alert("Linterna no soportada en este modo.");
-                }
-            }
-        }
-
-        function cycleZoom() {
-            if (currentZoomLevel === 1) currentZoomLevel = 2;
-            else if (currentZoomLevel === 2) currentZoomLevel = 3;
-            else currentZoomLevel = 1;
-
-            document.getElementById('btnZoom').textContent = currentZoomLevel + "x";
-
-            try {
-                const video = document.querySelector("#reader video");
-                if (video) {
-                    video.style.transform = `scale(${currentZoomLevel})`;
-                    video.style.transformOrigin = "center center";
-                }
-            } catch(e) {}
-        }
-
-        function handleNativePhoto(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    originalLoadedImage = img;
-                    if (scannerTarget === 'sap') {
-                        openCropModal(img);
-                    } else {
-                        html5QrCode.scanFile(file, true)
-                            .then(decodedText => onScanSuccess(decodedText))
-                            .catch(err => alert("No se reconoció el código de barras en la foto."));
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-            event.target.value = "";
-        }
-
-        function openCropModal(img) {
-            document.getElementById('cropModal').classList.remove('hidden');
-            const canvas = document.getElementById('cropCanvas');
-            const ctx = canvas.getContext('2d');
-
-            const maxWidth = 340;
-            const scale = maxWidth / img.width;
-            canvas.width = maxWidth;
-            canvas.height = img.height * scale;
-
-            cropBox.width = Math.min(220, canvas.width - 20);
-            cropBox.height = 70;
-            cropBox.x = 10;
-            cropBox.y = canvas.height - 90;
-
-            drawCropView();
-
-            canvas.ontouchstart = handleTouchStart;
-            canvas.ontouchmove = handleTouchMove;
-            canvas.ontouchend = () => isDraggingCrop = false;
-        }
-
-        function drawCropView() {
-            const canvas = document.getElementById('cropCanvas');
-            const ctx = canvas.getContext('2d');
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(originalLoadedImage, 0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.clearRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
-            ctx.drawImage(originalLoadedImage, 
-                (cropBox.x / canvas.width) * originalLoadedImage.width,
-                (cropBox.y / canvas.height) * originalLoadedImage.height,
-                (cropBox.width / canvas.width) * originalLoadedImage.width,
-                (cropBox.height / canvas.height) * originalLoadedImage.height,
-                cropBox.x, cropBox.y, cropBox.width, cropBox.height
-            );
-
-            ctx.strokeStyle = "#10b981";
-            ctx.lineWidth = 3;
-            ctx.strokeRect(cropBox.x, cropBox.y, cropBox.width, cropBox.height);
-        }
-
-        function handleTouchStart(e) {
-            const rect = e.target.getBoundingClientRect();
-            const touch = e.touches[0];
-            const touchX = touch.clientX - rect.left;
-            const touchY = touch.clientY - rect.top;
-
-            if (touchX >= cropBox.x && touchX <= cropBox.x + cropBox.width &&
-                touchY >= cropBox.y && touchY <= cropBox.y + cropBox.height) {
-                isDraggingCrop = true;
-                dragStartX = touchX - cropBox.x;
-                dragStartY = touchY - cropBox.y;
-            }
-        }
-
-        function handleTouchMove(e) {
-            if (!isDraggingCrop) return;
-            e.preventDefault();
-            const canvas = document.getElementById('cropCanvas');
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const touchX = touch.clientX - rect.left;
-            const touchY = touch.clientY - rect.top;
-
-            cropBox.x = Math.max(0, Math.min(canvas.width - cropBox.width, touchX - dragStartX));
-            cropBox.y = Math.max(0, Math.min(canvas.height - cropBox.height, touchY - dragStartY));
-            drawCropView();
-        }
-
-        function closeCropModal() {
-            document.getElementById('cropModal').classList.add('hidden');
-        }
-
-        async function confirmCropAndProcess() {
-            const canvas = document.getElementById('cropCanvas');
-            closeCropModal();
-
-            const spinner = document.getElementById('ocrSpinner');
-            document.getElementById('ocrSpinnerText').textContent = "Analizando número SAP...";
-            spinner.classList.remove('hidden');
-
-            try {
-                const croppedCanvas = document.createElement('canvas');
-                const scaleX = originalLoadedImage.width / canvas.width;
-                const scaleY = originalLoadedImage.height / canvas.height;
-
-                const realX = cropBox.x * scaleX;
-                const realY = cropBox.y * scaleY;
-                const realW = cropBox.width * scaleX;
-                const realH = cropBox.height * scaleY;
-
-                croppedCanvas.width = realW;
-                croppedCanvas.height = realH;
-
-                const cropCtx = croppedCanvas.getContext('2d');
-                cropCtx.drawImage(originalLoadedImage, realX, realY, realW, realH, 0, 0, realW, realH);
-
-                const { data: { text } } = await Tesseract.recognize(croppedCanvas, 'eng', {
-                    tessedit_char_whitelist: '0123456789UNunOo '
-                });
-
-                spinner.classList.add('hidden');
-
-                const normCrop = String(text || '').replace(/[Oo](?=\d)/g, '0');
-                const match = normCrop.match(/0*([1-9]\d{2,7})\s*UN/i);
-                if (match && match[1]) {
-                    playWarningBeep();
-                    closeScannerModal();
-                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
-                    checkDuplicateOnInput('sap');
-                } else {
-                    const numMatch = normCrop.match(/0*([1-9]\d{2,7})/);
-                    if (numMatch && numMatch[1]) {
-                        playWarningBeep();
-                        closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
-                        checkDuplicateOnInput('sap');
-                    } else {
-                        alert("No se leyó el número en el recuadro. Intenta ubicarlo justo sobre los dígitos.");
-                    }
-                }
-            } catch (err) {
-                spinner.classList.add('hidden');
-                alert("Error al procesar el recorte.");
-            }
-        }
-
-        async function captureAndReadSAP() {
-            const video = document.querySelector("#reader video");
-            if (!video) return;
-
-            const spinner = document.getElementById('ocrSpinner');
-            document.getElementById('ocrSpinnerText').textContent = "Analizando número SAP...";
-            spinner.classList.remove('hidden');
-
-            try {
-                const canvas = document.createElement("canvas");
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
-                    tessedit_char_whitelist: '0123456789UNunOo '
-                });
-
-                spinner.classList.add('hidden');
-
-                const normVid = String(text || '').replace(/[Oo](?=\d)/g, '0');
-                const match = normVid.match(/0*([1-9]\d{2,7})\s*UN/i);
-                if (match && match[1]) {
-                    playWarningBeep();
-                    closeScannerModal();
-                    document.getElementById('prodSap').value = match[1].replace(/\s+/g, '');
-                    checkDuplicateOnInput('sap');
-                } else {
-                    const numMatch = normVid.match(/0*([1-9]\d{2,7})/);
-                    if (numMatch && numMatch[1]) {
-                        playWarningBeep();
-                        closeScannerModal();
-                        document.getElementById('prodSap').value = numMatch[1].replace(/\s+/g, '');
-                        checkDuplicateOnInput('sap');
-                    } else {
-                        alert("No se detectó claramente. Usa 'Tomar Foto Nítida y Recortar' para seleccionar el número.");
-                    }
-                }
-            } catch(e) {
-                spinner.classList.add('hidden');
-            }
-        }
-
-        function onScanSuccess(decodedText) {
-            playWarningBeep();
-            closeScannerModal();
-
-            let cleanCode = String(decodedText || '').trim().replace(/\s+/g, '');
-
-            if (scannerTarget === 'barcode') {
-                document.getElementById('prodBarcode').value = cleanCode;
-                checkDuplicateOnInput('barcode');
-            } else if (scannerTarget === 'sap') {
-                let cleanNumbers = cleanCode.replace(/[^\d]/g, '');
-                let sapExtracted = cleanNumbers.replace(/^0+/, '');
-                document.getElementById('prodSap').value = (sapExtracted || cleanNumbers || cleanCode);
-                checkDuplicateOnInput('sap');
-            } else if (scannerTarget === 'quickSearch') {
-                let cleanNumbers = cleanCode.replace(/[^\d]/g, '');
-                let sapExtracted = cleanNumbers.replace(/^0+/, '');
-
-                const found = inventory.find(p => {
-                    if (!p) return false;
-                    return String(p.barcode || '') === cleanCode || 
-                           String(p.sap || '') === cleanCode || 
-                           String(p.sap || '') === sapExtracted;
-                });
-
-                if (found) {
-                    openProductModal(inventory.indexOf(found));
-                } else {
-                    if (confirm(`El código "${cleanCode}" no está en inventario. ¿Registrar nuevo producto?`)) {
-                        openProductModal();
-                        document.getElementById('prodBarcode').value = cleanCode;
-                        if (sapExtracted) document.getElementById('prodSap').value = sapExtracted;
-                    }
-                }
-            }
-        }
-
-        function closeScannerModal() {
-            document.getElementById('ocrSpinner').classList.add('hidden');
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scannerModal').classList.add('hidden');
-                }).catch(() => {
-                    document.getElementById('scannerModal').classList.add('hidden');
-                });
-            } else {
-                document.getElementById('scannerModal').classList.add('hidden');
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', initApp);
-    </script>
+          } catch(err) {
+            alert("Archivo no válido.");
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      checkAuth();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
 </body>
 </html>
