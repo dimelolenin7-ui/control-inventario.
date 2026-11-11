@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DL COMPANY -TECNOLOGY- Control de Inventario</title>
+    <title>DL STOCK PRO - Inventario Inteligente | DL COMPANY TECNOLOGY</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -344,18 +344,33 @@
 </head>
 <body>
 
-    <!-- PANTALLA 1: ACCESO Y REGISTRO -->
+    <!-- PANTALLA 1: ACCESO Y BIENVENIDA DL STOCK PRO -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
+            <!-- PRESENTACIÓN OFICIAL RECOMENDADA -->
             <div style="text-align: center; margin-bottom: 18px;">
                 <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 2px solid var(--border-subtle); display: flex; align-items: center; justify-content: center;">
                     <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <h1 style="font-size: 21px; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase;">DL COMPANY -TECNOLOGY-</h1>
-                <p style="font-size: 11px; font-weight: 700; color: var(--cyan-tech); text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px;">Soluciones Inteligentes de Inventario</p>
+                
+                <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 3px; color: #ffffff;">
+                    DL STOCK PRO
+                </h1>
+                
+                <p style="font-size: 13px; font-weight: 800; color: var(--cyan-tech); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+                    INVENTARIO INTELIGENTE
+                </p>
+                
+                <p style="font-size: 11px; color: var(--text-mid); font-weight: 500; margin-bottom: 8px;">
+                    Controla tus productos. Organiza tu negocio. Crece sin límites.
+                </p>
+                
+                <span style="display: inline-block; background: rgba(56, 189, 248, 0.12); color: var(--cyan-tech); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 9999px; font-size: 9px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase;">
+                    BY DL COMPANY TECNOLOGY
+                </span>
             </div>
 
-            <!-- SELECTOR DE PAÍS / MONEDA -->
+            <!-- SELECTOR DE MONEDA COP / USD -->
             <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 14px;">
                 <button type="button" id="btnCurrencyCOP" onclick="setCurrency('COP')" class="plan-card-btn selected" style="padding: 6px 14px; font-size: 11px; font-weight: 800;">
                     🇨🇴 Colombia (COP)
@@ -440,7 +455,7 @@
                 </div>
 
                 <button type="submit" id="btnAuthSubmit" class="btn-green-action" style="width: 100%; padding: 12px; margin-top: 8px; font-size: 13px;">
-                    Ingresar al inventario &gt;
+                    Ingresar a DL STOCK PRO &gt;
                 </button>
             </form>
         </div>
@@ -455,7 +470,14 @@
                         <img id="headerLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY">
                     </div>
                     <div>
-                        <h2 style="font-size: 13px; font-weight: 900; margin: 0; letter-spacing: 0.4px;">DL COMPANY -TECNOLOGY-</h2>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <h2 style="font-size: 14px; font-weight: 900; margin: 0; letter-spacing: 0.5px; color: #ffffff;">
+                                DL STOCK PRO
+                            </h2>
+                            <span style="background: rgba(56, 189, 248, 0.15); color: var(--cyan-tech); padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 800;">
+                                TECNOLOGY
+                            </span>
+                        </div>
                         <div style="font-size: 11px; color: var(--text-low); display: flex; align-items: center; gap: 6px; margin-top: 2px;">
                             <span id="headerUserName" style="font-weight: 700; color: var(--text-high);">Lenin Alexander</span> • <span id="headerUserZone">Abarrotes</span>
                             <span id="syncStatusBadge" class="badge badge-cyan" style="font-size: 9px; padding: 2px 7px;">
@@ -526,11 +548,11 @@
                 </div>
             </div>
 
-            <!-- TABLA DE INVENTARIO -->
+            <!-- TABLA DE INVENTARIO INTELIGENTE -->
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 14px 18px; background: var(--bg-table-header); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 800; font-size: 12px; text-transform: uppercase; color: var(--text-mid); letter-spacing: 0.4px;">
-                        <i class="fa-solid fa-boxes-stacked" style="color: var(--cyan-tech); margin-right: 8px;"></i> Stock de Inventario
+                        <i class="fa-solid fa-boxes-stacked" style="color: var(--cyan-tech); margin-right: 8px;"></i> Stock de Inventario Inteligente
                     </span>
                     <span id="productCount" class="badge badge-cyan">0 productos</span>
                 </div>
@@ -565,7 +587,7 @@
     <div id="subscriptionModal" class="modal-overlay hidden">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
-                <span>Planes y Membresías DL COMPANY</span>
+                <span>Planes DL STOCK PRO - DL COMPANY</span>
                 <button type="button" onclick="closeSubscriptionModal()" style="background: none; border: none; color: var(--text-low); font-size: 18px; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -583,7 +605,7 @@
                 <!-- Tarjeta PRO -->
                 <div style="background: var(--bg-input); border: 1.5px solid var(--border-subtle); border-radius: 18px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <h4 style="font-size: 14px; font-weight: 900; color: #0284c7;">DL INVENTARIO PRO</h4>
+                        <h4 style="font-size: 14px; font-weight: 900; color: #0284c7;">DL STOCK PRO (LOCAL)</h4>
                         <span id="modalProPriceTag" style="font-size: 13px; font-weight: 900; color: #ffffff;">$19.900 COP / mes</span>
                     </div>
                     <ul style="font-size: 11px; color: var(--text-mid); margin-left: 18px; margin-bottom: 12px; line-height: 1.6;">
@@ -599,7 +621,7 @@
                 <!-- Tarjeta PREMIUM -->
                 <div style="background: rgba(2, 132, 199, 0.08); border: 1.5px solid var(--cyan-tech); border-radius: 18px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <h4 style="font-size: 14px; font-weight: 900; color: var(--cyan-tech);">DL INVENTARIO PREMIUM</h4>
+                        <h4 style="font-size: 14px; font-weight: 900; color: var(--cyan-tech);">DL STOCK PRO PREMIUM</h4>
                         <span id="modalPremiumPriceTag" style="font-size: 13px; font-weight: 900; color: #ffffff;">$39.900 COP / mes</span>
                     </div>
                     <ul style="font-size: 11px; color: var(--text-mid); margin-left: 18px; margin-bottom: 12px; line-height: 1.6;">
@@ -899,7 +921,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE ENLACES DE PAGO (PEGA AQUÍ TUS LINKS DIRECTOS DE WOMPI O MERCADO PAGO)
+        // CONFIGURACIÓN DE ENLACES DE PAGO
         const PAYMENT_LINKS = {
             COP: {
                 pro: "https://checkout.wompi.co/l/TU_LINK_PRO_COP",
@@ -957,7 +979,7 @@
             if (url && !url.includes("TU_LINK")) {
                 window.open(url, '_blank');
             } else {
-                alert(`Redirigiendo a pasarela para el Plan ${plan.toUpperCase()} (${selectedCurrency}).\n\n(Reemplaza el enlace en PAYMENT_LINKS dentro del código con tu link de Wompi, Mercado Pago o PayPal)`);
+                alert(`Redirigiendo a pasarela para DL STOCK PRO - Plan ${plan.toUpperCase()} (${selectedCurrency}).`);
             }
         }
 
@@ -1248,7 +1270,7 @@
                 tabLog.classList.add('active');
                 tabReg.classList.remove('active');
                 wrapName.classList.add('hidden');
-                btnSubmit.innerHTML = 'Ingresar al inventario &gt;';
+                btnSubmit.innerHTML = 'Ingresar a DL STOCK PRO &gt;';
             } else {
                 tabReg.classList.add('active');
                 tabLog.classList.remove('active');
@@ -1367,7 +1389,7 @@
                     plan: isM ? "premium" : selectedPlan,
                     isMaster: isM
                 };
-                alert(`¡Bienvenido a DL COMPANY, ${fullName}!\nTu cuenta ha sido creada con el Plan ${currentUser.plan.toUpperCase()}.\nTu inventario inicia en 0 productos.`);
+                alert(`¡Bienvenido a DL STOCK PRO, ${fullName}!\nTu cuenta ha sido creada con el Plan ${currentUser.plan.toUpperCase()}.\nTu inventario inicia en 0 productos.`);
             } else {
                 currentUser = {
                     name: isM ? "Lenin Alexander Benjumea niño" : (emailUser.split('@')[0]),
@@ -1494,7 +1516,7 @@
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventory, null, 2));
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", `Inventario_${currentUser ? currentUser.name.replace(/\s+/g, '_') : 'DL'}_${new Date().toISOString().slice(0,10)}.json`);
+                dlAnchorElem.setAttribute("download", `DL_STOCK_PRO_${currentUser ? currentUser.name.replace(/\s+/g, '_') : 'DL'}_${new Date().toISOString().slice(0,10)}.json`);
                 dlAnchorElem.click();
             } catch(e) {
                 alert("Copia guardada en el dispositivo.");
