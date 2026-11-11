@@ -347,6 +347,7 @@
     <!-- PANTALLA 1: ACCESO Y BIENVENIDA DL STOCK PRO -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
+            <!-- LOGO Y TÍTULOS ADAPTABLES -->
             <div style="text-align: center; margin-bottom: 18px;">
                 <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 2px solid var(--border-subtle); display: flex; align-items: center; justify-content: center;">
                     <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
@@ -433,7 +434,10 @@
 
                 <!-- SELECCIÓN DE PLANES CON PRECIO ADAPTABLE -->
                 <div style="margin-top: 6px;">
-                    <label style="display: block; font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; margin-bottom: 6px; text-align: center;">Membresía / Plan:</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase;">Membresía / Plan:</label>
+                        <button type="button" onclick="openSubscriptionModal()" style="background: none; border: none; color: var(--cyan-tech); font-size: 10px; font-weight: 800; cursor: pointer;">Ver detalles $\rightarrow$</button>
+                    </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
                         <button type="button" id="btnPlanGratis" onclick="selectPlan('gratis')" class="plan-card-btn">
                             <span style="font-weight: 900; color: #10b981; display: block; font-size: 11px;">GRATIS</span>
@@ -453,7 +457,14 @@
                     </div>
                 </div>
 
-                <button type="submit" id="btnAuthSubmit" class="btn-green-action" style="width: 100%; padding: 12px; margin-top: 8px; font-size: 13px;">
+                <!-- BOTÓN DINÁMICO DE PAGO DIRECTO EN BIENVENIDA -->
+                <div id="wrapperDirectPay" class="hidden" style="margin-top: 4px;">
+                    <button type="button" onclick="goToSelectedPlanPayment()" class="btn-blue-primary" style="width: 100%; padding: 10px; font-size: 12px;">
+                        <i class="fa-solid fa-credit-card"></i> Pagar / Activar Membresía Seleccionada
+                    </button>
+                </div>
+
+                <button type="submit" id="btnAuthSubmit" class="btn-green-action" style="width: 100%; padding: 12px; margin-top: 4px; font-size: 13px;">
                     Ingresar a DL STOCK PRO &gt;
                 </button>
             </form>
@@ -918,6 +929,7 @@
     </div>
 
     <script>
+        // CONFIGURACIÓN DE ENLACES DE PAGO (PEGA AQUÍ TUS ENLACES DE WOMPI Y PAYPAL)
         const PAYMENT_LINKS = {
             COP: {
                 pro: "https://checkout.wompi.co/l/TU_LINK_PRO_COP",
@@ -929,10 +941,12 @@
             }
         };
 
-        let selectedCurrency = 'COP';
+        let selectedCurrency = localStorage.getItem('dl_currency_preference') || 'COP';
 
         function setCurrency(curr) {
             selectedCurrency = curr;
+            localStorage.setItem('dl_currency_preference', curr);
+
             const btnCOP = document.getElementById('btnCurrencyCOP');
             const btnUSD = document.getElementById('btnCurrencyUSD');
             const mBtnCOP = document.getElementById('modalBtnCurrencyCOP');
@@ -975,7 +989,13 @@
             if (url && !url.includes("TU_LINK")) {
                 window.open(url, '_blank');
             } else {
-                alert(`Redirigiendo a pasarela para DL STOCK PRO - Plan ${plan.toUpperCase()} (${selectedCurrency}).`);
+                alert(`Redirigiendo a pasarela para DL STOCK PRO - Plan ${plan.toUpperCase()} (${selectedCurrency}).\n\nPega tus links generados en Wompi y PayPal dentro de la variable PAYMENT_LINKS en el código.`);
+            }
+        }
+
+        function goToSelectedPlanPayment() {
+            if (selectedPlan === 'pro' || selectedPlan === 'premium') {
+                goToPaymentLink(selectedPlan);
             }
         }
 
@@ -1237,6 +1257,7 @@
             const btnPro = document.getElementById('btnPlanPro');
             const btnPremium = document.getElementById('btnPlanPremium');
             const badge = document.getElementById('planBadgeDisplay');
+            const directPayWrap = document.getElementById('wrapperDirectPay');
 
             [btnGratis, btnPro, btnPremium].forEach(btn => btn && btn.classList.remove('selected'));
 
@@ -1244,14 +1265,17 @@
                 if (btnGratis) btnGratis.classList.add('selected');
                 badge.className = 'badge badge-green';
                 badge.textContent = 'GRATIS (100 PRODS)';
+                if (directPayWrap) directPayWrap.classList.add('hidden');
             } else if (plan === 'pro') {
                 if (btnPro) btnPro.classList.add('selected');
                 badge.className = 'badge badge-cyan';
                 badge.textContent = 'PRO (ILIMITADO LOCAL)';
+                if (directPayWrap) directPayWrap.classList.remove('hidden');
             } else {
                 if (btnPremium) btnPremium.classList.add('selected');
                 badge.className = 'badge badge-cyan';
                 badge.textContent = 'PREMIUM (NUBE & SYNC)';
+                if (directPayWrap) directPayWrap.classList.remove('hidden');
             }
         }
 
@@ -1368,6 +1392,7 @@
                 });
         }
 
+        // SISTEMA DE REGISTRO E INICIO SEGURO MULTIUSUARIO
         function handleAuthSubmit(e) {
             e.preventDefault();
             const emailUser = document.getElementById('authEmailUser').value.trim();
@@ -1375,8 +1400,23 @@
             const remember = document.getElementById('chkRememberMe').checked;
             const isM = isMasterAccount(emailUser);
 
+            let registeredUsers = [];
+            try {
+                registeredUsers = JSON.parse(localStorage.getItem('dl_registered_users')) || [];
+            } catch(err) {
+                registeredUsers = [];
+            }
+
             if (activeAuthTab === 'register') {
                 const fullName = document.getElementById('authFullName').value.trim() || "Cliente DL";
+                
+                const existing = registeredUsers.find(u => u.username.toLowerCase() === emailUser.toLowerCase());
+                if (existing && !isM) {
+                    alert("⚠️ Este usuario o correo ya está registrado. Por favor selecciona 'Iniciar Sesión'.");
+                    switchAuthTab('login');
+                    return;
+                }
+
                 currentUser = {
                     name: fullName,
                     username: emailUser,
@@ -1385,16 +1425,46 @@
                     plan: isM ? "premium" : selectedPlan,
                     isMaster: isM
                 };
+
+                if (!isM) {
+                    registeredUsers.push(currentUser);
+                    localStorage.setItem('dl_registered_users', JSON.stringify(registeredUsers));
+                }
+
                 alert(`¡Bienvenido a DL STOCK PRO, ${fullName}!\nTu cuenta ha sido creada con el Plan ${currentUser.plan.toUpperCase()}.\nTu inventario inicia en 0 productos.`);
             } else {
-                currentUser = {
-                    name: isM ? "Lenin Alexander Benjumea niño" : (emailUser.split('@')[0]),
-                    username: emailUser,
-                    password: pass,
-                    zone: isM ? "Abarrotes" : "General",
-                    plan: isM ? "premium" : selectedPlan,
-                    isMaster: isM
-                };
+                // Iniciar sesión
+                if (isM) {
+                    currentUser = {
+                        name: "Lenin Alexander Benjumea niño",
+                        username: emailUser,
+                        password: pass,
+                        zone: "Abarrotes",
+                        plan: "premium",
+                        isMaster: true
+                    };
+                } else {
+                    const matchUser = registeredUsers.find(u => u.username.toLowerCase() === emailUser.toLowerCase());
+                    if (matchUser) {
+                        if (matchUser.password && matchUser.password !== pass) {
+                            alert("❌ Contraseña incorrecta. Por favor verifica tus datos.");
+                            return;
+                        }
+                        currentUser = matchUser;
+                    } else {
+                        // Usuario no registrado previamente: acceso directo con credenciales introducidas
+                        currentUser = {
+                            name: emailUser.split('@')[0],
+                            username: emailUser,
+                            password: pass,
+                            zone: "General",
+                            plan: selectedPlan,
+                            isMaster: false
+                        };
+                        registeredUsers.push(currentUser);
+                        localStorage.setItem('dl_registered_users', JSON.stringify(registeredUsers));
+                    }
+                }
             }
 
             if (remember) {
@@ -1406,8 +1476,10 @@
             initApp();
         }
 
+        // CONTROL ESTRICTO DE PANTALLAS
         function initApp() {
             loadThemePreference();
+            setCurrency(selectedCurrency);
             loadConfigOptions();
 
             const authScreen = document.getElementById('authScreen');
