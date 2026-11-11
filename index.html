@@ -347,13 +347,13 @@
     <!-- PANTALLA 1: ACCESO Y BIENVENIDA DL STOCK PRO -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
-            <!-- PRESENTACIÓN OFICIAL RECOMENDADA -->
+            <!-- PRESENTACIÓN OFICIAL CON COLOR DINÁMICO (NEGRO EN MODO CLARO / BLANCO EN OSCURO) -->
             <div style="text-align: center; margin-bottom: 18px;">
                 <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 2px solid var(--border-subtle); display: flex; align-items: center; justify-content: center;">
                     <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 
-                <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 3px; color: #ffffff;">
+                <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 3px; color: var(--text-high);">
                     DL STOCK PRO
                 </h1>
                 
@@ -432,23 +432,23 @@
                     <span id="planBadgeDisplay" class="badge badge-cyan" style="font-size: 9px;">PREMIUM</span>
                 </div>
 
-                <!-- SELECCIÓN DE PLANES CON PRECIO DINÁMICO COP / USD -->
+                <!-- SELECCIÓN DE PLANES CON PRECIO DINÁMICO COP / USD (CONTRASTE ALTO) -->
                 <div style="margin-top: 6px;">
                     <label style="display: block; font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; margin-bottom: 6px; text-align: center;">Membresía / Plan:</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
                         <button type="button" id="btnPlanGratis" onclick="selectPlan('gratis')" class="plan-card-btn">
                             <span style="font-weight: 900; color: #10b981; display: block; font-size: 11px;">GRATIS</span>
-                            <span id="labelPriceGratis" style="font-size: 10px; font-weight: 800; color: #ffffff; display: block;">$0</span>
+                            <span id="labelPriceGratis" style="font-size: 10px; font-weight: 800; color: var(--text-high); display: block;">$0</span>
                             <span style="color: var(--text-low); font-size: 8px; display: block;">Hasta 100 prods</span>
                         </button>
                         <button type="button" id="btnPlanPro" onclick="selectPlan('pro')" class="plan-card-btn">
                             <span style="font-weight: 900; color: #0284c7; display: block; font-size: 11px;">PRO</span>
-                            <span id="labelPricePro" style="font-size: 10px; font-weight: 800; color: #ffffff; display: block;">$19.900</span>
+                            <span id="labelPricePro" style="font-size: 10px; font-weight: 800; color: var(--text-high); display: block;">$19.900</span>
                             <span style="color: var(--text-low); font-size: 8px; display: block;">Ilimitado Local</span>
                         </button>
                         <button type="button" id="btnPlanPremium" onclick="selectPlan('premium')" class="plan-card-btn selected">
                             <span style="font-weight: 900; color: #38bdf8; display: block; font-size: 11px;">PREMIUM</span>
-                            <span id="labelPricePremium" style="font-size: 10px; font-weight: 800; color: #ffffff; display: block;">$39.900</span>
+                            <span id="labelPricePremium" style="font-size: 10px; font-weight: 800; color: var(--text-high); display: block;">$39.900</span>
                             <span style="color: #0284c7; font-size: 8px; display: block;">Nube & Sync</span>
                         </button>
                     </div>
@@ -471,7 +471,7 @@
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <h2 style="font-size: 14px; font-weight: 900; margin: 0; letter-spacing: 0.5px; color: #ffffff;">
+                            <h2 style="font-size: 14px; font-weight: 900; margin: 0; letter-spacing: 0.5px; color: var(--text-high);">
                                 DL STOCK PRO
                             </h2>
                             <span style="background: rgba(56, 189, 248, 0.15); color: var(--cyan-tech); padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 800;">
@@ -583,7 +583,7 @@
         </main>
     </div>
 
-    <!-- MODAL DE SUSCRIPCIONES Y PAGOS (COLOMBIA E INTERNACIONAL) -->
+    <!-- MODAL DE SUSCRIPCIONES Y PAGOS -->
     <div id="subscriptionModal" class="modal-overlay hidden">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
@@ -606,7 +606,7 @@
                 <div style="background: var(--bg-input); border: 1.5px solid var(--border-subtle); border-radius: 18px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <h4 style="font-size: 14px; font-weight: 900; color: #0284c7;">DL STOCK PRO (LOCAL)</h4>
-                        <span id="modalProPriceTag" style="font-size: 13px; font-weight: 900; color: #ffffff;">$19.900 COP / mes</span>
+                        <span id="modalProPriceTag" style="font-size: 13px; font-weight: 900; color: var(--text-high);">$19.900 COP / mes</span>
                     </div>
                     <ul style="font-size: 11px; color: var(--text-mid); margin-left: 18px; margin-bottom: 12px; line-height: 1.6;">
                         <li>Productos Ilimitados (sin tope de 100).</li>
@@ -622,7 +622,7 @@
                 <div style="background: rgba(2, 132, 199, 0.08); border: 1.5px solid var(--cyan-tech); border-radius: 18px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <h4 style="font-size: 14px; font-weight: 900; color: var(--cyan-tech);">DL STOCK PRO PREMIUM</h4>
-                        <span id="modalPremiumPriceTag" style="font-size: 13px; font-weight: 900; color: #ffffff;">$39.900 COP / mes</span>
+                        <span id="modalPremiumPriceTag" style="font-size: 13px; font-weight: 900; color: var(--text-high);">$39.900 COP / mes</span>
                     </div>
                     <ul style="font-size: 11px; color: var(--text-mid); margin-left: 18px; margin-bottom: 12px; line-height: 1.6;">
                         <li>Todo lo del plan PRO incluido.</li>
@@ -921,7 +921,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE ENLACES DE PAGO
         const PAYMENT_LINKS = {
             COP: {
                 pro: "https://checkout.wompi.co/l/TU_LINK_PRO_COP",
