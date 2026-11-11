@@ -244,7 +244,6 @@
             gap: 7px; 
             box-shadow: 0 4px 10px rgba(180, 83, 9, 0.3);
         }
-        .btn-amber-dark-action:active { transform: scale(0.98); }
 
         .btn-green-action { 
             background-color: var(--btn-reg-bg); 
@@ -261,7 +260,6 @@
             gap: 7px; 
             box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
         }
-        .btn-green-action:active { transform: scale(0.98); }
 
         .btn-dark-action { 
             background-color: var(--btn-find-bg); 
@@ -401,7 +399,7 @@
 
             <div style="display: flex; align-items: center; margin: 16px 0; color: var(--text-low); font-size: 11px;">
                 <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
-                <span style="padding: 0 10px; font-weight: 700; color: var(--text-low);">O usa tu cuenta</span>
+                <span style="padding: 0 10px; font-weight: 700; color: var(--text-low);">O usa tu correo</span>
                 <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
             </div>
 
@@ -417,8 +415,8 @@
                     <input type="text" id="authFullName" placeholder="Tu nombre y apellido" class="auth-input">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-low); margin-bottom: 4px;">Usuario o Correo</label>
-                    <input type="text" id="authEmailUser" required placeholder="correo@ejemplo.com o usuario" class="auth-input">
+                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-low); margin-bottom: 4px;">Correo Electrónico</label>
+                    <input type="text" id="authEmailUser" required placeholder="correo@ejemplo.com" class="auth-input">
                 </div>
                 <div>
                     <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-low); margin-bottom: 4px;">Contraseña</label>
@@ -436,7 +434,7 @@
                 <div style="margin-top: 6px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <label style="font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase;">Membresía / Plan:</label>
-                        <button type="button" onclick="openSubscriptionModal()" style="background: none; border: none; color: var(--cyan-tech); font-size: 10px; font-weight: 800; cursor: pointer;">Ver detalles $\rightarrow$</button>
+                        <button type="button" onclick="openSubscriptionModal()" style="background: none; border: none; color: var(--cyan-tech); font-size: 10px; font-weight: 800; cursor: pointer;">Ver detalles →</button>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
                         <button type="button" id="btnPlanGratis" onclick="selectPlan('gratis')" class="plan-card-btn">
@@ -457,7 +455,6 @@
                     </div>
                 </div>
 
-                <!-- BOTÓN DINÁMICO DE PAGO DIRECTO EN BIENVENIDA -->
                 <div id="wrapperDirectPay" class="hidden" style="margin-top: 4px;">
                     <button type="button" onclick="goToSelectedPlanPayment()" class="btn-blue-primary" style="width: 100%; padding: 10px; font-size: 12px;">
                         <i class="fa-solid fa-credit-card"></i> Pagar / Activar Membresía Seleccionada
@@ -498,6 +495,10 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- BOTÓN ACCESO ADMINISTRADOR MAESTRO -->
+                    <button type="button" onclick="promptAdminAccess()" class="header-btn" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);" title="Panel de Administrador">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </button>
                     <button type="button" onclick="openSubscriptionModal()" class="header-btn" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="Ver Planes y Suscripciones">
                         <i class="fa-solid fa-crown"></i>
                     </button>
@@ -593,7 +594,7 @@
         </main>
     </div>
 
-    <!-- MODAL DE SUSCRIPCIONES Y PAGOS -->
+    <!-- MODAL DE SUSCRIPCIONES Y CANJE DE CÓDIGOS -->
     <div id="subscriptionModal" class="modal-overlay hidden">
         <div class="modal-box" style="max-width: 480px;">
             <div class="modal-header">
@@ -603,6 +604,17 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- CANJE DE CÓDIGOS DE ACTIVACIÓN (WHATSAPP) -->
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px dashed var(--btn-reg-bg); border-radius: 16px; padding: 12px; margin-bottom: 8px;">
+                    <span style="font-size: 11px; font-weight: 800; color: #10b981; display: block; margin-bottom: 4px;">
+                        <i class="fa-solid fa-key"></i> ¿Tienes un código de activación?
+                    </span>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="inputRedeemCode" placeholder="Ej: PRO-30D-XXXX" class="input-text" style="font-size: 12px; font-weight: 800; text-transform: uppercase;">
+                        <button type="button" onclick="redeemActivationCode()" class="btn-green-action" style="padding: 0 14px; font-size: 12px;">Activar</button>
+                    </div>
+                </div>
+
                 <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 6px;">
                     <button type="button" id="modalBtnCurrencyCOP" onclick="setCurrency('COP')" class="plan-card-btn selected" style="padding: 5px 12px; font-size: 11px; font-weight: 800;">
                         🇨🇴 COP
@@ -623,7 +635,7 @@
                         <li>Exportación e importación de copias JSON.</li>
                     </ul>
                     <button type="button" onclick="goToPaymentLink('pro')" class="btn-blue-primary" style="width: 100%; padding: 10px; font-size: 12px;">
-                        <i class="fa-solid fa-bolt"></i> Obtener Plan PRO
+                        <i class="fa-solid fa-bolt"></i> Pagar con Wompi / Pasarela
                     </button>
                 </div>
 
@@ -639,9 +651,90 @@
                         <li>Soporte técnico prioritario.</li>
                     </ul>
                     <button type="button" onclick="goToPaymentLink('premium')" class="btn-green-action" style="width: 100%; padding: 10px; font-size: 12px;">
-                        <i class="fa-solid fa-crown"></i> Obtener Plan PREMIUM
+                        <i class="fa-solid fa-crown"></i> Pagar con Wompi / Pasarela
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PANEL DE ADMINISTRADOR MAESTRO (admin123) -->
+    <div id="adminPanelModal" class="modal-overlay hidden" style="z-index: 60;">
+        <div class="modal-box" style="max-width: 540px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0f172a, #0369a1); color: #ffffff;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-shield-halved" style="color: #38bdf8;"></i>
+                    <span>PANEL ADMINISTRADOR DL STOCK PRO</span>
+                </div>
+                <button type="button" onclick="closeAdminPanel()" style="background: none; border: none; color: #ffffff; font-size: 18px; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- PESTAÑAS ADMINISTRADOR -->
+                <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+                    <button type="button" id="tabAdminCodes" onclick="switchAdminSubTab('codes')" class="auth-tab-btn active" style="font-size: 12px;">
+                        <i class="fa-solid fa-ticket"></i> Generar Códigos
+                    </button>
+                    <button type="button" id="tabAdminUsers" onclick="switchAdminSubTab('users')" class="auth-tab-btn" style="font-size: 12px;">
+                        <i class="fa-solid fa-users"></i> Ver Usuarios (<span id="adminUsersCount">0</span>)
+                    </button>
+                </div>
+
+                <!-- SECCIÓN 1: GENERADOR DE CÓDIGOS -->
+                <div id="adminSectionCodes">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; display: block; margin-bottom: 3px;">Plan:</label>
+                            <select id="adminGenPlan" class="input-text">
+                                <option value="pro">Plan PRO</option>
+                                <option value="premium" selected>Plan PREMIUM</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; display: block; margin-bottom: 3px;">Duración:</label>
+                            <select id="adminGenDuration" class="input-text">
+                                <option value="30">30 Días (1 Mes)</option>
+                                <option value="90">3 Meses (90 Días)</option>
+                                <option value="180">6 Meses (180 Días)</option>
+                                <option value="365">1 Año (365 Días)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; display: block; margin-bottom: 3px;">Prefijo del Código:</label>
+                            <input type="text" id="adminGenPrefix" value="DLPRO" class="input-text" style="font-weight: 800; text-transform: uppercase;">
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; display: block; margin-bottom: 3px;">Cantidad:</label>
+                            <input type="number" id="adminGenQty" value="1" min="1" max="50" class="input-text" style="font-weight: 800; text-align: center;">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="generateActivationCodes()" class="btn-green-action" style="width: 100%; padding: 12px; font-size: 13px;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar Códigos para WhatsApp
+                    </button>
+
+                    <div style="margin-top: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 11px; font-weight: 800; color: var(--text-mid); text-transform: uppercase;">Códigos Creados:</span>
+                            <button type="button" onclick="clearAllCodes()" style="background: none; border: none; color: #ef4444; font-size: 10px; font-weight: 800; cursor: pointer;">Limpiar canjeados</button>
+                        </div>
+                        <div id="adminCodesList" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 4px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 14px;"></div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: LISTA DE USUARIOS -->
+                <div id="adminSectionUsers" class="hidden">
+                    <p style="font-size: 11px; color: var(--text-low); margin-bottom: 8px;">Listado de clientes registrados en el sistema:</p>
+                    <div id="adminUsersList" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 4px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 14px;"></div>
+                </div>
+
+                <button type="button" onclick="closeAdminPanel()" class="btn-dark-action" style="width: 100%; margin-top: 10px;">
+                    Cerrar Administrador
+                </button>
             </div>
         </div>
     </div>
@@ -929,7 +1022,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE ENLACES DE PAGO (PEGA AQUÍ TUS ENLACES DE WOMPI Y PAYPAL)
+        // CONFIGURACIÓN DE ENLACES DE PAGO
         const PAYMENT_LINKS = {
             COP: {
                 pro: "https://checkout.wompi.co/l/TU_LINK_PRO_COP",
@@ -989,7 +1082,7 @@
             if (url && !url.includes("TU_LINK")) {
                 window.open(url, '_blank');
             } else {
-                alert(`Redirigiendo a pasarela para DL STOCK PRO - Plan ${plan.toUpperCase()} (${selectedCurrency}).\n\nPega tus links generados en Wompi y PayPal dentro de la variable PAYMENT_LINKS en el código.`);
+                alert(`Redirigiendo a pasarela para DL STOCK PRO - Plan ${plan.toUpperCase()} (${selectedCurrency}).`);
             }
         }
 
@@ -997,6 +1090,222 @@
             if (selectedPlan === 'pro' || selectedPlan === 'premium') {
                 goToPaymentLink(selectedPlan);
             }
+        }
+
+        // ==========================================
+        // GESTIÓN DE CÓDIGOS Y ADMINISTRADOR (admin123)
+        // ==========================================
+        function promptAdminAccess() {
+            const pass = prompt("Ingresa la clave de administrador:");
+            if (pass === "admin123") {
+                openAdminPanel();
+            } else if (pass !== null) {
+                alert("❌ Clave de administrador incorrecta.");
+            }
+        }
+
+        function openAdminPanel() {
+            document.getElementById('adminPanelModal').classList.remove('hidden');
+            renderAdminCodesList();
+            renderAdminUsersList();
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanelModal').classList.add('hidden');
+        }
+
+        function switchAdminSubTab(tab) {
+            const btnCodes = document.getElementById('tabAdminCodes');
+            const btnUsers = document.getElementById('tabAdminUsers');
+            const secCodes = document.getElementById('adminSectionCodes');
+            const secUsers = document.getElementById('adminSectionUsers');
+
+            if (tab === 'codes') {
+                btnCodes.classList.add('active');
+                btnUsers.classList.remove('active');
+                secCodes.classList.remove('hidden');
+                secUsers.classList.add('hidden');
+            } else {
+                btnUsers.classList.add('active');
+                btnCodes.classList.remove('active');
+                secUsers.classList.remove('hidden');
+                secCodes.classList.add('hidden');
+                renderAdminUsersList();
+            }
+        }
+
+        function generateActivationCodes() {
+            const plan = document.getElementById('adminGenPlan').value;
+            const days = parseInt(document.getElementById('adminGenDuration').value) || 30;
+            const prefix = (document.getElementById('adminGenPrefix').value.trim() || 'DL').toUpperCase();
+            const qty = parseInt(document.getElementById('adminGenQty').value) || 1;
+
+            let storedCodes = [];
+            try {
+                storedCodes = JSON.parse(localStorage.getItem('dl_activation_codes')) || [];
+            } catch(e) {
+                storedCodes = [];
+            }
+
+            for (let i = 0; i < qty; i++) {
+                const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+                const codeStr = `${prefix}-${days}D-${randomPart}`;
+                storedCodes.push({
+                    code: codeStr,
+                    plan: plan,
+                    days: days,
+                    used: false,
+                    usedBy: null,
+                    createdAt: new Date().toLocaleDateString('es-CO')
+                });
+            }
+
+            localStorage.setItem('dl_activation_codes', JSON.stringify(storedCodes));
+            renderAdminCodesList();
+            alert(`✅ Se han generado ${qty} código(s) para el plan ${plan.toUpperCase()} (${days} días).`);
+        }
+
+        function renderAdminCodesList() {
+            const container = document.getElementById('adminCodesList');
+            let storedCodes = [];
+            try {
+                storedCodes = JSON.parse(localStorage.getItem('dl_activation_codes')) || [];
+            } catch(e) {
+                storedCodes = [];
+            }
+
+            if (storedCodes.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-low); font-size: 11px; text-align: center; padding: 12px;">No hay códigos creados.</p>';
+                return;
+            }
+
+            container.innerHTML = storedCodes.map((item, idx) => {
+                const statusColor = item.used ? '#ef4444' : '#10b981';
+                const statusText = item.used ? `Canjeado por ${item.usedBy}` : 'Disponible';
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border-subtle); font-size: 11px;">
+                        <div>
+                            <span style="font-weight: 900; color: var(--cyan-tech); font-family: monospace;">${item.code}</span>
+                            <span style="color: var(--text-low); display: block; font-size: 10px;">${item.plan.toUpperCase()} • ${item.days} Días • <strong style="color: ${statusColor};">${statusText}</strong></span>
+                        </div>
+                        ${!item.used ? `
+                            <button type="button" onclick="copyWhatsAppCodeMsg('${item.code}', '${item.plan}', ${item.days})" class="btn-dark-action" style="padding: 4px 8px; font-size: 10px;">
+                                <i class="fa-solid fa-copy"></i> Copiar WA
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }).reverse().join('');
+        }
+
+        function copyWhatsAppCodeMsg(code, plan, days) {
+            const msg = `¡Hola! Aquí tienes tu código de activación para *DL STOCK PRO*:\n\n🔑 *Código:* ${code}\n📦 *Plan:* ${plan.toUpperCase()}\n⏳ *Vigencia:* ${days} días\n\nIngresa a la app, abre 'Planes' y canjéalo para desbloquear tu cuenta de inmediato.`;
+            navigator.clipboard.writeText(msg).then(() => {
+                alert("📋 Mensaje para WhatsApp copiado al portapapeles.");
+            }).catch(() => {
+                prompt("Copia este mensaje para enviarlo por WhatsApp:", msg);
+            });
+        }
+
+        function clearAllCodes() {
+            if (confirm("¿Deseas eliminar los códigos que ya fueron canjeados?")) {
+                let storedCodes = [];
+                try {
+                    storedCodes = JSON.parse(localStorage.getItem('dl_activation_codes')) || [];
+                } catch(e) {
+                    storedCodes = [];
+                }
+                storedCodes = storedCodes.filter(c => !c.used);
+                localStorage.setItem('dl_activation_codes', JSON.stringify(storedCodes));
+                renderAdminCodesList();
+            }
+        }
+
+        function renderAdminUsersList() {
+            const container = document.getElementById('adminUsersList');
+            const countLabel = document.getElementById('adminUsersCount');
+
+            let registeredUsers = [];
+            try {
+                registeredUsers = JSON.parse(localStorage.getItem('dl_registered_users')) || [];
+            } catch(e) {
+                registeredUsers = [];
+            }
+
+            countLabel.textContent = registeredUsers.length;
+
+            if (registeredUsers.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-low); font-size: 11px; text-align: center; padding: 12px;">No hay usuarios registrados aún.</p>';
+                return;
+            }
+
+            container.innerHTML = registeredUsers.map(u => `
+                <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border-subtle); font-size: 11px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-weight: 800; color: var(--text-high); display: block;">${u.name || 'Cliente'}</span>
+                        <span style="color: var(--cyan-tech); font-size: 10px;">${u.username}</span>
+                    </div>
+                    <span class="badge ${u.plan === 'premium' ? 'badge-cyan' : (u.plan === 'pro' ? 'badge-amber' : 'badge-green')}">${(u.plan || 'GRATIS').toUpperCase()}</span>
+                </div>
+            `).join('');
+        }
+
+        function redeemActivationCode() {
+            const input = document.getElementById('inputRedeemCode');
+            const codeStr = input.value.trim().toUpperCase();
+
+            if (!codeStr) {
+                alert("Por favor ingresa el código de activación.");
+                return;
+            }
+
+            let storedCodes = [];
+            try {
+                storedCodes = JSON.parse(localStorage.getItem('dl_activation_codes')) || [];
+            } catch(e) {
+                storedCodes = [];
+            }
+
+            const codeItem = storedCodes.find(c => c.code === codeStr);
+
+            if (!codeItem) {
+                alert("❌ Código inválido. Verifica que esté bien escrito.");
+                return;
+            }
+
+            if (codeItem.used) {
+                alert("❌ Este código ya fue utilizado anteriormente.");
+                return;
+            }
+
+            if (!currentUser) {
+                alert("Debes iniciar sesión para activar el código en tu cuenta.");
+                return;
+            }
+
+            // Activar membresía en el usuario actual
+            codeItem.used = true;
+            codeItem.usedBy = currentUser.username;
+            localStorage.setItem('dl_activation_codes', JSON.stringify(storedCodes));
+
+            currentUser.plan = codeItem.plan;
+            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+
+            // Actualizar en listado general de usuarios
+            let registeredUsers = [];
+            try {
+                registeredUsers = JSON.parse(localStorage.getItem('dl_registered_users')) || [];
+                const idx = registeredUsers.findIndex(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
+                if (idx !== -1) {
+                    registeredUsers[idx].plan = codeItem.plan;
+                    localStorage.setItem('dl_registered_users', JSON.stringify(registeredUsers));
+                }
+            } catch(e) {}
+
+            alert(`🎉 ¡FELICITACIONES!\n\nTu cuenta ha sido actualizada al Plan ${codeItem.plan.toUpperCase()} por ${codeItem.days} días.`);
+            input.value = '';
+            closeSubscriptionModal();
+            initApp();
         }
 
         function toggleTheme() {
@@ -1392,13 +1701,22 @@
                 });
         }
 
-        // SISTEMA DE REGISTRO E INICIO SEGURO MULTIUSUARIO
+        // REGISTRO E INICIO EXCLUSIVO POR CORREO (CON EXCEPCIÓN LENIN)
         function handleAuthSubmit(e) {
             e.preventDefault();
-            const emailUser = document.getElementById('authEmailUser').value.trim();
+            const emailInput = document.getElementById('authEmailUser').value.trim();
             const pass = document.getElementById('authPassword').value.trim();
             const remember = document.getElementById('chkRememberMe').checked;
-            const isM = isMasterAccount(emailUser);
+            const isM = isMasterAccount(emailInput);
+
+            // Validación estricta de correo electrónico para clientes
+            if (!isM) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput)) {
+                    alert("⚠️ Por favor ingresa un correo electrónico válido (ej: nombre@empresa.com).");
+                    return;
+                }
+            }
 
             let registeredUsers = [];
             try {
@@ -1410,20 +1728,21 @@
             if (activeAuthTab === 'register') {
                 const fullName = document.getElementById('authFullName').value.trim() || "Cliente DL";
                 
-                const existing = registeredUsers.find(u => u.username.toLowerCase() === emailUser.toLowerCase());
+                const existing = registeredUsers.find(u => u.username.toLowerCase() === emailInput.toLowerCase());
                 if (existing && !isM) {
-                    alert("⚠️ Este usuario o correo ya está registrado. Por favor selecciona 'Iniciar Sesión'.");
+                    alert("⚠️ Este correo ya está registrado. Por favor selecciona 'Iniciar Sesión'.");
                     switchAuthTab('login');
                     return;
                 }
 
                 currentUser = {
                     name: fullName,
-                    username: emailUser,
+                    username: emailInput,
                     password: pass,
                     zone: "General",
                     plan: isM ? "premium" : selectedPlan,
-                    isMaster: isM
+                    isMaster: isM,
+                    createdAt: new Date().toLocaleDateString('es-CO')
                 };
 
                 if (!isM) {
@@ -1437,14 +1756,14 @@
                 if (isM) {
                     currentUser = {
                         name: "Lenin Alexander Benjumea niño",
-                        username: emailUser,
+                        username: emailInput,
                         password: pass,
                         zone: "Abarrotes",
                         plan: "premium",
                         isMaster: true
                     };
                 } else {
-                    const matchUser = registeredUsers.find(u => u.username.toLowerCase() === emailUser.toLowerCase());
+                    const matchUser = registeredUsers.find(u => u.username.toLowerCase() === emailInput.toLowerCase());
                     if (matchUser) {
                         if (matchUser.password && matchUser.password !== pass) {
                             alert("❌ Contraseña incorrecta. Por favor verifica tus datos.");
@@ -1454,12 +1773,13 @@
                     } else {
                         // Usuario no registrado previamente: acceso directo con credenciales introducidas
                         currentUser = {
-                            name: emailUser.split('@')[0],
-                            username: emailUser,
+                            name: emailInput.split('@')[0],
+                            username: emailInput,
                             password: pass,
                             zone: "General",
                             plan: selectedPlan,
-                            isMaster: false
+                            isMaster: false,
+                            createdAt: new Date().toLocaleDateString('es-CO')
                         };
                         registeredUsers.push(currentUser);
                         localStorage.setItem('dl_registered_users', JSON.stringify(registeredUsers));
