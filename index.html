@@ -50,7 +50,7 @@
             --bg-table-header: #f8fafc;
             --bg-table-hover: #f1f5f9;
             --border-subtle: #e2e8f0;
-            --text-high: #0f172a;
+            --text-high: #000000;
             --text-mid: #334155;
             --text-low: #64748b;
             --cyan-tech: #0284c7;
@@ -347,7 +347,6 @@
     <!-- PANTALLA 1: ACCESO Y BIENVENIDA DL STOCK PRO -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
-            <!-- PRESENTACIÓN OFICIAL CON COLOR DINÁMICO (NEGRO EN MODO CLARO / BLANCO EN OSCURO) -->
             <div style="text-align: center; margin-bottom: 18px;">
                 <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 2px solid var(--border-subtle); display: flex; align-items: center; justify-content: center;">
                     <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
@@ -432,7 +431,7 @@
                     <span id="planBadgeDisplay" class="badge badge-cyan" style="font-size: 9px;">PREMIUM</span>
                 </div>
 
-                <!-- SELECCIÓN DE PLANES CON PRECIO DINÁMICO COP / USD (CONTRASTE ALTO) -->
+                <!-- SELECCIÓN DE PLANES CON PRECIO ADAPTABLE -->
                 <div style="margin-top: 6px;">
                     <label style="display: block; font-size: 10px; font-weight: 800; color: var(--text-low); text-transform: uppercase; margin-bottom: 6px; text-align: center;">Membresía / Plan:</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
@@ -447,9 +446,9 @@
                             <span style="color: var(--text-low); font-size: 8px; display: block;">Ilimitado Local</span>
                         </button>
                         <button type="button" id="btnPlanPremium" onclick="selectPlan('premium')" class="plan-card-btn selected">
-                            <span style="font-weight: 900; color: #38bdf8; display: block; font-size: 11px;">PREMIUM</span>
+                            <span style="font-weight: 900; color: var(--cyan-tech); display: block; font-size: 11px;">PREMIUM</span>
                             <span id="labelPricePremium" style="font-size: 10px; font-weight: 800; color: var(--text-high); display: block;">$39.900</span>
-                            <span style="color: #0284c7; font-size: 8px; display: block;">Nube & Sync</span>
+                            <span style="color: var(--cyan-tech); font-size: 8px; display: block;">Nube & Sync</span>
                         </button>
                     </div>
                 </div>
@@ -602,7 +601,6 @@
                     </button>
                 </div>
 
-                <!-- Tarjeta PRO -->
                 <div style="background: var(--bg-input); border: 1.5px solid var(--border-subtle); border-radius: 18px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <h4 style="font-size: 14px; font-weight: 900; color: #0284c7;">DL STOCK PRO (LOCAL)</h4>
@@ -618,7 +616,6 @@
                     </button>
                 </div>
 
-                <!-- Tarjeta PREMIUM -->
                 <div style="background: rgba(2, 132, 199, 0.08); border: 1.5px solid var(--cyan-tech); border-radius: 18px; padding: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <h4 style="font-size: 14px; font-weight: 900; color: var(--cyan-tech);">DL STOCK PRO PREMIUM</h4>
@@ -858,7 +855,7 @@
         </div>
     </div>
 
-    <!-- MODAL ESCÁNER CON CÁMARA (SOLO PARA CÓDIGO DE BARRAS EAN Y BÚSQUEDA) -->
+    <!-- MODAL ESCÁNER CON CÁMARA -->
     <div id="scannerModal" class="modal-overlay hidden">
         <div class="modal-box" style="background: var(--bg-card); max-width: 360px;">
             <div class="modal-header" style="background: var(--header-bg);">
@@ -2051,6 +2048,12 @@
                                       barStr.includes(search);
                 const matchesCat = cat === "" || item.category === cat;
                 return matchesSearch && matchesCat;
+            });
+
+            filtered.sort((a, b) => {
+                const nameA = String(a && a.name ? a.name : '');
+                const nameB = String(b && b.name ? b.name : '');
+                return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
             });
 
             document.getElementById('productCount').textContent = `${filtered.length} productos`;
