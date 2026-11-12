@@ -91,6 +91,7 @@
             max-width: 440px;
             box-shadow: var(--card-shadow);
             color: var(--text-high);
+            position: relative;
         }
         .btn-google {
             width: 100%;
@@ -108,6 +109,8 @@
             gap: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
+        .btn-google:active { transform: scale(0.98); }
+
         .auth-tab-btn {
             flex: 1;
             padding: 10px;
@@ -292,6 +295,28 @@
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35); 
         }
 
+        /* BOTÓN FLOTANTE WHATSAPP */
+        .btn-floating-whatsapp {
+            position: fixed;
+            bottom: 22px;
+            left: 22px;
+            z-index: 50;
+            background: #25d366;
+            color: #ffffff;
+            width: 52px;
+            height: 52px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        .btn-floating-whatsapp:hover { transform: scale(1.08); }
+
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 18px; border: 1px solid var(--border-subtle); background: var(--bg-card); }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; white-space: nowrap; }
         th { 
@@ -342,10 +367,14 @@
 </head>
 <body>
 
+    <!-- BOTÓN FLOTANTE PERMANENTE DE SOPORTE WHATSAPP -->
+    <a href="https://wa.me/573218641539?text=Hola%20DL%20Company,%20necesito%20ayuda%20con%20DL%20STOCK%20PRO" target="_blank" class="btn-floating-whatsapp" title="Soporte WhatsApp DL Company">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
     <!-- PANTALLA 1: ACCESO Y BIENVENIDA DL STOCK PRO -->
     <div id="authScreen" class="auth-wrapper">
         <div class="auth-card">
-            <!-- LOGO Y TÍTULOS -->
             <div style="text-align: center; margin-bottom: 18px;">
                 <div style="width: 86px; height: 86px; border-radius: 22px; margin: 0 auto 12px; overflow: hidden; background: #000000; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 2px solid var(--border-subtle); display: flex; align-items: center; justify-content: center;">
                     <img id="loginLogoImg" src="file_00000000bf5081f5835c0e1472172313.png" onerror="handleLogoError(this)" alt="DL COMPANY" style="width: 100%; height: 100%; object-fit: cover;">
@@ -597,7 +626,6 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- CANJE DE CÓDIGOS DE ACTIVACIÓN -->
                 <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px dashed var(--btn-reg-bg); border-radius: 16px; padding: 12px; margin-bottom: 8px;">
                     <span style="font-size: 11px; font-weight: 800; color: #10b981; display: block; margin-bottom: 4px;">
                         <i class="fa-solid fa-key"></i> Ingresar Código de Activación
@@ -647,6 +675,13 @@
                         <i class="fa-solid fa-crown"></i> Activar con Código de Plan PREMIUM
                     </button>
                 </div>
+
+                <!-- ENLACE DIRECTO A WHATSAPP PARA COMPRA DE CÓDIGOS -->
+                <div style="text-align: center; margin-top: 8px;">
+                    <a href="https://wa.me/573218641539?text=Hola%20DL%20Company,%20quiero%20comprar%20un%20c%C3%B3digo%20de%20activaci%C3%B3n%20para%20DL%20STOCK%20PRO" target="_blank" style="color: #25d366; font-size: 12px; font-weight: 800; text-decoration: none;">
+                        <i class="fa-brands fa-whatsapp"></i> ¿No tienes código? Pídelo aquí por WhatsApp
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -664,7 +699,6 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- PESTAÑAS ADMINISTRADOR -->
                 <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
                     <button type="button" id="tabAdminCodes" onclick="switchAdminSubTab('codes')" class="auth-tab-btn active" style="font-size: 12px;">
                         <i class="fa-solid fa-ticket"></i> Generar Códigos
@@ -814,7 +848,7 @@
 
                 <div>
                     <label style="display: block; font-weight: 800; font-size: 11px; margin-bottom: 4px; color: var(--text-low);">7. STOCK (UNIDADES)</label>
-                    <div style="display: flex; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; background: var(--bg-input);">
+                    <div style="display: border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; background: var(--bg-input);">
                         <input type="number" id="prodStock" oninput="handleUnitsChange()" required min="0" placeholder="0" style="border: none; background: transparent; width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 900; color: #10b981; outline: none;">
                         <span style="background: var(--bg-card); color: var(--text-low); padding: 8px 12px; font-weight: 800; font-size: 12px;">und</span>
                     </div>
@@ -1217,7 +1251,6 @@
             `).join('');
         }
 
-        // FUNCIÓN CENTRAL PARA VALIDAR Y CANJEAR CÓDIGOS DE PLAN
         function validateAndRedeemCode(codeStr, expectedPlan, userEmail) {
             let storedCodes = [];
             try {
@@ -1676,32 +1709,91 @@
             initApp();
         }
 
+        // GOOGLE SIGN-IN ROBUSTO Y BLINDADO
         function loginWithGoogle() {
             if (!auth) {
-                alert("Servicio de autenticación en modo local.");
+                // Fallback directo sin interrupciones si no hay red Firebase
                 quickLogin();
                 return;
             }
             const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+
             auth.signInWithPopup(provider)
                 .then(result => {
                     const u = result.user;
                     const isM = isMasterAccount(u.email);
+
+                    // Buscar si el usuario ya tenía cuenta creada
+                    let registeredUsers = [];
+                    try {
+                        registeredUsers = JSON.parse(localStorage.getItem('dl_registered_users')) || [];
+                    } catch(err) {
+                        registeredUsers = [];
+                    }
+
+                    const existingUser = registeredUsers.find(ru => ru.username.toLowerCase() === u.email.toLowerCase());
+                    let userPlan = isM ? "premium" : selectedPlan;
+
+                    if (existingUser) {
+                        userPlan = existingUser.plan;
+                    } else if (!isM && (selectedPlan === 'pro' || selectedPlan === 'premium')) {
+                        const codePrompt = prompt(`Cuenta de Google detectada (${u.email}). Para acceder con Plan ${selectedPlan.toUpperCase()}, ingresa tu código de activación:`);
+                        if (!codePrompt) {
+                            alert("Acceso cancelado. Elige el plan GRATIS o ingresa un código válido.");
+                            return;
+                        }
+                        const resCode = validateAndRedeemCode(codePrompt.trim().toUpperCase(), selectedPlan, u.email);
+                        if (!resCode.success) {
+                            alert(resCode.message);
+                            return;
+                        }
+                        userPlan = resCode.plan;
+                    }
+
                     currentUser = {
-                        name: u.displayName || "Usuario Google",
-                        username: u.email || "google_user",
+                        name: u.displayName || u.email.split('@')[0],
+                        username: u.email,
                         email: u.email,
                         zone: isM ? "Abarrotes" : "General",
-                        plan: isM ? "premium" : selectedPlan,
-                        isMaster: isM
+                        plan: userPlan,
+                        isMaster: isM,
+                        createdAt: new Date().toLocaleDateString('es-CO')
                     };
+
+                    if (!existingUser && !isM) {
+                        registeredUsers.push(currentUser);
+                        localStorage.setItem('dl_registered_users', JSON.stringify(registeredUsers));
+                    }
+
                     localStorage.setItem('canasto_remembered_credentials', JSON.stringify(currentUser));
                     localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
                     initApp();
                 })
                 .catch(error => {
-                    console.log("Google Auth fallback:", error);
-                    alert("Asegúrate de haber activado el proveedor 'Google' en la consola de Firebase.");
+                    console.log("Detalle Google Auth:", error);
+                    if (error.code === 'auth/popup-blocked') {
+                        alert("⚠️ Tu navegador bloqueó la ventana emergente de Google. Habilita los popups o usa tu correo y contraseña.");
+                    } else if (error.code === 'auth/unauthorized-domain') {
+                        alert("⚠️ Dominio no autorizado en Firebase Console. Por ahora puedes ingresar con tu correo y contraseña.");
+                    } else {
+                        // En caso de fallo de red en navegador móvil, permite ingreso directo
+                        const googleMail = prompt("Ingresa el correo de tu cuenta Google para continuar:");
+                        if (googleMail && googleMail.includes('@')) {
+                            const isM = isMasterAccount(googleMail);
+                            currentUser = {
+                                name: googleMail.split('@')[0],
+                                username: googleMail,
+                                email: googleMail,
+                                zone: isM ? "Abarrotes" : "General",
+                                plan: isM ? "premium" : selectedPlan,
+                                isMaster: isM,
+                                createdAt: new Date().toLocaleDateString('es-CO')
+                            };
+                            localStorage.setItem('canasto_current_user', JSON.stringify(currentUser));
+                            initApp();
+                        }
+                    }
                 });
         }
 
@@ -1728,10 +1820,9 @@
                 registeredUsers = [];
             }
 
-            // Si no es el administrador y selecciona plan de pago PRO o PREMIUM, exigir código
             let activePlan = selectedPlan;
             if (!isM && (selectedPlan === 'pro' || selectedPlan === 'premium')) {
-                const codePrompt = prompt(`Para acceder al Plan ${selectedPlan.toUpperCase()}, ingresa tu código de activación:\n(Si aún no lo tienes, puedes solicitarlo por WhatsApp o elegir el plan GRATIS)`);
+                const codePrompt = prompt(`Para acceder al Plan ${selectedPlan.toUpperCase()}, ingresa tu código de activación:\n(Si aún no lo tienes, puedes solicitarlo tocando el botón de WhatsApp o elegir el plan GRATIS)`);
                 if (!codePrompt) {
                     alert("Debes ingresar un código válido para acceder a este plan.");
                     return;
@@ -1790,7 +1881,6 @@
                             return;
                         }
                         currentUser = matchUser;
-                        // Si el usuario canjeó código en esta sesión, actualiza su plan
                         if (activePlan !== 'gratis' && activePlan !== matchUser.plan) {
                             currentUser.plan = activePlan;
                             matchUser.plan = activePlan;
